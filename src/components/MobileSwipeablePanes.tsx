@@ -7,7 +7,6 @@ import { useMobilePanes } from "@/contexts/MobilePanesContext";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { Track } from "@/types";
 import { hapticLight } from "@/utils/haptics";
-import { springPresets } from "@/utils/spring-animations";
 import { motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -62,64 +61,122 @@ export default function MobileSwipeablePanes({
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
+  const [paneWidth, setPaneWidth] = useState(0);
 
-  // Calculate pane width (100vw)
-  const paneWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+  // Calculate pane width (100vw) and handle resize
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const updatePaneWidth = () => {
+      setPaneWidth(window.innerWidth);
+      // Update x position when window resizes
+      if (!isDragging) {
+        x.set(-currentPane * window.innerWidth);
+      }
+    };
+    
+    updatePaneWidth();
+    window.addEventListener("resize", updatePaneWidth);
+    return () => window.removeEventListener("resize", updatePaneWidth);
+  }, [currentPane, isDragging, x]);
 
-  // Transform x position to pane index
+  // Transform x position to pane index (only when paneWidth is valid)
   const paneIndex = useTransform(x, (latest) => {
+    if (paneWidth <= 0) {
+      // Return current pane when width is not yet calculated to avoid division by zero
+      return currentPane;
+    }
     const index = Math.round(-latest / paneWidth);
     return Math.max(0, Math.min(2, index)) as PaneIndex;
   });
 
-  // Update current pane when dragging ends
+  // Update current pane when dragging ends (only during actual drag, not initialization)
   useEffect(() => {
+    // Skip if paneWidth is not initialized yet
+    if (paneWidth <= 0) return;
+    
     const unsubscribe = paneIndex.on("change", (latest) => {
-      if (!isDragging && latest !== currentPane) {
-        navigateToPane(latest);
+      // Only update if we're actually dragging and the pane changed
+      // This prevents false triggers during initialization
+      if (isDragging && latest !== currentPane && latest >= 0 && latest <= 2) {
+        // Don't navigate during drag - let handleDragEnd handle it
+        // This effect is mainly for monitoring, not navigation
       }
     });
     return unsubscribe;
-  }, [paneIndex, isDragging, currentPane, navigateToPane]);
+  }, [paneIndex, isDragging, currentPane, navigateToPane, paneWidth]);
 
-  // Snap to current pane position
+  // Snap to current pane position with smooth animation
   useEffect(() => {
-    if (!isDragging) {
-      x.set(-currentPane * paneWidth);
+    if (!isDragging && paneWidth > 0) {
+      const targetX = -currentPane * paneWidth;
+      x.set(targetX);
     }
   }, [currentPane, paneWidth, isDragging, x]);
 
+  // Initialize position on mount
+  useEffect(() => {
+    if (paneWidth > 0 && !isDragging) {
+      x.set(-currentPane * paneWidth);
+    }
+  }, [paneWidth]); // Only on paneWidth change (initial mount)
+
   const handleDragStart = () => {
     setIsDragging(true);
+  };
+
+  const handleDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // During drag, provide visual feedback but don't snap yet
+    const currentX = x.get();
+    const targetX = -currentPane * paneWidth;
+    const diff = Math.abs(currentX - targetX);
+    
+    // If dragged significantly away from current pane, show we're moving
+    if (diff > paneWidth * 0.1) {
+      // Visual feedback - panes will show they're moving
+    }
   };
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     setIsDragging(false);
     const offset = info.offset.x;
     const velocity = info.velocity.x;
+    const currentX = x.get();
 
-    // Determine which pane to snap to
+    // Determine which pane to snap to based on position and gesture
     let targetPane: PaneIndex = currentPane;
 
-    if (Math.abs(velocity) > 500) {
+    // Calculate which pane we're closest to based on current position
+    const currentPaneIndex = Math.round(-currentX / paneWidth);
+    const clampedIndex = Math.max(0, Math.min(2, currentPaneIndex)) as PaneIndex;
+
+    // Use velocity for fast swipes (more sensitive threshold)
+    if (Math.abs(velocity) > 300) {
       // Fast swipe - go to next/previous pane
       if (velocity < 0 && currentPane < 2) {
         targetPane = (currentPane + 1) as PaneIndex;
       } else if (velocity > 0 && currentPane > 0) {
         targetPane = (currentPane - 1) as PaneIndex;
       }
-    } else if (Math.abs(offset) > paneWidth * 0.3) {
-      // Swipe more than 30% of screen width
+    } else if (Math.abs(offset) > paneWidth * 0.25) {
+      // Swipe more than 25% of screen width - snap to adjacent pane
       if (offset < 0 && currentPane < 2) {
         targetPane = (currentPane + 1) as PaneIndex;
       } else if (offset > 0 && currentPane > 0) {
         targetPane = (currentPane - 1) as PaneIndex;
       }
+    } else {
+      // Small movement - snap to nearest pane based on position
+      targetPane = clampedIndex;
     }
 
+    // Always snap to a valid pane
     if (targetPane !== currentPane) {
       hapticLight();
       navigateToPane(targetPane);
+    } else {
+      // Even if staying on same pane, ensure we're at exact position
+      x.set(-currentPane * paneWidth);
     }
   };
 
@@ -145,10 +202,17 @@ export default function MobileSwipeablePanes({
           left: -2 * paneWidth, // Can drag to show pane 2 (content)
           right: 0, // Can drag to show pane 0 (player)
         }}
-        dragElastic={0.1}
+        dragElastic={0.05} // Reduced elastic for tighter snap feel
+        dragMomentum={false} // Disable momentum to ensure precise snapping
         onDragStart={handleDragStart}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
-        transition={springPresets.smooth}
+        transition={{
+          type: "spring",
+          stiffness: 400,
+          damping: 35,
+          mass: 0.5,
+        }}
       >
         {/* Pane 0: Player - Always expanded */}
         <div className="h-full w-screen flex-shrink-0 overflow-y-auto">

@@ -2,15 +2,15 @@
 
 "use client";
 
-import type { Track } from "@/types";
-import { hapticLight, hapticMedium } from "@/utils/haptics";
-import { formatTime } from "@/utils/time";
 import { PLAYBACK_RATES } from "@/config/player";
-import Image from "next/image";
-import { useEffect, useRef, useState, useCallback } from "react";
-import dynamic from "next/dynamic";
+import { useGlobalPlayer } from "@/contexts/AudioPlayerContext";
+import type { Track } from "@/types";
 import { extractColorsFromImage, type ColorPalette } from "@/utils/colorExtractor";
+import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { getCoverImage } from "@/utils/images";
+import { springPresets } from "@/utils/spring-animations";
+import { formatTime } from "@/utils/time";
+import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import {
   Activity,
   ChevronDown,
@@ -28,8 +28,9 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { motion, useMotionValue, useTransform, type PanInfo, AnimatePresence } from "framer-motion";
-import { springPresets } from "@/utils/spring-animations";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // Dynamic import for visualizer
 const AudioVisualizer = dynamic(
@@ -90,6 +91,9 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     onToggleEqualizer,
     forceExpanded = false,
   } = props;
+
+  // Get audio element from context
+  const { audioElement: contextAudioElement } = useGlobalPlayer();
 
   const [isExpanded, setIsExpanded] = useState(forceExpanded);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
@@ -170,13 +174,18 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     }
   }, [currentTrack]);
 
-  // Get audio element
+  // Get audio element from context or DOM
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    // Prefer context audio element, fall back to DOM query
+    if (contextAudioElement) {
+      setAudioElement(contextAudioElement);
+    } else if (typeof window !== "undefined") {
       const audio = document.querySelector("audio");
-      setAudioElement(audio);
+      if (audio) {
+        setAudioElement(audio);
+      }
     }
-  }, []);
+  }, [contextAudioElement]);
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const displayTime = isSeeking ? seekTime : currentTime;
@@ -507,13 +516,14 @@ export default function MobilePlayer(props: MobilePlayerProps) {
 
                     {/* Visualizer */}
                     {showVisualizer && audioElement && (
-                      <div className="aspect-square w-full overflow-hidden rounded-3xl">
+                      <div className="aspect-square w-full overflow-hidden rounded-3xl bg-[rgba(0,0,0,0.3)]">
                         <AudioVisualizer
                           audioElement={audioElement}
                           isPlaying={isPlaying}
                           width={400}
                           height={400}
                           barCount={64}
+                          type="spectrum"
                           colorPalette={albumColorPalette}
                           blendWithBackground={true}
                         />

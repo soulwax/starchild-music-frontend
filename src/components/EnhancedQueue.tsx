@@ -38,6 +38,7 @@ import {
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 
 interface QueueItemProps {
   track: Track;
@@ -64,12 +65,23 @@ function SortableQueueItem({
     transition,
     isDragging,
   } = useSortable({ id: sortableId });
+  const itemRef = useRef<HTMLDivElement>(null);
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  // Scroll into view when active
+  useEffect(() => {
+    if (isActive && itemRef.current) {
+      itemRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [isActive]);
 
   const coverImage = getCoverImage(track, "small");
   const altText =
@@ -84,11 +96,16 @@ function SortableQueueItem({
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        if (node) {
+          itemRef.current = node;
+        }
+      }}
       style={style}
       className={`group flex items-center gap-3 p-3 transition-colors ${
         isActive
-          ? "bg-[rgba(244,178,102,0.16)]"
+          ? "bg-[rgba(244,178,102,0.16)] ring-1 ring-[rgba(244,178,102,0.3)]"
           : "hover:bg-[rgba(244,178,102,0.08)]"
       }`}
     >
@@ -206,6 +223,25 @@ export function EnhancedQueue({
   const isAuthenticated = !!session?.user;
   const { showToast } = useToast();
   const utils = api.useUtils();
+  const queueListRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+
+  // Scroll to active track when it changes
+  useEffect(() => {
+    if (currentTrack && queueListRef.current) {
+      const activeItem = queueListRef.current.querySelector(
+        `[data-track-id="${currentTrack.id}"]`
+      );
+      if (activeItem) {
+        setTimeout(() => {
+          activeItem.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }, 100);
+      }
+    }
+  }, [currentTrack, queue]);
 
   const trackIdMapRef = useRef<{
     map: WeakMap<Track, string>;
@@ -872,7 +908,11 @@ export function EnhancedQueue({
       </div>
 
       {/* Queue List */}
-      <div className="flex-1 overflow-y-auto">
+      <div
+        ref={queueListRef}
+        className="flex-1 overflow-y-auto overscroll-contain scroll-smooth"
+        id="queue-list"
+      >
         {queue.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center p-8 text-center text-[var(--color-subtext)]">
             <div className="mb-4 text-6xl">🎵</div>
@@ -897,15 +937,16 @@ export function EnhancedQueue({
             >
               <div className="divide-y divide-[rgba(255,255,255,0.05)]">
                 {filteredQueue.map(({ track, index, sortableId }) => (
-                  <SortableQueueItem
-                    key={sortableId}
-                    sortableId={sortableId}
-                    track={track}
-                    index={index}
-                    isActive={currentTrack?.id === track.id}
-                    onPlay={() => onPlayFrom(index)}
-                    onRemove={() => onRemove(index)}
-                  />
+                  <div key={sortableId} data-track-id={track.id}>
+                    <SortableQueueItem
+                      sortableId={sortableId}
+                      track={track}
+                      index={index}
+                      isActive={currentTrack?.id === track.id}
+                      onPlay={() => onPlayFrom(index)}
+                      onRemove={() => onRemove(index)}
+                    />
+                  </div>
                 ))}
               </div>
             </SortableContext>
