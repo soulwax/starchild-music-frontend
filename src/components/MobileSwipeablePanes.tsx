@@ -7,7 +7,7 @@ import { useMobilePanes } from "@/contexts/MobilePanesContext";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import type { Track } from "@/types";
 import { hapticLight } from "@/utils/haptics";
-import { motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
+import { motion, useMotionValue, type PanInfo } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -80,17 +80,7 @@ export default function MobileSwipeablePanes({
     return () => window.removeEventListener("resize", updatePaneWidth);
   }, [currentPane, isDragging, x]);
 
-  // Transform x position to pane index (only when paneWidth is valid)
-  const paneIndex = useTransform(x, (latest) => {
-    if (paneWidth <= 0) {
-      // Return current pane when width is not yet calculated to avoid division by zero
-      return currentPane;
-    }
-    const index = Math.round(-latest / paneWidth);
-    return Math.max(0, Math.min(2, index)) as PaneIndex;
-  });
-
-  // Note: Removed the paneIndex.on("change") effect as it was causing issues during initialization
+  // Note: Removed paneIndex transform as it was only used for monitoring
   // Navigation is handled entirely by handleDragEnd, which is more reliable
 
   // Snap to current pane position with smooth animation
@@ -106,22 +96,16 @@ export default function MobileSwipeablePanes({
     if (paneWidth > 0 && !isDragging) {
       x.set(-currentPane * paneWidth);
     }
-  }, [paneWidth]); // Only on paneWidth change (initial mount)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paneWidth]); // Only on paneWidth change (initial mount) - other deps handled by snap effect
 
   const handleDragStart = () => {
     setIsDragging(true);
   };
 
-  const handleDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDrag = (_: MouseEvent | TouchEvent | PointerEvent, _info: PanInfo) => {
     // During drag, provide visual feedback but don't snap yet
-    const currentX = x.get();
-    const targetX = -currentPane * paneWidth;
-    const diff = Math.abs(currentX - targetX);
-    
-    // If dragged significantly away from current pane, show we're moving
-    if (diff > paneWidth * 0.1) {
-      // Visual feedback - panes will show they're moving
-    }
+    // The visual feedback is handled by the motion.div drag animation
   };
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {

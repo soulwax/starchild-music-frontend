@@ -38,7 +38,6 @@ import {
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useIsMobile } from "@/hooks/useMediaQuery";
 
 interface QueueItemProps {
   track: Track;
@@ -211,7 +210,6 @@ export function EnhancedQueue({
   const { showToast } = useToast();
   const utils = api.useUtils();
   const queueListRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
 
   // Scroll to active track when it changes (single source of truth for scrolling)
   useEffect(() => {
@@ -221,12 +219,11 @@ export function EnhancedQueue({
       // Query inside callback to avoid stale references
       requestAnimationFrame(() => {
         // Re-query to ensure element is still in DOM and matches current track
-        if (!queueListRef.current) return;
-        const activeItem = queueListRef.current.querySelector(
+        const activeItem = queueListRef.current?.querySelector(
           `[data-track-id="${trackId}"]`
         );
         // Verify element is still connected to DOM
-        if (activeItem && activeItem.isConnected) {
+        if (activeItem?.isConnected) {
           activeItem.scrollIntoView({
             behavior: "smooth",
             block: "center",
