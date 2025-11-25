@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import { springPresets } from "@/utils/spring-animations";
 import { hapticLight, hapticMedium } from "@/utils/haptics";
@@ -39,8 +39,10 @@ export default function BottomSheet({
   
   // Motion values
   const sheetHeight = useMotionValue(snapPoints[initialSnap] ?? 50);
-  const backdropOpacity = useTransform(sheetHeight, [0, 50, 100], [0, 0.5, 0.7]);
   const y = useMotionValue(0);
+  
+  // Transform height to CSS value - must be called unconditionally
+  const heightStyle = useTransform(sheetHeight, (h) => `${h}vh`);
 
   useEffect(() => {
     if (isOpen) {
@@ -121,6 +123,8 @@ export default function BottomSheet({
     currentSnapIndex.current = snapPoints.length - 1;
   };
 
+  const showHeader = title ?? showCloseButton;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -151,7 +155,7 @@ export default function BottomSheet({
               dragElastic={{ top: 0.05, bottom: 0.15 }}
               onDragEnd={handleDragEnd}
               style={{ 
-                height: useTransform(sheetHeight, (h) => `${h}vh`),
+                height: heightStyle,
                 y,
               }}
               className={`pointer-events-auto absolute bottom-0 left-0 right-0 flex flex-col overflow-hidden rounded-t-3xl border-t border-[rgba(244,178,102,0.16)] bg-[rgba(13,19,28,0.98)] shadow-[0_-16px_48px_rgba(5,10,18,0.7)] backdrop-blur-xl ${className}`}
@@ -167,7 +171,7 @@ export default function BottomSheet({
               )}
 
               {/* Header */}
-              {(title || showCloseButton) && (
+              {showHeader && (
                 <div className="flex items-center justify-between border-b border-[rgba(244,178,102,0.1)] px-6 pb-4 pt-2">
                   {title && (
                     <h2 className="text-xl font-bold text-[var(--color-text)]">{title}</h2>
@@ -234,6 +238,3 @@ export function useBottomSheet(initialState = false) {
 
   return { isOpen, open, close, toggle, setIsOpen };
 }
-
-// Need to import useState for the hook
-import { useState } from "react";

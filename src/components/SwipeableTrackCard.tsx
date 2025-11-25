@@ -35,8 +35,6 @@ export default function SwipeableTrackCard({
 }: SwipeableTrackCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
-  const [isSwipingLeft, setIsSwipingLeft] = useState(false);
-  const [isSwipingRight, setIsSwipingRight] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
   
   const utils = api.useUtils();
@@ -136,12 +134,6 @@ export default function SwipeableTrackCard({
     onPlay(track);
   };
 
-  const handleDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const offset = info.offset.x;
-    setIsSwipingLeft(offset < -SWIPE_THRESHOLD);
-    setIsSwipingRight(offset > SWIPE_THRESHOLD);
-  };
-
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
@@ -154,9 +146,6 @@ export default function SwipeableTrackCard({
       // Swipe right -> Toggle favorite
       toggleFavorite();
     }
-
-    setIsSwipingLeft(false);
-    setIsSwipingRight(false);
   };
 
   const coverImage = getCoverImage(track);
@@ -212,7 +201,6 @@ export default function SwipeableTrackCard({
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.15}
-        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         whileTap={{ cursor: "grabbing" }}
         className="relative flex items-center gap-4 bg-[linear-gradient(145deg,rgba(18,27,37,0.98),rgba(11,17,24,0.98))] p-4 transition-shadow md:gap-5"

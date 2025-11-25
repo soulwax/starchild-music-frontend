@@ -79,13 +79,13 @@ export default function MobileSearchBar({
 
   // Check for speech recognition support
   useEffect(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognitionAPI = window.SpeechRecognition ?? window.webkitSpeechRecognition;
     setVoiceSupported(!!SpeechRecognitionAPI);
   }, []);
 
   // Initialize speech recognition
   const initSpeechRecognition = useCallback(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognitionAPI = window.SpeechRecognition ?? window.webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) return null;
 
     const recognition = new SpeechRecognitionAPI();

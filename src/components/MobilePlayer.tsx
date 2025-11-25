@@ -3,7 +3,7 @@
 "use client";
 
 import type { Track } from "@/types";
-import { hapticLight, hapticMedium, hapticHeavy } from "@/utils/haptics";
+import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { formatTime } from "@/utils/time";
 import { PLAYBACK_RATES } from "@/config/player";
 import Image from "next/image";
@@ -109,7 +109,6 @@ export default function MobilePlayer(props: MobilePlayerProps) {
   
   // Gesture seeking motion values
   const seekX = useMotionValue(0);
-  const seekIndicatorOpacity = useTransform(seekX, [-100, -30, 30, 100], [1, 0, 0, 1]);
 
   const shouldIgnoreTouch = (target: EventTarget | null) => {
     if (!(target instanceof HTMLElement)) return false;
@@ -268,7 +267,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
 
   // Dynamic gradient based on album colors
   const dynamicGradient = albumColorPalette
-    ? `linear-gradient(165deg, ${albumColorPalette.dominant}22, rgba(8,13,20,0.95) 50%)`
+    ? `linear-gradient(165deg, ${albumColorPalette.primary.replace('0.8)', '0.22)')}, rgba(8,13,20,0.95) 50%)`
     : "linear-gradient(165deg, rgba(13,20,29,0.98), rgba(8,13,20,0.92))";
 
   return (
