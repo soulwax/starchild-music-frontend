@@ -453,6 +453,14 @@ export async function fetchHybridRecommendations(
 }
 
 /**
+ * Multi-seed recommendations result with metadata
+ */
+export interface MultiSeedRecommendationsResult {
+  tracks: Track[];
+  totalCandidates: number;
+}
+
+/**
  * Multi-seed recommendations
  * 
  * Uses multiple seed tracks for more diverse recommendations
@@ -465,7 +473,7 @@ export async function fetchMultiSeedRecommendations(
     limit?: number;
     diversityWeight?: number; // 0-1, higher = more diverse
   } = {},
-): Promise<Track[]> {
+): Promise<MultiSeedRecommendationsResult> {
   const {
     userFavoriteArtistIds = [],
     limit = 30,
@@ -505,6 +513,9 @@ export async function fetchMultiSeedRecommendations(
     }
   }
 
+  // Track total candidates before limiting
+  const totalCandidates = scoredTracks.length;
+
   // Sort by calculated score (higher = better match)
   scoredTracks.sort((a, b) => b.score - a.score);
 
@@ -512,7 +523,10 @@ export async function fetchMultiSeedRecommendations(
   const sortedTracks = scoredTracks.slice(0, limit).map(({ track }) => track);
 
   // Apply diversity shuffle
-  return shuffleWithDiversity(sortedTracks);
+  return {
+    tracks: shuffleWithDiversity(sortedTracks),
+    totalCandidates,
+  };
 }
 
 /**

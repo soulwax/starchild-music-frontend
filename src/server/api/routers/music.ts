@@ -1480,16 +1480,16 @@ export const musicRouter = createTRPCRouter({
                               : input.diversity === "strict" ? 0.2 
                               : 0.5;
 
-        const multiSeedRecs = await fetchMultiSeedRecommendations(seedTracksForFallback, {
+        const multiSeedResult = await fetchMultiSeedRecommendations(seedTracksForFallback, {
           userFavoriteArtistIds,
           limit: input.limit,
           diversityWeight,
         });
 
         return {
-          tracks: multiSeedRecs,
+          tracks: multiSeedResult.tracks,
           seedCount: seedTracksForFallback.length,
-          totalCandidates: multiSeedRecs.length,
+          totalCandidates: multiSeedResult.totalCandidates,
         };
       }
     }),
