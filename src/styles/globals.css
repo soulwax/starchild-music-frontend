@@ -1029,3 +1029,225 @@ img {
     gap: 1rem;
   }
 }
+
+/* ------------------------------------------------------------
+   📱 Enhanced Mobile Interaction Styles
+------------------------------------------------------------- */
+
+/* Swipeable card styles */
+.swipe-card {
+  touch-action: pan-y;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.swipe-card-content {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Rubber band effect for overscroll */
+@supports (overscroll-behavior: contain) {
+  .rubber-band {
+    overscroll-behavior: contain;
+  }
+}
+
+/* iOS-style momentum scrolling */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: y proximity;
+}
+
+/* Card hover disabled on touch */
+@media (hover: none) and (pointer: coarse) {
+  .card:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+    border-color: rgba(244, 178, 102, 0.08);
+  }
+  
+  .card:hover::before {
+    opacity: 0;
+  }
+  
+  /* Disable hover animations on touch devices */
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-ghost:hover {
+    transform: none;
+  }
+}
+
+/* Active state for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .btn-primary:active,
+  .btn-secondary:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Enhanced focus states for accessibility */
+@media (prefers-reduced-motion: no-preference) {
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(244, 178, 102, 0.4);
+    transition: box-shadow 0.2s ease;
+  }
+}
+
+/* Smooth text rendering on mobile */
+@media (max-width: 768px) {
+  body {
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Prevent content shift when keyboard opens */
+@media (max-width: 768px) {
+  .keyboard-aware {
+    transition: padding-bottom 0.3s ease;
+  }
+}
+
+/* iOS notch/dynamic island awareness */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .notch-aware-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .notch-aware-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Prevent zoom on double tap for interactive elements */
+.no-zoom {
+  touch-action: manipulation;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-border: #3a4553;
+    --color-accent: #ffb347;
+  }
+  
+  .card {
+    border-width: 2px;
+  }
+}
+
+/* Dark mode optimizations (already default but for specificity) */
+@media (prefers-color-scheme: dark) {
+  img {
+    filter: brightness(0.95);
+  }
+}
+
+/* Reduce transparency for better performance on older devices */
+@media (prefers-reduced-transparency: reduce) {
+  .card,
+  .surface-panel,
+  .bottom-sheet {
+    backdrop-filter: none;
+    background: var(--color-surface);
+  }
+}
+
+/* Staggered list animation helper */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.stagger-item.visible {
+  animation: staggerFadeIn 0.4s ease forwards;
+}
+
+@keyframes staggerFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0%,
+    var(--color-surface-hover) 20%,
+    var(--color-surface-hover) 40%,
+    var(--color-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Smooth color transitions for dynamic theming */
+.dynamic-bg {
+  transition: background-color 0.5s ease, background-image 1s ease;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(18, 26, 38, 0.7);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Neon glow effect */
+.neon-glow {
+  box-shadow: 
+    0 0 10px rgba(244, 178, 102, 0.3),
+    0 0 20px rgba(244, 178, 102, 0.2),
+    0 0 30px rgba(244, 178, 102, 0.1);
+}
+
+/* Pulsing animation for indicators */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: currentColor;
+  animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  opacity: 0.3;
+}
+
+/* Scroll shadow indicators */
+.scroll-shadow-top {
+  box-shadow: inset 0 12px 16px -12px rgba(5, 10, 18, 0.5);
+}
+
+.scroll-shadow-bottom {
+  box-shadow: inset 0 -12px 16px -12px rgba(5, 10, 18, 0.5);
+}

@@ -6,6 +6,7 @@ import { Geist } from "next/font/google";
 import { type ReactNode } from "react";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import Header from "@/components/Header";
 import MobileContentWrapper from "@/components/MobileContentWrapper";
 import MobileNavigation from "@/components/MobileNavigation";
@@ -69,6 +70,8 @@ export default function RootLayout({
                     </MobileContentWrapper>
                     {/* Mobile bottom navigation */}
                     <MobileNavigation />
+                    {/* Floating action button for mobile */}
+                    <FloatingActionButton />
                     {/* Persistent player - stays on all pages */}
                     <PersistentPlayer />
                   </MobilePanesProvider>
