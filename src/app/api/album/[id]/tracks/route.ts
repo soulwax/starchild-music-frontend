@@ -47,25 +47,32 @@ export async function GET(
     // Try to get album info if available
     if (albumResponse.ok) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         albumData = await albumResponse.json() as typeof albumData;
       } catch (err) {
         console.warn("[Album Tracks API] Failed to parse album info:", err);
       }
     }
 
+    // Extract album info values for type safety
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const albumIdValue = albumData?.id;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const albumTitleValue = albumData?.title;
+
     // Enrich tracks with album info if available
     const enrichedTracks = (tracksData.data || []).map((track: unknown) => {
-      if (albumData && typeof track === "object" && track !== null) {
+      if (albumData && typeof track === "object" && track !== null && 
+          typeof albumIdValue === "number" && typeof albumTitleValue === "string") {
         const trackObj = track as { album?: unknown; [key: string]: unknown };
-        // Only add album info if it's missing and we have required album data
-        if (!trackObj.album && albumData.id !== undefined && albumData.title !== undefined) {
+        // Only add album info if it's missing
+        if (!trackObj.album) {
           // Create a properly typed album object
-          // We've already checked that id and title are defined, but TypeScript doesn't narrow the type
           // All values are safely converted to strings with fallbacks
           /* eslint-disable @typescript-eslint/no-unsafe-assignment */
           const albumInfo = {
-            id: albumData.id,
-            title: String(albumData.title),
+            id: albumIdValue,
+            title: String(albumTitleValue),
             cover: String(albumData.cover ?? ""),
             cover_small: String(albumData.cover_small ?? ""),
             cover_medium: String(albumData.cover_medium ?? ""),
