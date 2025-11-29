@@ -201,11 +201,14 @@ function SearchPageContent() {
           const newResults = [...prev, ...response.data];
           
           // Update total based on new results - use the actual new length, not stale state
-          if (!response.next || response.data.length === 0) {
-            // No more results or no more matches, set total to actual filtered count
+          // Only set total to filtered count when there are no more API pages to check
+          // Don't stop pagination just because current page has no matches
+          if (!response.next) {
+            // No more API pages available, set total to actual filtered count
             setTotal(newResults.length);
           } else {
-            // Keep the API total so we know there might be more pages
+            // Keep the API total so we know there might be more pages to check
+            // Even if this page had no matches, there might be matches on next pages
             setTotal(response.total);
           }
           

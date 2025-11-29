@@ -55,36 +55,36 @@ html::before {
   background: 
     /* Base deep dark */
     #0a0a0f,
-    /* Dramatic red-orange swirls - intensified by audio */
+    /* Subtle red-orange apparitions - more refined */
     radial-gradient(ellipse 150% 100% at 10% 30%, 
-      rgba(200, 50, 30, calc(0.35 + var(--audio-intensity) * 0.4)) 0%, 
+      rgba(200, 50, 30, calc(0.15 + var(--audio-intensity) * 0.12)) 0%, 
       transparent 50%),
     radial-gradient(ellipse 120% 80% at 90% 20%, 
-      rgba(220, 80, 40, calc(0.28 + var(--audio-intensity) * 0.35)) 0%, 
+      rgba(220, 80, 40, calc(0.12 + var(--audio-intensity) * 0.1)) 0%, 
       transparent 55%),
-    /* Golden amber accents - boosted by bass */
+    /* Gentle amber whispers - subtle bass response */
     radial-gradient(circle 80% at 25% 70%, 
-      rgba(244, 178, 102, calc(0.25 + var(--audio-bass) * 0.5)) 0%, 
+      rgba(244, 178, 102, calc(0.12 + var(--audio-bass) * 0.15)) 0%, 
       transparent 60%),
     radial-gradient(circle 100% at 75% 80%, 
-      rgba(255, 200, 120, calc(0.18 + var(--audio-energy) * 0.4)) 0%, 
+      rgba(255, 200, 120, calc(0.08 + var(--audio-energy) * 0.12)) 0%, 
       transparent 65%),
-    /* Deep purple shadows - reactive to treble */
+    /* Soft purple shadows - gentle treble response */
     radial-gradient(ellipse 140% 90% at 50% 50%, 
-      rgba(100, 30, 80, calc(0.22 + var(--audio-energy) * 0.3)) 0%, 
+      rgba(100, 30, 80, calc(0.1 + var(--audio-energy) * 0.1)) 0%, 
       transparent 70%),
-    /* Crimson passion layers - intensified */
+    /* Delicate crimson layers - refined intensity */
     radial-gradient(ellipse 110% 120% at 60% 10%, 
-      rgba(180, 40, 50, calc(0.2 + var(--audio-intensity) * 0.45)) 0%, 
+      rgba(180, 40, 50, calc(0.08 + var(--audio-intensity) * 0.12)) 0%, 
       transparent 50%),
-    /* Warm orange glow - bass reactive */
+    /* Soft orange glow - subtle bass reactive */
     radial-gradient(circle 90% at 40% 40%, 
-      rgba(255, 140, 60, calc(0.15 + var(--audio-bass) * 0.5)) 0%, 
+      rgba(255, 140, 60, calc(0.06 + var(--audio-bass) * 0.15)) 0%, 
       transparent 55%);
   background-attachment: fixed;
-  animation: toreadorFlow calc(25s - var(--audio-energy) * 5s) ease-in-out infinite;
-  filter: hue-rotate(calc(var(--audio-hue) * 0.1deg));
-  transition: filter 0.3s ease;
+  animation: toreadorFlow calc(25s - var(--audio-energy) * 3s) ease-in-out infinite;
+  filter: hue-rotate(calc(var(--audio-hue) * 0.05deg));
+  transition: filter 0.5s ease;
 }
 
 html::after {
@@ -92,40 +92,40 @@ html::after {
   position: fixed;
   inset: 0;
   z-index: -2;
-  opacity: calc(0.4 + var(--audio-energy) * 0.3);
+  opacity: calc(0.25 + var(--audio-energy) * 0.15);
   background-image: 
-    /* Abstract flowing curves - toreador cape movement - more vibrant */
+    /* Subtle flowing curves - refined movement */
     repeating-linear-gradient(
       45deg,
       transparent,
       transparent 2px,
-      rgba(200, 50, 30, calc(0.03 + var(--audio-intensity) * 0.05)) 2px,
-      rgba(200, 50, 30, calc(0.03 + var(--audio-intensity) * 0.05)) 4px
+      rgba(200, 50, 30, calc(0.015 + var(--audio-intensity) * 0.02)) 2px,
+      rgba(200, 50, 30, calc(0.015 + var(--audio-intensity) * 0.02)) 4px
     ),
     repeating-linear-gradient(
       -45deg,
       transparent,
       transparent 3px,
-      rgba(244, 178, 102, calc(0.02 + var(--audio-bass) * 0.04)) 3px,
-      rgba(244, 178, 102, calc(0.02 + var(--audio-bass) * 0.04)) 6px
+      rgba(244, 178, 102, calc(0.01 + var(--audio-bass) * 0.015)) 3px,
+      rgba(244, 178, 102, calc(0.01 + var(--audio-bass) * 0.015)) 6px
     ),
-    /* Geometric patterns - energy reactive */
+    /* Gentle geometric patterns - subtle energy reactive */
     repeating-conic-gradient(
       from 0deg at 50% 50%,
       transparent 0deg,
-      rgba(180, 40, 50, calc(0.04 + var(--audio-energy) * 0.06)) 15deg,
+      rgba(180, 40, 50, calc(0.02 + var(--audio-energy) * 0.02)) 15deg,
       transparent 30deg,
-      rgba(255, 200, 120, calc(0.03 + var(--audio-energy) * 0.05)) 45deg,
+      rgba(255, 200, 120, calc(0.015 + var(--audio-energy) * 0.02)) 45deg,
       transparent 60deg
     );
-  background-size: calc(200% + var(--audio-energy) * 50%) calc(200% + var(--audio-energy) * 50%), 
-                   calc(300% + var(--audio-energy) * 50%) calc(300% + var(--audio-energy) * 50%), 
-                   calc(400% + var(--audio-energy) * 50%) calc(400% + var(--audio-energy) * 50%);
+  background-size: calc(200% + var(--audio-energy) * 30%) calc(200% + var(--audio-energy) * 30%), 
+                   calc(300% + var(--audio-energy) * 30%) calc(300% + var(--audio-energy) * 30%), 
+                   calc(400% + var(--audio-energy) * 30%) calc(400% + var(--audio-energy) * 30%);
   background-position: 0% 0%, 50% 50%, 25% 25%;
-  animation: toreadorPattern calc(30s - var(--audio-energy) * 8s) linear infinite;
+  animation: toreadorPattern calc(30s - var(--audio-energy) * 5s) linear infinite;
   pointer-events: none;
-  filter: hue-rotate(calc(var(--audio-hue) * 0.15deg));
-  transition: opacity 0.2s ease, filter 0.2s ease;
+  filter: hue-rotate(calc(var(--audio-hue) * 0.08deg));
+  transition: opacity 0.4s ease, filter 0.4s ease;
 }
 
 body {
@@ -133,19 +133,19 @@ body {
   color: var(--color-text);
   position: relative;
   background: 
-    /* Layered depth - audio reactive */
+    /* Layered depth - subtle audio reactive */
     radial-gradient(ellipse 180% 120% at 20% -10%, 
-      rgba(200, 50, 30, calc(0.15 + var(--audio-intensity) * 0.3)) 0%, 
+      rgba(200, 50, 30, calc(0.08 + var(--audio-intensity) * 0.12)) 0%, 
       transparent 60%),
     radial-gradient(ellipse 160% 100% at 80% 0%, 
-      rgba(220, 80, 40, calc(0.12 + var(--audio-energy) * 0.25)) 0%, 
+      rgba(220, 80, 40, calc(0.06 + var(--audio-energy) * 0.1)) 0%, 
       transparent 55%),
     radial-gradient(circle 100% at 50% 100%, 
-      rgba(100, 30, 80, calc(0.18 + var(--audio-energy) * 0.3)) 0%, 
+      rgba(100, 30, 80, calc(0.09 + var(--audio-energy) * 0.12)) 0%, 
       transparent 70%),
-    /* Central dramatic focus - intensified */
+    /* Central subtle focus - refined intensity */
     radial-gradient(ellipse 200% 150% at 50% 50%, 
-      rgba(180, 40, 50, calc(0.08 + var(--audio-intensity) * 0.35)) 0%, 
+      rgba(180, 40, 50, calc(0.04 + var(--audio-intensity) * 0.15)) 0%, 
       transparent 80%),
     /* Base */
     #0a0a0f;
@@ -158,7 +158,7 @@ body {
   /* Enable smooth scrolling on iOS */
   -webkit-overflow-scrolling: touch;
   min-height: 100vh;
-  transition: background 0.2s ease;
+  transition: background 0.4s ease;
 }
 
 body::before {
@@ -167,34 +167,34 @@ body::before {
   inset: 0;
   z-index: -1;
   background: 
-    /* Flowing cape-like shapes - more vibrant with audio */
+    /* Flowing cape-like shapes - subtle with audio */
     conic-gradient(
       from 0deg at 20% 30%,
       transparent 0deg,
-      rgba(244, 178, 102, calc(0.06 + var(--audio-bass) * 0.12)) 60deg,
+      rgba(244, 178, 102, calc(0.03 + var(--audio-bass) * 0.06)) 60deg,
       transparent 120deg,
-      rgba(200, 50, 30, calc(0.05 + var(--audio-intensity) * 0.1)) 180deg,
+      rgba(200, 50, 30, calc(0.025 + var(--audio-intensity) * 0.05)) 180deg,
       transparent 240deg,
-      rgba(255, 200, 120, calc(0.04 + var(--audio-energy) * 0.08)) 300deg,
+      rgba(255, 200, 120, calc(0.02 + var(--audio-energy) * 0.04)) 300deg,
       transparent 360deg
     ),
     conic-gradient(
       from 180deg at 80% 70%,
       transparent 0deg,
-      rgba(180, 40, 50, calc(0.05 + var(--audio-intensity) * 0.1)) 90deg,
+      rgba(180, 40, 50, calc(0.025 + var(--audio-intensity) * 0.05)) 90deg,
       transparent 180deg,
-      rgba(220, 80, 40, calc(0.04 + var(--audio-energy) * 0.08)) 270deg,
+      rgba(220, 80, 40, calc(0.02 + var(--audio-energy) * 0.04)) 270deg,
       transparent 360deg
     );
-  background-size: calc(150% + var(--audio-energy) * 30%) calc(150% + var(--audio-energy) * 30%), 
-                   calc(200% + var(--audio-energy) * 40%) calc(200% + var(--audio-energy) * 40%);
+  background-size: calc(150% + var(--audio-energy) * 20%) calc(150% + var(--audio-energy) * 20%), 
+                   calc(200% + var(--audio-energy) * 25%) calc(200% + var(--audio-energy) * 25%);
   background-position: center, center;
-  animation: toreadorCape calc(20s - var(--audio-energy) * 6s) ease-in-out infinite;
-  opacity: calc(0.5 + var(--audio-energy) * 0.3);
+  animation: toreadorCape calc(20s - var(--audio-energy) * 4s) ease-in-out infinite;
+  opacity: calc(0.3 + var(--audio-energy) * 0.15);
   pointer-events: none;
   mix-blend-mode: overlay;
-  filter: hue-rotate(calc(var(--audio-hue) * 0.2deg));
-  transition: opacity 0.2s ease, filter 0.2s ease;
+  filter: hue-rotate(calc(var(--audio-hue) * 0.1deg));
+  transition: opacity 0.4s ease, filter 0.4s ease;
 }
 
 @keyframes toreadorFlow {

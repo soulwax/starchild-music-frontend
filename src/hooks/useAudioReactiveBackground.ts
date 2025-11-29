@@ -18,11 +18,19 @@ export function useAudioReactiveBackground(
     smoothingTimeConstant: 0.8,
   });
 
+  // Memoize stable values to avoid recreating the effect on every render
+  const isInitialized = visualizer.isInitialized;
+  const getFrequencyData = visualizer.getFrequencyData;
+  const audioContext = visualizer.audioContext;
+  const getFFTSize = visualizer.getFFTSize;
+  const initialize = visualizer.initialize;
+  const resumeContext = visualizer.resumeContext;
+
   const animationFrameRef = useRef<number | null>(null);
   const previousAnalysisRef = useRef<{ overallVolume: number; bass: number } | null>(null);
 
   useEffect(() => {
-    if (!isPlaying || !visualizer.isInitialized || !audioElement) {
+    if (!isPlaying || !isInitialized || !audioElement) {
       // Reset to default when not playing
       document.documentElement.style.setProperty("--audio-intensity", "0");
       document.documentElement.style.setProperty("--audio-bass", "0");
@@ -37,21 +45,20 @@ export function useAudioReactiveBackground(
     }
 
     const updateBackground = () => {
-      const frequencyData = visualizer.getFrequencyData();
+      const frequencyData = getFrequencyData();
       if (frequencyData.length === 0) {
         animationFrameRef.current = requestAnimationFrame(updateBackground);
         return;
       }
 
       // Get audio context sample rate and fft size for analysis
-      const audioContext = visualizer.audioContext;
       if (!audioContext) {
         animationFrameRef.current = requestAnimationFrame(updateBackground);
         return;
       }
 
       const sampleRate = audioContext.sampleRate;
-      const fftSize = visualizer.getFFTSize();
+      const fftSize = getFFTSize();
       const analysis = analyzeAudio(frequencyData, sampleRate, fftSize);
 
       // Smooth the values to prevent jitter
@@ -68,12 +75,12 @@ export function useAudioReactiveBackground(
 
       previousAnalysisRef.current = { overallVolume, bass };
 
-      // Calculate intensity (0-1) - boost it for more vibrant effects
-      const intensity = Math.min(1, overallVolume * 1.5);
-      const bassBoost = Math.min(1, bass * 1.8);
-      const energy = Math.min(1, (overallVolume + bass) * 1.2);
+      // Calculate intensity (0-1) - more subtle effects
+      const intensity = Math.min(1, overallVolume * 0.8);
+      const bassBoost = Math.min(1, bass * 0.9);
+      const energy = Math.min(1, (overallVolume + bass) * 0.7);
 
-      // Calculate hue shift based on frequency bands
+      // Calculate hue shift based on frequency bands - more subtle
       // Bass = red/orange, Mid = yellow/gold, Treble = purple/blue
       const bassWeight = analysis.frequencyBands.bass;
       const midWeight = analysis.frequencyBands.mid;
@@ -86,9 +93,10 @@ export function useAudioReactiveBackground(
       const normalizedTreble = total > 0 ? trebleWeight / total : 0;
       
       // Hue range: 0-60 (red-orange-yellow) for bass/mid, 240-300 (purple-pink) for treble
-      const hue = normalizedBass * 15 + normalizedMid * 45 + normalizedTreble * 280;
+      // More subtle hue shifts
+      const hue = normalizedBass * 10 + normalizedMid * 30 + normalizedTreble * 250;
 
-      // Update CSS variables
+      // Update CSS variables with more subtle values
       document.documentElement.style.setProperty("--audio-intensity", intensity.toString());
       document.documentElement.style.setProperty("--audio-bass", bassBoost.toString());
       document.documentElement.style.setProperty("--audio-energy", energy.toString());
@@ -98,14 +106,14 @@ export function useAudioReactiveBackground(
     };
 
     // Initialize visualizer if needed
-    if (!visualizer.isInitialized && audioElement) {
-      visualizer.initialize();
+    if (!isInitialized && audioElement) {
+      initialize();
       // Try to resume context if suspended
-      void visualizer.resumeContext();
+      void resumeContext();
     }
 
     // Start the animation loop only if initialized
-    if (visualizer.isInitialized) {
+    if (isInitialized) {
       animationFrameRef.current = requestAnimationFrame(updateBackground);
     }
 
@@ -115,6 +123,6 @@ export function useAudioReactiveBackground(
         animationFrameRef.current = null;
       }
     };
-  }, [isPlaying, visualizer, audioElement]);
+  }, [isPlaying, isInitialized, audioElement, getFrequencyData, audioContext, getFFTSize, initialize, resumeContext]);
 }
 

@@ -75,34 +75,39 @@ export async function getAlbumTracks(albumId: number): Promise<SearchResponse> {
   const data = await res.json() as { data: unknown[] };
   
   // Tracks from Deezer album API are already in album order (by track position)
-  // The backend endpoint should ensure all tracks have album info, but we validate here
-  const tracks = (data.data || []).map((track): Track => {
-    // Type guard to ensure we have a valid track object
-    if (typeof track !== "object" || track === null) {
-      throw new Error("Invalid track data received from API");
-    }
-    
-    const trackObj = track as Partial<Track> & Record<string, unknown>;
-    
-    // Ensure album property exists - if missing, this is a backend bug that should be fixed
-    // For now, we'll throw an error to catch this issue early
-    if (!trackObj.album) {
-      console.error("Track missing album property:", trackObj);
-      throw new Error(`Track ${trackObj.id ?? "unknown"} is missing required album property`);
-    }
-    
-    // Validate that all required Track properties are present
-    if (
-      typeof trackObj.id !== "number" ||
-      typeof trackObj.title !== "string" ||
-      !trackObj.artist ||
-      !trackObj.album
-    ) {
-      throw new Error(`Track ${trackObj.id ?? "unknown"} is missing required properties`);
-    }
-    
-    return trackObj as Track;
-  });
+  // The backend endpoint tries to enrich tracks with album info, but may fail
+  // We handle missing album gracefully by filtering out invalid tracks
+  const tracks = (data.data || [])
+    .map((track): Track | null => {
+      // Type guard to ensure we have a valid track object
+      if (typeof track !== "object" || track === null) {
+        console.warn("Invalid track data received from API:", track);
+        return null;
+      }
+      
+      const trackObj = track as Partial<Track> & Record<string, unknown>;
+      
+      // Validate that all required Track properties are present
+      if (
+        typeof trackObj.id !== "number" ||
+        typeof trackObj.title !== "string" ||
+        !trackObj.artist
+      ) {
+        console.warn(`Track ${trackObj.id ?? "unknown"} is missing required properties:`, trackObj);
+        return null;
+      }
+      
+      // If album is missing, log a warning but don't throw - the UI can handle this
+      if (!trackObj.album) {
+        console.warn(`Track ${trackObj.id} is missing album property - this may cause UI issues`);
+        // Return null to filter out tracks without album (they'll break the UI)
+        // Alternatively, we could create a minimal album object, but that's risky
+        return null;
+      }
+      
+      return trackObj as Track;
+    })
+    .filter((track): track is Track => track !== null);
   
   return {
     data: tracks,
