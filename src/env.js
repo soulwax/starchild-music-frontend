@@ -21,9 +21,15 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     STREAMING_KEY: z.string(),
+    SONGBIRD_API_KEY: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_API_URL: z.string().url(),
+    NEXT_PUBLIC_SONGBIRD_API_URL: z
+      .string()
+      .url()
+      .optional()
+      .or(z.undefined()),
   },
   runtimeEnv: {
     AUTH_SECRET: process.env.AUTH_SECRET,
@@ -37,7 +43,9 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_SONGBIRD_API_URL: process.env.NEXT_PUBLIC_SONGBIRD_API_URL,
     STREAMING_KEY: process.env.STREAMING_KEY,
+    SONGBIRD_API_KEY: process.env.SONGBIRD_API_KEY,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,

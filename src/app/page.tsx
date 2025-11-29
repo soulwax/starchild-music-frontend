@@ -9,10 +9,10 @@ import { useGlobalPlayer } from "@/contexts/AudioPlayerContext";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { api } from "@/trpc/react";
 import type { Track } from "@/types";
+import { getAlbumTracks, searchTracks, searchTracksByArtist } from "@/utils/api";
 import { hapticLight } from "@/utils/haptics";
 import { springPresets, staggerContainer, staggerItem } from "@/utils/spring-animations";
-import { searchTracks } from "@/utils/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Music2, Search, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -71,10 +71,74 @@ function SearchPageContent() {
     [session, addSearchQuery],
   );
 
+  const handleAlbumClick = useCallback(async (albumId: number) => {
+    setLoading(true);
+    
+    try {
+      const response = await getAlbumTracks(albumId);
+      setResults(response.data);
+      setTotal(response.total);
+      
+      // Update URL with album ID
+      const params = new URLSearchParams();
+      params.set("album", albumId.toString());
+      router.push(`?${params.toString()}`, { scroll: false });
+      
+      // Try to get album name from track data, or fetch album info separately
+      let albumName: string | undefined;
+      if (response.data.length > 0) {
+        // Check if first track has album info
+        const firstTrack = response.data[0];
+        if (firstTrack && "album" in firstTrack && firstTrack.album) {
+          albumName = firstTrack.album.title;
+        }
+      }
+      
+      // If album name not found in tracks, fetch album info through our proxy
+      if (!albumName) {
+        try {
+          const albumResponse = await fetch(`/api/album/${albumId}`);
+          if (albumResponse.ok) {
+            const albumData = await albumResponse.json() as { title?: string };
+            albumName = albumData.title;
+          }
+        } catch (err) {
+          console.warn("Failed to fetch album info:", err);
+        }
+      }
+      
+      // Set query to album name if available
+      if (albumName) {
+        setQuery(albumName);
+        setCurrentQuery(albumName);
+        if (session) {
+          addSearchQuery.mutate({ query: albumName });
+        }
+      }
+    } catch (error) {
+      console.error("Album search failed:", error);
+      setResults([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [session, addSearchQuery, router]);
+
   useEffect(() => {
     try {
       const urlQuery = searchParams.get("q");
-      if (urlQuery && !isInitialized) {
+      const albumId = searchParams.get("album");
+      
+      if (albumId && !isInitialized) {
+        // Handle album URL parameter
+        const albumIdNum = parseInt(albumId, 10);
+        if (!isNaN(albumIdNum)) {
+          setIsInitialized(true);
+          void handleAlbumClick(albumIdNum);
+        } else {
+          setIsInitialized(true);
+        }
+      } else if (urlQuery && !isInitialized) {
         setQuery(urlQuery);
         setIsInitialized(true);
         void performSearch(urlQuery);
@@ -85,7 +149,7 @@ function SearchPageContent() {
       console.error("Error initializing from URL:", error);
       setIsInitialized(true);
     }
-  }, [searchParams, isInitialized, performSearch]);
+  }, [searchParams, isInitialized, performSearch, handleAlbumClick]);
 
   const updateURL = (searchQuery: string) => {
     const params = new URLSearchParams();
@@ -128,6 +192,34 @@ function SearchPageContent() {
       await performSearch(currentQuery);
     }
   };
+
+  const handleArtistClick = async (artistName: string) => {
+    setLoading(true);
+    setQuery(artistName);
+    setCurrentQuery(artistName);
+    
+    try {
+      const response = await searchTracksByArtist(artistName, 0);
+      setResults(response.data);
+      setTotal(response.total);
+      
+      // Update URL
+      const params = new URLSearchParams();
+      params.set("q", artistName);
+      router.push(`?${params.toString()}`, { scroll: false });
+      
+      if (session) {
+        addSearchQuery.mutate({ query: artistName });
+      }
+    } catch (error) {
+      console.error("Artist search failed:", error);
+      setResults([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const hasMore = results.length < total;
 
@@ -269,6 +361,8 @@ function SearchPageContent() {
                         onAddToQueue={player.addToQueue}
                         showActions={!!session}
                         index={index}
+                        onArtistClick={handleArtistClick}
+                        onAlbumClick={handleAlbumClick}
                       />
                     </motion.div>
                     ))}

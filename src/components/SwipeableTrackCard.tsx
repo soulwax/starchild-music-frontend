@@ -21,6 +21,8 @@ export interface SwipeableTrackCardProps {
   onAddToQueue: (track: Track) => void;
   showActions?: boolean;
   index?: number;
+  onArtistClick?: (artistName: string) => void;
+  onAlbumClick?: (albumId: number) => void;
 }
 
 const SWIPE_THRESHOLD = 80;
@@ -32,6 +34,8 @@ export default function SwipeableTrackCard({
   onAddToQueue,
   showActions = true,
   index = 0,
+  onArtistClick,
+  onAlbumClick,
 }: SwipeableTrackCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
@@ -227,15 +231,48 @@ export default function SwipeableTrackCard({
         </div>
 
         {/* Track Info */}
-        <div className="min-w-0 flex-1 space-y-1" onClick={handlePlay}>
-          <h3 className="line-clamp-2 text-base font-semibold leading-tight text-[var(--color-text)] md:text-lg">
+        <div className="min-w-0 flex-1 space-y-1">
+          <h3 
+            className="line-clamp-2 text-base font-semibold leading-tight text-[var(--color-text)] cursor-pointer transition-colors hover:text-[var(--color-accent-light)] md:text-lg"
+            onClick={handlePlay}
+          >
             {track.title}
           </h3>
-          <p className="line-clamp-1 text-sm text-[var(--color-subtext)]">
-            {track.artist.name}
-          </p>
+          {onArtistClick ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                hapticLight();
+                onArtistClick(track.artist.name);
+              }}
+              className="line-clamp-1 text-left text-sm text-[var(--color-subtext)] transition-colors hover:text-[var(--color-accent-light)] hover:underline"
+            >
+              {track.artist.name}
+            </button>
+          ) : (
+            <p className="line-clamp-1 text-sm text-[var(--color-subtext)]">
+              {track.artist.name}
+            </p>
+          )}
           <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
-            <span className="line-clamp-1">{track.album.title}</span>
+            {track.album ? (
+              onAlbumClick ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    hapticLight();
+                    onAlbumClick(track.album.id);
+                  }}
+                  className="line-clamp-1 text-left transition-colors hover:text-[var(--color-accent-light)] hover:underline"
+                >
+                  {track.album.title}
+                </button>
+              ) : (
+                <span className="line-clamp-1">{track.album.title}</span>
+              )
+            ) : (
+              <span className="line-clamp-1 text-[var(--color-muted)]">Unknown Album</span>
+            )}
             <span>•</span>
             <span className="tabular-nums">{formatDuration(track.duration)}</span>
           </div>

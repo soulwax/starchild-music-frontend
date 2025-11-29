@@ -22,6 +22,11 @@ export function getCoverImage(
 ): string {
   const album = track.album;
 
+  // If album is missing, return placeholder
+  if (!album) {
+    return "/images/placeholder-cover.svg";
+  }
+
   // Try to get the requested size
   const normalize = (value?: string | null) =>
     value && value.trim().length > 0 ? value : undefined;
