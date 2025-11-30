@@ -56,12 +56,10 @@ html.visualizer-disabled::after {
   animation: none !important;
 }
 
-body.visualizer-disabled,
 body.visualizer-disabled::before,
 body.visualizer-disabled::after {
   opacity: 0 !important;
   animation: none !important;
-  background: #0d0520 !important;
 }
 
 html::before {
@@ -70,35 +68,35 @@ html::before {
   inset: 0;
   z-index: -3;
   background:
-    /* Deep psychedelic base */
-    radial-gradient(circle at 50% 50%, #0a0515 0%, #1a0a2f 100%),
-    /* Kaleidoscope layer 1 - Rotating prism effect - Increased base opacity */
+    /* Lighter psychedelic base - MUCH more visible */
+    radial-gradient(circle at 50% 50%, #1a0f2a 0%, #2a1a3f 100%),
+    /* Kaleidoscope layer 1 - BRIGHT rotating prism */
     conic-gradient(from calc(var(--audio-hue) * 3deg) at 50% 50%,
-      hsla(calc(var(--audio-hue) + 0), 85%, 45%, calc(0.22 + var(--audio-intensity) * 0.15)) 0deg,
-      hsla(calc(var(--audio-hue) + 30), 90%, 50%, calc(0.25 + var(--audio-bass) * 0.2)) 30deg,
-      hsla(calc(var(--audio-hue) + 60), 85%, 48%, calc(0.23 + var(--audio-energy) * 0.15)) 60deg,
-      hsla(calc(var(--audio-hue) + 90), 90%, 52%, calc(0.21 + var(--audio-treble) * 0.15)) 90deg,
-      hsla(calc(var(--audio-hue) + 120), 85%, 46%, calc(0.24 + var(--audio-intensity) * 0.2)) 120deg,
-      hsla(calc(var(--audio-hue) + 150), 90%, 50%, calc(0.22 + var(--audio-bass) * 0.15)) 150deg,
-      hsla(calc(var(--audio-hue) + 180), 85%, 48%, calc(0.24 + var(--audio-energy) * 0.18)) 180deg,
-      hsla(calc(var(--audio-hue) + 210), 90%, 51%, calc(0.21 + var(--audio-treble) * 0.16)) 210deg,
-      hsla(calc(var(--audio-hue) + 240), 85%, 47%, calc(0.25 + var(--audio-intensity) * 0.2)) 240deg,
-      hsla(calc(var(--audio-hue) + 270), 90%, 49%, calc(0.23 + var(--audio-bass) * 0.17)) 270deg,
-      hsla(calc(var(--audio-hue) + 300), 85%, 50%, calc(0.22 + var(--audio-energy) * 0.16)) 300deg,
-      hsla(calc(var(--audio-hue) + 330), 90%, 48%, calc(0.24 + var(--audio-treble) * 0.18)) 330deg,
-      hsla(calc(var(--audio-hue) + 360), 85%, 45%, calc(0.22 + var(--audio-intensity) * 0.15)) 360deg
+      hsla(calc(var(--audio-hue) + 0), 90%, 55%, calc(0.35 + var(--audio-intensity) * 0.2)) 0deg,
+      hsla(calc(var(--audio-hue) + 30), 95%, 60%, calc(0.4 + var(--audio-bass) * 0.25)) 30deg,
+      hsla(calc(var(--audio-hue) + 60), 90%, 58%, calc(0.38 + var(--audio-energy) * 0.2)) 60deg,
+      hsla(calc(var(--audio-hue) + 90), 95%, 62%, calc(0.36 + var(--audio-treble) * 0.2)) 90deg,
+      hsla(calc(var(--audio-hue) + 120), 90%, 56%, calc(0.39 + var(--audio-intensity) * 0.25)) 120deg,
+      hsla(calc(var(--audio-hue) + 150), 95%, 60%, calc(0.37 + var(--audio-bass) * 0.2)) 150deg,
+      hsla(calc(var(--audio-hue) + 180), 90%, 58%, calc(0.39 + var(--audio-energy) * 0.23)) 180deg,
+      hsla(calc(var(--audio-hue) + 210), 95%, 61%, calc(0.36 + var(--audio-treble) * 0.21)) 210deg,
+      hsla(calc(var(--audio-hue) + 240), 90%, 57%, calc(0.4 + var(--audio-intensity) * 0.25)) 240deg,
+      hsla(calc(var(--audio-hue) + 270), 95%, 59%, calc(0.38 + var(--audio-bass) * 0.22)) 270deg,
+      hsla(calc(var(--audio-hue) + 300), 90%, 60%, calc(0.37 + var(--audio-energy) * 0.21)) 300deg,
+      hsla(calc(var(--audio-hue) + 330), 95%, 58%, calc(0.39 + var(--audio-treble) * 0.23)) 330deg,
+      hsla(calc(var(--audio-hue) + 360), 90%, 55%, calc(0.35 + var(--audio-intensity) * 0.2)) 360deg
     ),
-    /* Psychedelic radial burst - Increased base opacity */
+    /* Psychedelic radial burst - BRIGHT */
     radial-gradient(ellipse 140% 140% at calc(30% + var(--audio-bass) * 20%) calc(30% + var(--audio-treble) * 20%),
-      hsla(calc(var(--audio-hue) + 60), 80%, 50%, calc(0.28 + var(--audio-energy) * 0.2)) 0%,
+      hsla(calc(var(--audio-hue) + 60), 85%, 60%, calc(0.42 + var(--audio-energy) * 0.25)) 0%,
       transparent 60%),
     radial-gradient(ellipse 130% 130% at calc(70% - var(--audio-intensity) * 15%) calc(70% - var(--audio-bass) * 15%),
-      hsla(calc(var(--audio-hue) + 180), 85%, 48%, calc(0.26 + var(--audio-treble) * 0.18)) 0%,
+      hsla(calc(var(--audio-hue) + 180), 90%, 58%, calc(0.4 + var(--audio-treble) * 0.23)) 0%,
       transparent 65%);
   background-size: 100% 100%, 200% 200%, 150% 150%, 160% 160%;
   background-position: center, center, center, center;
   animation: kaleidoscopeFlow 20s ease-in-out infinite;
-  filter: hue-rotate(calc(var(--audio-hue) * 0.8deg)) brightness(calc(1 + var(--audio-energy) * 0.25)) saturate(calc(1.3 + var(--audio-intensity) * 0.3)) blur(calc(50px - var(--audio-bass) * 25px));
+  filter: hue-rotate(calc(var(--audio-hue) * 0.8deg)) brightness(calc(1.1 + var(--audio-energy) * 0.3)) saturate(calc(1.4 + var(--audio-intensity) * 0.4)) blur(calc(45px - var(--audio-bass) * 20px));
   transition: filter 0.3s ease;
   will-change: filter, transform;
 }
@@ -128,32 +126,32 @@ html::after {
   position: fixed;
   inset: 0;
   z-index: -2;
-  opacity: calc(0.5 + var(--audio-energy) * 0.2);
+  opacity: calc(0.7 + var(--audio-energy) * 0.2);
   background-image:
-    /* Psychedelic mandala pattern - Increased base opacity */
+    /* Psychedelic mandala pattern - BRIGHT */
     repeating-conic-gradient(
       from calc(var(--audio-hue) * 2.5deg) at 50% 50%,
       transparent 0deg,
-      hsla(calc(var(--audio-hue) + 0), 75%, 55%, calc(0.12 + var(--audio-intensity) * 0.12)) 10deg,
+      hsla(calc(var(--audio-hue) + 0), 80%, 65%, calc(0.22 + var(--audio-intensity) * 0.15)) 10deg,
       transparent 20deg,
-      hsla(calc(var(--audio-hue) + 120), 75%, 52%, calc(0.1 + var(--audio-bass) * 0.1)) 30deg,
+      hsla(calc(var(--audio-hue) + 120), 80%, 62%, calc(0.2 + var(--audio-bass) * 0.13)) 30deg,
       transparent 40deg,
-      hsla(calc(var(--audio-hue) + 240), 75%, 50%, calc(0.11 + var(--audio-treble) * 0.11)) 50deg,
+      hsla(calc(var(--audio-hue) + 240), 80%, 60%, calc(0.21 + var(--audio-treble) * 0.14)) 50deg,
       transparent 60deg
     ),
-    /* Flowing gradient waves - Increased base opacity */
+    /* Flowing gradient waves - BRIGHT */
     radial-gradient(ellipse at calc(40% + var(--audio-bass) * 10%) calc(30% + var(--audio-energy) * 10%),
-      hsla(calc(var(--audio-hue) + 90), 70%, 48%, 0.18) 0%,
+      hsla(calc(var(--audio-hue) + 90), 75%, 58%, 0.3) 0%,
       transparent 50%),
     radial-gradient(ellipse at calc(60% - var(--audio-treble) * 10%) calc(70% - var(--audio-intensity) * 10%),
-      hsla(calc(var(--audio-hue) + 270), 70%, 50%, 0.16) 0%,
+      hsla(calc(var(--audio-hue) + 270), 75%, 60%, 0.28) 0%,
       transparent 55%);
   background-size: 250% 250%, 180% 180%, 200% 200%;
   background-position: center, center, center;
   animation: psychedelicFlow 30s ease-in-out infinite;
   pointer-events: none;
   mix-blend-mode: screen;
-  filter: hue-rotate(calc(var(--audio-hue) * 0.6deg)) brightness(calc(1.05 + var(--audio-energy) * 0.2)) blur(calc(35px - var(--audio-intensity) * 12px));
+  filter: hue-rotate(calc(var(--audio-hue) * 0.6deg)) brightness(calc(1.15 + var(--audio-energy) * 0.25)) blur(calc(30px - var(--audio-intensity) * 10px));
   transition: opacity 0.4s ease, filter 0.3s ease;
 }
 
@@ -190,43 +188,43 @@ body::before {
   inset: 0;
   z-index: -1;
   background:
-    /* Kaleidoscope prism 1 - Subtle rotation - Increased base opacity */
+    /* Kaleidoscope prism 1 - BRIGHT rotation */
     conic-gradient(
       from calc(var(--audio-hue) * 1.8deg) at 30% 30%,
       transparent 0deg,
-      hsla(calc(var(--audio-hue) + 0), 70%, 42%, calc(0.16 + var(--audio-bass) * 0.15)) 20deg,
+      hsla(calc(var(--audio-hue) + 0), 75%, 52%, calc(0.28 + var(--audio-bass) * 0.2)) 20deg,
       transparent 40deg,
-      hsla(calc(var(--audio-hue) + 120), 75%, 45%, calc(0.14 + var(--audio-intensity) * 0.13)) 80deg,
+      hsla(calc(var(--audio-hue) + 120), 80%, 55%, calc(0.26 + var(--audio-intensity) * 0.18)) 80deg,
       transparent 100deg,
-      hsla(calc(var(--audio-hue) + 240), 70%, 40%, calc(0.15 + var(--audio-energy) * 0.14)) 140deg,
+      hsla(calc(var(--audio-hue) + 240), 75%, 50%, calc(0.27 + var(--audio-energy) * 0.19)) 140deg,
       transparent 160deg,
-      hsla(calc(var(--audio-hue) + 60), 75%, 43%, calc(0.14 + var(--audio-treble) * 0.12)) 220deg,
+      hsla(calc(var(--audio-hue) + 60), 80%, 53%, calc(0.26 + var(--audio-treble) * 0.17)) 220deg,
       transparent 240deg,
-      hsla(calc(var(--audio-hue) + 180), 70%, 44%, calc(0.16 + var(--audio-bass) * 0.13)) 300deg,
+      hsla(calc(var(--audio-hue) + 180), 75%, 54%, calc(0.28 + var(--audio-bass) * 0.18)) 300deg,
       transparent 320deg,
-      hsla(calc(var(--audio-hue) + 300), 75%, 41%, calc(0.15 + var(--audio-intensity) * 0.14)) 360deg
+      hsla(calc(var(--audio-hue) + 300), 80%, 51%, calc(0.27 + var(--audio-intensity) * 0.19)) 360deg
     ),
-    /* Kaleidoscope prism 2 - Counter rotation - Increased base opacity */
+    /* Kaleidoscope prism 2 - BRIGHT counter rotation */
     conic-gradient(
       from calc(var(--audio-hue) * -1.2deg) at 70% 70%,
       transparent 0deg,
-      hsla(calc(var(--audio-hue) + 90), 72%, 43%, calc(0.14 + var(--audio-treble) * 0.12)) 30deg,
+      hsla(calc(var(--audio-hue) + 90), 77%, 53%, calc(0.26 + var(--audio-treble) * 0.17)) 30deg,
       transparent 60deg,
-      hsla(calc(var(--audio-hue) + 210), 70%, 42%, calc(0.16 + var(--audio-energy) * 0.14)) 120deg,
+      hsla(calc(var(--audio-hue) + 210), 75%, 52%, calc(0.28 + var(--audio-energy) * 0.19)) 120deg,
       transparent 150deg,
-      hsla(calc(var(--audio-hue) + 330), 75%, 44%, calc(0.15 + var(--audio-bass) * 0.13)) 210deg,
+      hsla(calc(var(--audio-hue) + 330), 80%, 54%, calc(0.27 + var(--audio-bass) * 0.18)) 210deg,
       transparent 240deg,
-      hsla(calc(var(--audio-hue) + 150), 70%, 40%, calc(0.14 + var(--audio-intensity) * 0.12)) 300deg,
+      hsla(calc(var(--audio-hue) + 150), 75%, 50%, calc(0.26 + var(--audio-intensity) * 0.17)) 300deg,
       transparent 330deg,
-      hsla(calc(var(--audio-hue) + 270), 72%, 42%, calc(0.15 + var(--audio-treble) * 0.13)) 360deg
+      hsla(calc(var(--audio-hue) + 270), 77%, 52%, calc(0.27 + var(--audio-treble) * 0.18)) 360deg
     );
   background-size: 220% 220%, 240% 240%;
   background-position: center, center;
   animation: kaleidoscopeSpin 40s ease-in-out infinite;
-  opacity: calc(0.65 + var(--audio-energy) * 0.2);
+  opacity: calc(0.8 + var(--audio-energy) * 0.15);
   pointer-events: none;
   mix-blend-mode: overlay;
-  filter: hue-rotate(calc(var(--audio-hue) * 0.5deg)) brightness(calc(1.05 + var(--audio-energy) * 0.2)) saturate(calc(1.25 + var(--audio-intensity) * 0.25)) blur(calc(30px - var(--audio-bass) * 12px));
+  filter: hue-rotate(calc(var(--audio-hue) * 0.5deg)) brightness(calc(1.15 + var(--audio-energy) * 0.25)) saturate(calc(1.3 + var(--audio-intensity) * 0.3)) blur(calc(25px - var(--audio-bass) * 10px));
   transition: opacity 0.4s ease, filter 0.3s ease;
 }
 
