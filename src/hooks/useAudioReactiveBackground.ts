@@ -36,7 +36,9 @@ export function useAudioReactiveBackground(
       document.documentElement.style.setProperty("--audio-intensity", "0");
       document.documentElement.style.setProperty("--audio-bass", "0");
       document.documentElement.style.setProperty("--audio-energy", "0");
+      document.documentElement.style.setProperty("--audio-treble", "0");
       document.documentElement.style.setProperty("--audio-hue", "0");
+      document.documentElement.style.setProperty("--audio-strobe", "0");
       
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -97,12 +99,15 @@ export function useAudioReactiveBackground(
       // Disco hue range: 0-60 (red-orange-yellow) for bass, 60-180 (green-cyan) for mid, 180-360 (blue-purple-pink) for treble
       const hue = normalizedBass * 60 + normalizedMid * 120 + normalizedTreble * 180;
       
-      // Add time-based color cycling for disco effect
-      const timeHue = (Date.now() / 50) % 360;
+      // Add time-based color cycling for disco effect (use performance.now() for better accuracy)
+      // Only update when tab is visible to save resources
+      const timeHue = typeof window !== "undefined" && !document.hidden
+        ? (performance.now() / 50) % 360
+        : 0;
       const discoHue = (hue + timeHue * 0.3) % 360;
 
-      // Strobe effect based on bass hits
-      const strobe = bass > 0.7 ? 1 : 0;
+      // Strobe effect based on bass hits (reduced intensity for safety)
+      const strobe = bass > 0.7 ? 0.7 : 0;
 
       // Update CSS variables with disco lightshow values
       document.documentElement.style.setProperty("--audio-intensity", intensity.toString());

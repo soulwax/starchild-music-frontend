@@ -91,8 +91,28 @@ html::before {
       transparent 60%);
   background-attachment: fixed;
   animation: discoFlow calc(8s - var(--audio-energy) * 2s) ease-in-out infinite;
-  filter: hue-rotate(calc(var(--audio-hue) * 0.3deg)) brightness(calc(1 + var(--audio-strobe) * 0.5));
+  filter: hue-rotate(calc(var(--audio-hue) * 0.3deg)) brightness(calc(1 + var(--audio-strobe) * 0.35));
   transition: filter 0.1s ease, brightness 0.05s ease;
+  will-change: filter, background-position;
+}
+
+/* Mobile performance optimization - reduce disco effects */
+@media (max-width: 768px) {
+  html::before {
+    /* Reduce number of lights on mobile for better performance */
+    background: 
+      #0a0a0f,
+      radial-gradient(ellipse 200% 140% at 20% 20%, 
+        hsla(calc(var(--audio-hue) + 0), 100%, calc(50% + var(--audio-intensity) * 25%), calc(0.35 + var(--audio-intensity) * 0.4)) 0%, 
+        transparent 50%),
+      radial-gradient(ellipse 180% 130% at 80% 15%, 
+        hsla(calc(var(--audio-hue) + 180), 100%, calc(50% + var(--audio-treble) * 30%), calc(0.3 + var(--audio-treble) * 0.4)) 0%, 
+        transparent 55%),
+      radial-gradient(circle 130% at 50% 50%, 
+        hsla(calc(var(--audio-hue) + 120), 100%, calc(55% + var(--audio-energy) * 25%), calc(0.25 + var(--audio-energy) * 0.3)) 0%, 
+        transparent 60%);
+    animation-duration: calc(10s - var(--audio-energy) * 2s);
+  }
 }
 
 html::after {
@@ -276,7 +296,7 @@ body::before {
   }
 }
 
-/* Disco strobe overlay - flashes on bass hits */
+/* Disco strobe overlay - flashes on bass hits (reduced intensity for safety) */
 body::after {
   content: '';
   position: fixed;
@@ -284,12 +304,19 @@ body::after {
   z-index: -1;
   background: 
     radial-gradient(circle at 50% 50%, 
-      rgba(255, 255, 255, calc(var(--audio-strobe) * 0.4)) 0%, 
+      rgba(255, 255, 255, calc(var(--audio-strobe) * 0.25)) 0%, 
       transparent 70%);
   pointer-events: none;
-  opacity: var(--audio-strobe);
-  transition: opacity 0.05s ease;
+  opacity: calc(var(--audio-strobe) * 0.6);
+  transition: opacity 0.08s ease;
   mix-blend-mode: screen;
+}
+
+/* Disable strobe on mobile for better performance and safety */
+@media (max-width: 768px) {
+  body::after {
+    opacity: 0;
+  }
 }
 
 ::selection {
@@ -843,6 +870,21 @@ input, button { outline: none; }
     animation: none !important;
   }
   * { transition: none !important; }
+  
+  /* Disable disco lightshow animations for accessibility */
+  html::before,
+  html::after,
+  body::before,
+  body::after {
+    animation: none !important;
+    filter: none !important;
+    opacity: 0.3 !important;
+  }
+  
+  /* Disable strobe effects */
+  :root {
+    --audio-strobe: 0 !important;
+  }
 }
 
 /* ------------------------------------------------------------
