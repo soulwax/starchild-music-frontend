@@ -10,7 +10,10 @@ export class CircularRenderer {
   }
 
   public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement, barCount = 64): void {
-    // Dynamic gradient background
+    // Vibrant dynamic gradient background
+    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const hueShift = avgAmplitude * 30;
+    
     const bgGradient = ctx.createRadialGradient(
       canvas.width / 2,
       canvas.height / 2,
@@ -19,9 +22,9 @@ export class CircularRenderer {
       canvas.height / 2,
       Math.max(canvas.width, canvas.height) / 2
     );
-    bgGradient.addColorStop(0, 'rgba(10, 5, 20, 0.98)');
-    bgGradient.addColorStop(0.5, 'rgba(5, 10, 25, 0.99)');
-    bgGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+    bgGradient.addColorStop(0, `hsla(${260 + hueShift}, 75%, 22%, 0.95)`);
+    bgGradient.addColorStop(0.5, `hsla(${280 + hueShift}, 70%, 18%, 0.97)`);
+    bgGradient.addColorStop(1, `hsla(${240 + hueShift}, 65%, 12%, 1)`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -29,8 +32,7 @@ export class CircularRenderer {
     const centerY = canvas.height / 2;
     const baseRadius = Math.min(canvas.width, canvas.height) / 3;
 
-    // Calculate average amplitude for pulsing effect
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    // Average amplitude already calculated above
     const pulseMultiplier = 1 + Math.sin(this.pulsePhase) * avgAmplitude * 0.3;
     const radius = baseRadius * pulseMultiplier;
 

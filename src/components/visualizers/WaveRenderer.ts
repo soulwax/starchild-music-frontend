@@ -4,10 +4,14 @@ export class WaveRenderer {
   private timeOffset = 0;
 
   public renderWave(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
-    // Dark gradient background
+    // Calculate average amplitude for dynamic effects
+    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const hueShift = avgAmplitude * 40;
+    
+    // Vibrant gradient background
     const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    bgGradient.addColorStop(0, 'rgba(15, 5, 25, 0.95)');
-    bgGradient.addColorStop(1, 'rgba(5, 15, 30, 0.95)');
+    bgGradient.addColorStop(0, `hsla(${260 + hueShift}, 75%, 22%, 0.92)`);
+    bgGradient.addColorStop(1, `hsla(${240 + hueShift}, 70%, 20%, 0.92)`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -15,9 +19,6 @@ export class WaveRenderer {
 
     const centerY = canvas.height / 2;
     const sliceWidth = canvas.width / data.length;
-
-    // Calculate average amplitude for dynamic effects
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
 
     // Draw multiple wave layers for depth
     const layers = [
@@ -112,19 +113,20 @@ export class WaveRenderer {
   }
 
   public renderWaveformMirror(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
-    // Gradient background
+    // Calculate average for dynamic effects
+    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const hueShift = avgAmplitude * 35;
+    
+    // Vibrant gradient background
     const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bgGradient.addColorStop(0, 'rgba(25, 10, 35, 0.95)');
-    bgGradient.addColorStop(0.5, 'rgba(15, 5, 25, 0.98)');
-    bgGradient.addColorStop(1, 'rgba(25, 10, 35, 0.95)');
+    bgGradient.addColorStop(0, `hsla(${270 + hueShift}, 80%, 24%, 0.92)`);
+    bgGradient.addColorStop(0.5, `hsla(${250 + hueShift}, 75%, 20%, 0.95)`);
+    bgGradient.addColorStop(1, `hsla(${270 + hueShift}, 80%, 24%, 0.92)`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const centerY = canvas.height / 2;
     const sliceWidth = canvas.width / data.length;
-
-    // Calculate average for dynamic effects
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
 
     // Draw center line
     ctx.strokeStyle = 'rgba(100, 100, 150, 0.3)';
@@ -207,7 +209,11 @@ export class WaveRenderer {
   }
 
   private drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
-    ctx.fillStyle = 'rgba(5, 10, 20, 0.95)';
+    // Vibrant grid background
+    const gridGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gridGradient.addColorStop(0, 'hsla(200, 70%, 18%, 0.92)');
+    gridGradient.addColorStop(1, 'hsla(220, 65%, 15%, 0.92)');
+    ctx.fillStyle = gridGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = 'rgba(0, 255, 200, 0.1)';

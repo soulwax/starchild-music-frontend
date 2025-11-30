@@ -28,7 +28,11 @@ export class ParticleRenderer {
   }
 
   public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
-    // Create gradient background
+    // Create vibrant gradient background
+    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length;
+    const intensity = avgAmplitude / 255;
+    const hue = (intensity * 60 + 240) % 360;
+    
     const gradient = ctx.createRadialGradient(
       canvas.width / 2,
       canvas.height / 2,
@@ -37,16 +41,15 @@ export class ParticleRenderer {
       canvas.height / 2,
       Math.max(canvas.width, canvas.height) / 2
     );
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+    gradient.addColorStop(0, `hsla(${hue}, 70%, 20%, 0.9)`);
+    gradient.addColorStop(0.5, `hsla(${hue + 30}, 65%, 15%, 0.95)`);
+    gradient.addColorStop(1, `hsla(${hue + 60}, 60%, 10%, 1)`);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Calculate audio properties
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length;
+    // Calculate audio properties (avgAmplitude and intensity already calculated above)
     const bassLevel = data.slice(0, 10).reduce((sum, val) => sum + val, 0) / 10;
     const trebleLevel = data.slice(-10).reduce((sum, val) => sum + val, 0) / 10;
-    const intensity = avgAmplitude / 255;
 
     // Spawn new particles
     this.spawnParticles(canvas, avgAmplitude, bassLevel, trebleLevel, intensity);

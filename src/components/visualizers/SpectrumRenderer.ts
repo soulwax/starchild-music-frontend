@@ -54,7 +54,7 @@ export class SpectrumRenderer {
         if (field > threshold) {
           const intensity = Math.min((field - threshold) * 0.3, 1);
           const hue = 220 + intensity * 40;
-          const rgb = MathUtils.hslToRgb(hue, 70, 10 + intensity * 15);
+          const rgb = MathUtils.hslToRgb(hue, 85, 25 + intensity * 20);
 
           for (let dy = 0; dy < 3 && y + dy < canvas.height; dy++) {
             for (let dx = 0; dx < 3 && x + dx < canvas.width; dx++) {
@@ -66,13 +66,15 @@ export class SpectrumRenderer {
             }
           }
         } else {
-          // Dark background
+          // Vibrant dark background with color
+          const darkHue = 240;
+          const darkRgb = MathUtils.hslToRgb(darkHue, 60, 12);
           for (let dy = 0; dy < 3 && y + dy < canvas.height; dy++) {
             for (let dx = 0; dx < 3 && x + dx < canvas.width; dx++) {
               const idx = ((y + dy) * canvas.width + (x + dx)) * 4;
-              pixels[idx] = 5;
-              pixels[idx + 1] = 5;
-              pixels[idx + 2] = 15;
+              pixels[idx] = darkRgb.r;
+              pixels[idx + 1] = darkRgb.g;
+              pixels[idx + 2] = darkRgb.b;
               pixels[idx + 3] = 255;
             }
           }

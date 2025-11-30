@@ -5,11 +5,14 @@ export class SpectralWavesRenderer {
   private wavePhases: number[] = [0, 0, 0, 0, 0, 0];
 
   public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement, barCount = 64): void {
-    // Gradient background with depth
+    // Vibrant gradient background with audio-reactive colors
+    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const hueShift = avgAmplitude * 40;
+    
     const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bgGradient.addColorStop(0, 'rgba(5, 15, 35, 0.96)');
-    bgGradient.addColorStop(0.5, 'rgba(10, 5, 25, 0.98)');
-    bgGradient.addColorStop(1, 'rgba(5, 10, 30, 0.96)');
+    bgGradient.addColorStop(0, `hsla(${260 + hueShift}, 75%, 25%, 0.92)`);
+    bgGradient.addColorStop(0.5, `hsla(${280 + hueShift}, 80%, 20%, 0.94)`);
+    bgGradient.addColorStop(1, `hsla(${240 + hueShift}, 70%, 18%, 0.92)`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -17,7 +20,7 @@ export class SpectralWavesRenderer {
 
     const dataStep = Math.floor(data.length / barCount);
 
-    // Calculate average amplitude for global effects
+    // Average amplitude already calculated above for background
     const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
 
     // Draw multiple wave layers

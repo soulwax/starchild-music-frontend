@@ -1,7 +1,7 @@
 // File: src/components/visualizers/BarsRenderer.ts
 
-import { PerlinNoise } from './utils/PerlinNoise';
 import { MathUtils } from './utils/MathUtils';
+import { PerlinNoise } from './utils/PerlinNoise';
 
 export class BarsRenderer {
   private peakHistory: number[] = [];
@@ -35,7 +35,7 @@ export class BarsRenderer {
         const combined = (plasma + noiseVal) * 0.5;
 
         const hue = 220 + combined * 60;
-        const rgb = MathUtils.hslToRgb(hue, 60, 8 + combined * 5);
+        const rgb = MathUtils.hslToRgb(hue, 85, 25 + combined * 15);
 
         for (let dy = 0; dy < 4 && y + dy < canvas.height; dy++) {
           for (let dx = 0; dx < 4 && x + dx < canvas.width; dx++) {

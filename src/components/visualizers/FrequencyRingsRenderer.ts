@@ -20,7 +20,11 @@ export class FrequencyRingsRenderer {
   }
 
   public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
-    // Gradient background with depth
+    // Calculate global intensity
+    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const hueShift = avgAmplitude * 45;
+    
+    // Vibrant gradient background with depth
     const bgGradient = ctx.createRadialGradient(
       canvas.width / 2,
       canvas.height / 2,
@@ -29,9 +33,9 @@ export class FrequencyRingsRenderer {
       canvas.height / 2,
       Math.max(canvas.width, canvas.height) / 2
     );
-    bgGradient.addColorStop(0, 'rgba(5, 10, 25, 0.97)');
-    bgGradient.addColorStop(0.5, 'rgba(10, 5, 20, 0.98)');
-    bgGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+    bgGradient.addColorStop(0, `hsla(${265 + hueShift}, 78%, 23%, 0.94)`);
+    bgGradient.addColorStop(0.5, `hsla(${255 + hueShift}, 72%, 19%, 0.96)`);
+    bgGradient.addColorStop(1, `hsla(${245 + hueShift}, 68%, 12%, 1)`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -43,9 +47,6 @@ export class FrequencyRingsRenderer {
 
     const numRings = 10;
     const dataStep = Math.floor(data.length / numRings);
-
-    // Calculate global intensity
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
 
     // Draw rings from outside to inside for proper layering
     for (let i = numRings - 1; i >= 0; i--) {

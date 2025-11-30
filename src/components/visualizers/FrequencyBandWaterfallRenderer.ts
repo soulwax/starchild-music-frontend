@@ -40,8 +40,13 @@ export class FrequencyBandWaterfallRenderer {
     if (audioAnalysis) {
       this.time += 0.02;
 
-      // Dark background
-      ctx.fillStyle = "rgba(0, 0, 0, 1)";
+      // Vibrant background
+      const avgIntensity = audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble;
+      const hueShift = (avgIntensity / 3) * 40;
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGradient.addColorStop(0, `hsla(${250 + hueShift}, 70%, 18%, 1)`);
+      bgGradient.addColorStop(1, `hsla(${240 + hueShift}, 65%, 12%, 1)`);
+      ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const bands = [

@@ -10,7 +10,10 @@ export class RadialSpectrumRenderer {
   }
 
   public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement, barCount = 64): void {
-    // Radial gradient background
+    // Vibrant radial gradient background
+    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const hueShift = avgAmplitude * 50;
+    
     const bgGradient = ctx.createRadialGradient(
       canvas.width / 2,
       canvas.height / 2,
@@ -19,9 +22,9 @@ export class RadialSpectrumRenderer {
       canvas.height / 2,
       Math.max(canvas.width, canvas.height) / 2
     );
-    bgGradient.addColorStop(0, 'rgba(15, 10, 30, 0.97)');
-    bgGradient.addColorStop(0.5, 'rgba(8, 5, 20, 0.98)');
-    bgGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+    bgGradient.addColorStop(0, `hsla(${270 + hueShift}, 80%, 24%, 0.94)`);
+    bgGradient.addColorStop(0.5, `hsla(${250 + hueShift}, 75%, 18%, 0.96)`);
+    bgGradient.addColorStop(1, `hsla(${230 + hueShift}, 70%, 12%, 1)`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -35,8 +38,7 @@ export class RadialSpectrumRenderer {
     const barAngle = (Math.PI * 2) / barCount;
     const dataStep = Math.floor(data.length / barCount);
 
-    // Calculate average amplitude
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    // Average amplitude already calculated above
 
     // Draw concentric guide circles with glow
     const numCircles = 5;

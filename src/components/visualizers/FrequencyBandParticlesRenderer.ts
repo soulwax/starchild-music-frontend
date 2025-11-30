@@ -57,7 +57,9 @@ export class FrequencyBandParticlesRenderer {
     if (audioAnalysis) {
       this.time += 0.02;
 
-      // Dark gradient background
+      // Vibrant gradient background
+      const avgIntensity = audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble;
+      const hueShift = (avgIntensity / 3) * 50;
       const bgGradient = ctx.createRadialGradient(
         canvas.width / 2,
         canvas.height / 2,
@@ -66,8 +68,9 @@ export class FrequencyBandParticlesRenderer {
         canvas.height / 2,
         Math.max(canvas.width, canvas.height) / 2
       );
-      bgGradient.addColorStop(0, "rgba(0, 0, 0, 0.95)");
-      bgGradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+      bgGradient.addColorStop(0, `hsla(${280 + hueShift}, 75%, 20%, 0.92)`);
+      bgGradient.addColorStop(0.5, `hsla(${270 + hueShift}, 70%, 16%, 0.95)`);
+      bgGradient.addColorStop(1, `hsla(${260 + hueShift}, 65%, 10%, 1)`);
       ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 

@@ -30,10 +30,12 @@ export class FrequencyBandLayeredRenderer {
     if (audioAnalysis) {
       this.time += 0.02;
 
-      // Dark gradient background
+      // Vibrant gradient background
+      const avgIntensity = audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble;
+      const hueShift = (avgIntensity / 3) * 40;
       const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bgGradient.addColorStop(0, "rgba(5, 10, 20, 0.95)");
-      bgGradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+      bgGradient.addColorStop(0, `hsla(${265 + hueShift}, 75%, 22%, 0.92)`);
+      bgGradient.addColorStop(1, `hsla(${245 + hueShift}, 70%, 15%, 1)`);
       ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
