@@ -174,17 +174,20 @@ export default function PersistentPlayer() {
         />
       )}
 
-      {/* Audio Visualizer - Draggable on Desktop, bigger, with album colors */}
+      {/* Audio Visualizer - Draggable on Desktop, small by default, with album colors */}
       {player.audioElement && player.currentTrack && preferences?.visualizerEnabled && !isMobile && (
         <AudioVisualizer
           audioElement={player.audioElement}
           isPlaying={player.isPlaying}
-          width={400}
-          height={150}
+          width={280}
+          height={100}
           barCount={64}
-          type={(preferences?.visualizerType as "bars" | "wave" | "circular" | "oscilloscope" | "spectrum" | "spectral-waves" | "radial-spectrum" | "particles" | "waveform-mirror" | "frequency-rings" | "frequency-bands" | "frequency-circular" | "frequency-layered" | "frequency-waterfall" | "frequency-radial" | "frequency-particles") ?? "bars"}
+          type={(preferences?.visualizerType as "bars" | "wave" | "circular" | "oscilloscope" | "spectrum" | "spectral-waves" | "radial-spectrum" | "particles" | "waveform-mirror" | "frequency-rings" | "frequency-bands" | "frequency-circular" | "frequency-layered" | "frequency-waterfall" | "frequency-radial" | "frequency-particles") ?? "spectrum"}
           onTypeChange={(newType) => {
             updatePreferences.mutate({ visualizerType: newType });
+          }}
+          onClose={() => {
+            updatePreferences.mutate({ visualizerEnabled: false });
           }}
           colorPalette={albumColorPalette}
           isDraggable={true}
