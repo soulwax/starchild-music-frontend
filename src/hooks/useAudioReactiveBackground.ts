@@ -31,6 +31,15 @@ export function useAudioReactiveBackground(
   const previousAnalysisRef = useRef<{ overallVolume: number; bass: number } | null>(null);
 
   useEffect(() => {
+    // Toggle visualizer class on html and body elements
+    if (!enabled) {
+      document.documentElement.classList.add('visualizer-disabled');
+      document.body.classList.add('visualizer-disabled');
+    } else {
+      document.documentElement.classList.remove('visualizer-disabled');
+      document.body.classList.remove('visualizer-disabled');
+    }
+
     if (!enabled || !isPlaying || !isInitialized || !audioElement) {
       // Reset to default when not playing or disabled
       document.documentElement.style.setProperty("--audio-intensity", "0");
@@ -39,7 +48,7 @@ export function useAudioReactiveBackground(
       document.documentElement.style.setProperty("--audio-treble", "0");
       document.documentElement.style.setProperty("--audio-hue", "0");
       document.documentElement.style.setProperty("--audio-strobe", "0");
-      
+
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
