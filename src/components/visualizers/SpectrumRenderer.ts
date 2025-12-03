@@ -124,21 +124,21 @@ export class SpectrumRenderer {
           }
         }
 
-        // Calculate colors with bitwise color cycling - more vibrant
+        // Calculate colors with bitwise color cycling - extremely vibrant
         const colorShift = ((Math.floor(this.time * 30) ^ i) & 0xFF) / 255;
-        const hue = (i / this.barCount) * 360 + 200 + colorShift * 80 + seg * 15; // Wider spectrum
-        const saturation = 90 + normalizedValue * 10; // Higher base saturation
-        const lightness = 55 + normalizedValue * 35; // Brighter
+        const hue = (i / this.barCount) * 360 + 180 + colorShift * 100 + seg * 25; // Full spectrum, wider shifts
+        const saturation = 100; // Maximum saturation always
+        const lightness = 70 + normalizedValue * 25; // Much brighter
 
-        // Draw bar with gradient - more opaque
+        // Draw bar with gradient - maximum vividness
         const barGradient = ctx.createLinearGradient(x, y, x, canvas.height);
-        barGradient.addColorStop(0, `hsla(${hue}, ${saturation}%, ${lightness + 25}%, 1)`);
-        barGradient.addColorStop(0.5, `hsla(${hue}, ${saturation}%, ${lightness}%, 0.95)`);
-        barGradient.addColorStop(1, `hsla(${hue}, ${saturation}%, ${lightness - 10}%, 0.85)`);
+        barGradient.addColorStop(0, `hsla(${hue}, 100%, ${lightness + 35}%, 1)`);
+        barGradient.addColorStop(0.5, `hsla(${hue}, 100%, ${lightness}%, 1)`);
+        barGradient.addColorStop(1, `hsla(${hue}, 100%, ${lightness - 5}%, 1)`);
 
-        // Glow effect - more intense
-        ctx.shadowBlur = 30 * normalizedValue;
-        ctx.shadowColor = `hsla(${hue}, 100%, 70%, ${0.9 + normalizedValue * 0.1})`;
+        // Glow effect - extremely intense
+        ctx.shadowBlur = 50 * normalizedValue;
+        ctx.shadowColor = `hsla(${hue}, 100%, 90%, 1)`;
 
         ctx.fillStyle = barGradient;
         ctx.fillRect(x, y, barWidth, barHeight);

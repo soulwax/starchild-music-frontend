@@ -21,9 +21,9 @@ export class CircularRenderer {
       canvas.height / 2,
       Math.max(canvas.width, canvas.height) / 2
     );
-    bgGradient.addColorStop(0, `hsla(${260 + hueShift}, 90%, 25%, 1)`);
-    bgGradient.addColorStop(0.5, `hsla(${280 + hueShift}, 85%, 20%, 1)`);
-    bgGradient.addColorStop(1, `hsla(${240 + hueShift}, 80%, 15%, 1)`);
+    bgGradient.addColorStop(0, `hsla(${260 + hueShift}, 100%, 40%, 1)`);
+    bgGradient.addColorStop(0.5, `hsla(${280 + hueShift}, 100%, 35%, 1)`);
+    bgGradient.addColorStop(1, `hsla(${240 + hueShift}, 100%, 25%, 1)`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -58,10 +58,10 @@ export class CircularRenderer {
 
       for (let i = 0; i < 3; i++) {
         const glowRadius = radius * (0.9 - i * 0.15);
-        offCtx.strokeStyle = `rgba(138, 43, 226, ${0.3 - i * 0.1})`;
-        offCtx.lineWidth = 3;
-        offCtx.shadowBlur = 40;
-        offCtx.shadowColor = 'rgba(138, 43, 226, 0.8)';
+        offCtx.strokeStyle = `rgba(138, 43, 226, ${0.7 - i * 0.2})`;
+        offCtx.lineWidth = 5;
+        offCtx.shadowBlur = 60;
+        offCtx.shadowColor = 'rgba(138, 43, 226, 1)';
         offCtx.beginPath();
         offCtx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
         offCtx.stroke();
@@ -90,19 +90,18 @@ export class CircularRenderer {
       const x2 = centerX + Math.cos(angle) * (radius + barLength);
       const y2 = centerY + Math.sin(angle) * (radius + barLength);
 
-      const hue = (i / barCount) * 360 + 200 + seg * 20; // Full spectrum with segment shift
-      const saturation = 90 + normalizedValue * 10; // Higher base saturation
-      const lightness = 60 + normalizedValue * 30; // Brighter
+      const hue = (i / barCount) * 360 + 180 + seg * 30; // Full spectrum with wider segment shift
+      const lightness = 75 + normalizedValue * 20; // Much brighter
 
       const gradient = offCtx.createLinearGradient(x1, y1, x2, y2);
-      gradient.addColorStop(0, `hsla(${hue}, ${saturation}%, ${lightness - 15}%, 0.8)`);
-      gradient.addColorStop(0.5, `hsla(${hue}, ${saturation}%, ${lightness}%, 1)`);
-      gradient.addColorStop(1, `hsla(${hue}, 100%, ${lightness + 15}%, 1)`);
+      gradient.addColorStop(0, `hsla(${hue}, 100%, ${lightness - 10}%, 1)`);
+      gradient.addColorStop(0.5, `hsla(${hue}, 100%, ${lightness}%, 1)`);
+      gradient.addColorStop(1, `hsla(${hue}, 100%, ${lightness + 20}%, 1)`);
 
       offCtx.strokeStyle = gradient;
-      offCtx.lineWidth = Math.max(3, 10 - barCount / 20);
-      offCtx.shadowBlur = 25 * normalizedValue;
-      offCtx.shadowColor = `hsla(${hue}, 100%, 70%, ${0.9 + normalizedValue * 0.1})`;
+      offCtx.lineWidth = Math.max(4, 12 - barCount / 20);
+      offCtx.shadowBlur = 40 * normalizedValue;
+      offCtx.shadowColor = `hsla(${hue}, 100%, 90%, 1)`;
       offCtx.lineCap = 'round';
 
       offCtx.beginPath();
@@ -114,11 +113,11 @@ export class CircularRenderer {
         const peakX = centerX + Math.cos(angle) * (radius + currentPeak);
         const peakY = centerY + Math.sin(angle) * (radius + currentPeak);
 
-        offCtx.shadowBlur = 30;
-        offCtx.shadowColor = `hsla(${hue}, 100%, 75%, 1)`;
-        offCtx.fillStyle = `hsla(${hue + 30}, 100%, 85%, 1)`;
+        offCtx.shadowBlur = 50;
+        offCtx.shadowColor = `hsla(${hue}, 100%, 95%, 1)`;
+        offCtx.fillStyle = `hsla(${hue + 40}, 100%, 100%, 1)`;
         offCtx.beginPath();
-        offCtx.arc(peakX, peakY, 4, 0, Math.PI * 2);
+        offCtx.arc(peakX, peakY, 5, 0, Math.PI * 2);
         offCtx.fill();
       }
     }
@@ -132,21 +131,21 @@ export class CircularRenderer {
       centerX, centerY, 0,
       centerX, centerY, radius * 0.8
     );
-    innerGradient.addColorStop(0, `rgba(138, 43, 226, ${0.5 + avgAmplitude * 0.5})`);
-    innerGradient.addColorStop(0.7, `rgba(75, 0, 130, ${0.4 + avgAmplitude * 0.4})`);
-    innerGradient.addColorStop(1, 'rgba(75, 0, 130, 0.2)');
+    innerGradient.addColorStop(0, `rgba(138, 43, 226, ${0.9 + avgAmplitude * 0.1})`);
+    innerGradient.addColorStop(0.7, `rgba(75, 0, 130, ${0.8 + avgAmplitude * 0.2})`);
+    innerGradient.addColorStop(1, 'rgba(75, 0, 130, 0.6)');
 
     offCtx.fillStyle = innerGradient;
     offCtx.beginPath();
     offCtx.arc(centerX, centerY, radius * 0.8, 0, Math.PI * 2);
     offCtx.fill();
 
-    // Draw center glow particle - more intense
-    offCtx.shadowBlur = 50 + avgAmplitude * 60;
+    // Draw center glow particle - extremely intense
+    offCtx.shadowBlur = 80 + avgAmplitude * 100;
     offCtx.shadowColor = 'rgba(200, 150, 255, 1)';
     offCtx.fillStyle = 'rgba(255, 255, 255, 1)';
     offCtx.beginPath();
-    offCtx.arc(centerX, centerY, 6 + avgAmplitude * 8, 0, Math.PI * 2);
+    offCtx.arc(centerX, centerY, 8 + avgAmplitude * 12, 0, Math.PI * 2);
     offCtx.fill();
     offCtx.shadowBlur = 0;
 
@@ -173,8 +172,8 @@ export class CircularRenderer {
       ctx.rotate((seg * Math.PI * 2) / segments);
       ctx.scale(seg % 2 === 0 ? 1 : -1, 1); // Mirror alternate segments
       ctx.translate(-centerX, -centerY);
-      ctx.globalCompositeOperation = 'screen'; // Use screen blend for more vibrant effect
-      ctx.globalAlpha = 0.9;
+      ctx.globalCompositeOperation = 'screen'; // Use screen blend for maximum vibrant effect
+      ctx.globalAlpha = 1.0;
       ctx.drawImage(offCanvas, 0, 0);
       ctx.restore();
     }
