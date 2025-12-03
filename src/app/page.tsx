@@ -296,9 +296,6 @@ function SearchPageContent() {
           transition={springPresets.gentle}
           className="mb-6 text-center md:mb-10"
         >
-          <h1 className="accent-gradient mb-3 text-2xl font-bold md:text-4xl">
-              Discover Your Next Favorite Track
-            </h1>
           <p className="text-sm text-[var(--color-subtext)] md:text-base">
             Search 50 million+ tracks. Log in for playlists and more.
             </p>
@@ -362,7 +359,7 @@ function SearchPageContent() {
                 <span className="text-sm font-medium text-[var(--color-subtext)]">
                   Recent:
                 </span>
-                {recentSearches.map((search) => (
+                {recentSearches.map((search: string) => (
                   <button
                     key={search}
                       onClick={() => {

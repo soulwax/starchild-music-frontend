@@ -206,3 +206,59 @@ export function isSearchResponse(obj: unknown): obj is SearchResponse {
 export function isRecommendedTrack(obj: unknown): obj is RecommendedTrack {
   return isTrack(obj) && 'recommendationContext' in obj;
 }
+
+// tRPC API Response Types
+
+export interface ListeningHistoryItem {
+  id: number;
+  track: Track;
+  playedAt: Date;
+  duration: number | null;
+}
+
+export interface FavoriteItem {
+  id: number;
+  track: Track;
+  createdAt: Date;
+}
+
+export interface TopTrackItem {
+  track: Track;
+  playCount: number;
+  totalDuration: number | null;
+}
+
+export interface TopArtistItem {
+  artist: Artist;
+  playCount: number;
+}
+
+export interface PlaylistWithTracks {
+  id: number;
+  userId: string;
+  name: string;
+  description: string | null;
+  isPublic: boolean;
+  coverImage: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  trackCount?: number;
+  tracks?: Array<{
+    id: number;
+    track: Track;
+    position: number;
+    addedAt: Date;
+  }>;
+}
+
+export interface UserProfile {
+  userHash: string;
+  name: string | null;
+  image: string | null;
+  bio: string | null;
+  stats: {
+    favorites: number;
+    playlists: number;
+    tracksPlayed: number;
+  };
+}

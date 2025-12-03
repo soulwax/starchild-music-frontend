@@ -356,7 +356,7 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
 
         console.log("[AudioPlayerContext] 📦 Received recommendations:", {
           count: tracks?.length ?? 0,
-          tracks: tracks?.slice(0, 3).map(t => `${t.title} - ${t.artist.name}`) ?? [],
+          tracks: tracks?.slice(0, 3).map((t: Track) => `${t.title} - ${t.artist.name}`) ?? [],
         });
 
         if (tracks && tracks.length > 0) {
@@ -364,7 +364,7 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
           if (seedTrack) {
             const validSeedTracks = hasCompleteTrackData(seedTrack) ? [seedTrack] : [];
             const validRecommendedTracks = tracks.filter(
-              (t): t is Track => hasCompleteTrackData(t)
+              (t: Track): t is Track => hasCompleteTrackData(t)
             );
 
             if (validSeedTracks.length > 0 && validRecommendedTracks.length > 0) {

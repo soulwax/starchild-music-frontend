@@ -7,6 +7,7 @@ import EnhancedTrackCard from "@/components/EnhancedTrackCard";
 import { LoadingState } from "@/components/LoadingSpinner";
 import { useGlobalPlayer } from "@/contexts/AudioPlayerContext";
 import { api } from "@/trpc/react";
+import type { FavoriteItem, ListeningHistoryItem } from "@/types";
 import { Heart, Clock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -77,7 +78,7 @@ export default function LibraryPage() {
             <LoadingState message="Loading your favorites..." />
           ) : favorites && favorites.length > 0 ? (
             <div className="grid gap-2 md:gap-3">
-              {favorites.map((fav) => (
+              {favorites.map((fav: FavoriteItem) => (
                 <EnhancedTrackCard
                   key={fav.id}
                   track={fav.track}
@@ -107,7 +108,7 @@ export default function LibraryPage() {
             <LoadingState message="Loading your history..." />
           ) : history && history.length > 0 ? (
             <div className="grid gap-2 md:gap-3">
-              {history.map((item) => (
+              {history.map((item: ListeningHistoryItem) => (
                 <EnhancedTrackCard
                   key={item.id}
                   track={item.track}

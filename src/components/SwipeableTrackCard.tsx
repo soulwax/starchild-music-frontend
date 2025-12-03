@@ -88,7 +88,7 @@ export default function SwipeableTrackCard({
   const addToPlaylist = api.music.addToPlaylist.useMutation({
     onSuccess: async (_, variables) => {
       await utils.music.getPlaylists.invalidate();
-      const playlistName = playlists?.find((p) => p.id === variables.playlistId)?.name ?? "playlist";
+      const playlistName = playlists?.find((p: { id: number; name: string }) => p.id === variables.playlistId)?.name ?? "playlist";
       showToast(`Added "${track.title}" to ${playlistName}`, "success");
       setShowMenu(false);
     },
@@ -361,7 +361,7 @@ export default function SwipeableTrackCard({
                       Add to Playlist
                     </div>
                     {playlists && playlists.length > 0 ? (
-                      playlists.map((playlist) => (
+                      playlists.map((playlist: { id: number; name: string }) => (
                         <button
                           key={playlist.id}
                           onClick={() => handleAddToPlaylist(playlist.id)}

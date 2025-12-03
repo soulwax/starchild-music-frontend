@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { LoadingState } from "@/components/LoadingSpinner";
 import { useToast } from "@/contexts/ToastContext";
 import { api } from "@/trpc/react";
+import type { PlaylistWithTracks } from "@/types";
 import { Music, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -95,7 +96,7 @@ export default function PlaylistsPage() {
         <LoadingState message="Loading your playlists..." />
       ) : playlists && playlists.length > 0 ? (
         <div className="fade-in grid gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-3 xl:grid-cols-4">
-          {playlists.map((playlist) => (
+          {playlists.map((playlist: PlaylistWithTracks) => (
             <Link
               key={playlist.id}
               href={`/playlists/${playlist.id}`}
@@ -104,22 +105,14 @@ export default function PlaylistsPage() {
               <div className="relative aspect-square overflow-hidden rounded-xl bg-[linear-gradient(135deg,rgba(244,178,102,0.28),rgba(88,198,177,0.22))]">
                 {playlist.tracks && playlist.tracks.length > 0 ? (
                   <div className="grid h-full grid-cols-2 grid-rows-2 gap-0.5">
-                    {playlist.tracks.slice(0, 4).map((track, idx) => (
+                    {playlist.tracks.slice(0, 4).map((playlistTrack, idx) => (
                       <div
                         key={idx}
                         className="relative h-full w-full overflow-hidden rounded-[0.65rem] bg-[rgba(12,18,27,0.9)]"
                       >
                         <Image
                           src={
-                            track.trackData &&
-                            typeof track.trackData === "object" &&
-                            "album" in track.trackData &&
-                            track.trackData.album &&
-                            typeof track.trackData.album === "object" &&
-                            "cover_medium" in track.trackData.album
-                              ? (track.trackData.album
-                                  .cover_medium as string)
-                              : "/placeholder.png"
+                            playlistTrack.track?.album?.cover_medium ?? "/placeholder.png"
                           }
                           alt=""
                           fill

@@ -105,16 +105,16 @@ async function syncAutoFavorites(
   });
 
   const currentFavoriteTrackIds = new Set(
-    currentFavorites.map((f) => f.trackId),
+    currentFavorites.map((f: { trackId: string }) => f.trackId),
   );
-  const topTrackIds = new Set(topTracks.map((t) => t.trackId));
+  const topTrackIds = new Set(topTracks.map((t: { trackId: string }) => t.trackId));
 
   // Remove favorites that are no longer in top tracks
   const toRemove = currentFavorites.filter(
-    (f) => !topTrackIds.has(f.trackId),
+    (f: { trackId: string }) => !topTrackIds.has(f.trackId),
   );
   if (toRemove.length > 0) {
-    const trackIdsToRemove = toRemove.map((f) => f.trackId);
+    const trackIdsToRemove = toRemove.map((f: { trackId: string }) => f.trackId);
     await database
       .delete(favorites)
       .where(
@@ -126,10 +126,10 @@ async function syncAutoFavorites(
   }
 
   // Add new favorites that are in top tracks but not yet favorited
-  const toAdd = topTracks.filter((t) => !currentFavoriteTrackIds.has(t.trackId));
+  const toAdd = topTracks.filter((t: { trackId: string }) => !currentFavoriteTrackIds.has(t.trackId));
   if (toAdd.length > 0) {
     await database.insert(favorites).values(
-      toAdd.map((t) => ({
+      toAdd.map((t: { trackId: string; trackData: unknown }) => ({
         userId,
         trackId: t.trackId,
         trackData: t.trackData,
@@ -196,7 +196,7 @@ export const musicRouter = createTRPCRouter({
         offset: input.offset,
       });
 
-      return items.map((item) => ({
+      return items.map((item: { id: number; trackData: unknown; createdAt: Date }) => ({
         id: item.id,
         track: item.trackData as Track,
         createdAt: item.createdAt,
@@ -366,7 +366,7 @@ export const musicRouter = createTRPCRouter({
 
       return {
         ...playlist,
-        tracks: playlist.tracks.map((t) => ({
+        tracks: playlist.tracks.map((t: { id: number; trackData: unknown; position: number; addedAt: Date }) => ({
           id: t.id,
           track: t.trackData as Track,
           position: t.position,
@@ -396,7 +396,7 @@ export const musicRouter = createTRPCRouter({
 
       return {
         ...playlist,
-        tracks: playlist.tracks.map((t) => ({
+        tracks: playlist.tracks.map((t: { id: number; trackData: unknown; position: number; addedAt: Date }) => ({
           id: t.id,
           track: t.trackData as Track,
           position: t.position,
@@ -580,7 +580,7 @@ export const musicRouter = createTRPCRouter({
         offset: input.offset,
       });
 
-      return items.map((item) => ({
+      return items.map((item: { id: number; trackData: unknown; playedAt: Date; duration: number | null }) => ({
         id: item.id,
         track: item.trackData as Track,
         playedAt: item.playedAt,
@@ -618,7 +618,7 @@ export const musicRouter = createTRPCRouter({
         .orderBy(desc(sql`MAX(${searchHistory.searchedAt})`))
         .limit(input.limit);
 
-      return items.map((item) => item.query);
+      return items.map((item: { query: string }) => item.query);
     }),
 
   // ============================================
@@ -971,7 +971,7 @@ export const musicRouter = createTRPCRouter({
         .orderBy(desc(sql`COUNT(*)`))
         .limit(input.limit);
 
-      return topTracks.map((item) => ({
+      return topTracks.map((item: { trackData: unknown; playCount: number; totalDuration: number | null }) => ({
         track: item.trackData as Track,
         playCount: item.playCount,
         totalDuration: item.totalDuration,
@@ -1279,10 +1279,10 @@ export const musicRouter = createTRPCRouter({
           limit: 100,
         });
         
-        const userFavoriteArtistIds = [...new Set(
+        const userFavoriteArtistIds = [... new Set<number>(
           userFavorites
-            .map(f => (f.trackData as Track | null)?.artist?.id)
-            .filter((id): id is number => typeof id === "number")
+            .map((f: { trackData: unknown }) => (f.trackData as Track | null)?.artist?.id)
+            .filter((id: unknown): id is number => typeof id === "number")
         )];
 
         // Get recently played track IDs to avoid repeats
@@ -1291,7 +1291,7 @@ export const musicRouter = createTRPCRouter({
           orderBy: desc(listeningHistory.playedAt),
           limit: 50,
         });
-        const recentlyPlayedTrackIds = recentHistory.map(h => h.trackId);
+        const recentlyPlayedTrackIds: number[] = recentHistory.map((h: { trackId: number }) => h.trackId);
 
         console.log("[getSimilarTracks] Enhanced recommendations:", {
           seedTrack: `${seedTrack.title} - ${seedTrack.artist.name}`,
@@ -1431,10 +1431,10 @@ export const musicRouter = createTRPCRouter({
           limit: 100,
         });
         
-        const userFavoriteArtistIds = [...new Set(
+        const userFavoriteArtistIds = [...new Set<number>(
           userFavorites
-            .map(f => (f.trackData as Track | null)?.artist?.id)
-            .filter((id): id is number => typeof id === "number")
+            .map((f: { trackData: unknown }) => (f.trackData as Track | null)?.artist?.id)
+            .filter((id: unknown): id is number => typeof id === "number")
         )];
 
         // Fetch seed tracks if not already available
@@ -1640,17 +1640,17 @@ export const musicRouter = createTRPCRouter({
           .select({ count: sql<number>`count(*)::int` })
           .from(favorites)
           .where(eq(favorites.userId, user.id))
-          .then((res) => res[0]?.count ?? 0),
+          .then((res: Array<{ count: number }>) => res[0]?.count ?? 0),
         ctx.db
           .select({ count: sql<number>`count(*)::int` })
           .from(playlists)
           .where(and(eq(playlists.userId, user.id), eq(playlists.isPublic, true)))
-          .then((res) => res[0]?.count ?? 0),
+          .then((res: Array<{ count: number }>) => res[0]?.count ?? 0),
         ctx.db
           .select({ count: sql<number>`count(*)::int` })
           .from(listeningHistory)
           .where(eq(listeningHistory.userId, user.id))
-          .then((res) => res[0]?.count ?? 0),
+          .then((res: Array<{ count: number }>) => res[0]?.count ?? 0),
       ]);
 
       return {
@@ -1722,7 +1722,7 @@ export const musicRouter = createTRPCRouter({
         limit: input.limit ?? 20,
       });
 
-      return favs.map((f) => f.trackData);
+      return favs.map((f: { trackData: unknown }) => f.trackData);
     }),
 
   getPublicPlaylists: publicProcedure
@@ -1748,13 +1748,17 @@ export const musicRouter = createTRPCRouter({
       });
 
       // Generate 2x2 grid cover image from first 4 tracks if no coverImage exists
-      return userPlaylists.map((playlist) => {
+      return userPlaylists.map((playlist: {
+        id: number;
+        coverImage: string | null;
+        tracks?: Array<{ trackData: unknown }>;
+      }) => {
         let coverImage = playlist.coverImage;
 
         // If no custom cover image, generate from tracks
         if (!coverImage && playlist.tracks && playlist.tracks.length > 0) {
           const albumCovers = playlist.tracks
-            .map((pt) => {
+            .map((pt: { trackData: unknown }) => {
               const track = pt.trackData as Track;
               return track.album?.cover_medium ?? track.album?.cover;
             })
@@ -1803,7 +1807,7 @@ export const musicRouter = createTRPCRouter({
         .orderBy(desc(sql`COUNT(*)`))
         .limit(input.limit);
 
-      return topTracks.map((item) => ({
+      return topTracks.map((item: { trackData: unknown; playCount: number; totalDuration: number | null }) => ({
         track: item.trackData as Track,
         playCount: item.playCount,
         totalDuration: item.totalDuration,
@@ -1920,6 +1924,6 @@ export const musicRouter = createTRPCRouter({
         }),
       );
 
-      return features.filter((f) => f !== undefined);
+      return features.filter((f: unknown) => f !== undefined);
     }),
 });

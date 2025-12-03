@@ -106,14 +106,20 @@ export default function PublicProfilePage({
           title="🎧 Recently Played"
           loading={tracksLoading}
           items={recentTracks}
-          renderItem={(item, idx) => (
-            <EnhancedTrackCard
-              key={`recent-${idx}`}
-              track={item.trackData as Track}
-              onPlay={(track) => play(track)}
-              onAddToQueue={(track) => addToQueue(track)}
-            />
-          )}
+          renderItem={(item, idx) => {
+            if (typeof item !== 'object' || item === null || !('trackData' in item)) {
+              return null;
+            }
+            const historyItem = item as { trackData: Track; playedAt: Date };
+            return (
+              <EnhancedTrackCard
+                key={`recent-${idx}`}
+                track={historyItem.trackData}
+                onPlay={(track) => play(track)}
+                onAddToQueue={(track) => addToQueue(track)}
+              />
+            );
+          }}
           gridColumns={2}
           emptyMessage="No recent tracks yet"
         />
@@ -122,18 +128,24 @@ export default function PublicProfilePage({
           title="🔥 Top Tracks (All Time)"
           loading={topTracksLoading}
           items={topTracks}
-          renderItem={(item, idx) => (
-            <div key={`top-${idx}`} className="relative">
-              <EnhancedTrackCard
-                track={item.track}
-                onPlay={(track) => play(track)}
-                onAddToQueue={(track) => addToQueue(track)}
-              />
-              <div className="badge-accent absolute right-2 top-2 text-[0.65rem] leading-none">
-                {item.playCount} plays
+          renderItem={(item, idx) => {
+            if (typeof item !== 'object' || item === null || !('track' in item) || !('playCount' in item)) {
+              return null;
+            }
+            const topTrack = item as { track: Track; playCount: number; totalDuration: number | null };
+            return (
+              <div key={`top-${idx}`} className="relative">
+                <EnhancedTrackCard
+                  track={topTrack.track}
+                  onPlay={(track) => play(track)}
+                  onAddToQueue={(track) => addToQueue(track)}
+                />
+                <div className="badge-accent absolute right-2 top-2 text-[0.65rem] leading-none">
+                  {topTrack.playCount} plays
+                </div>
               </div>
-            </div>
-          )}
+            );
+          }}
           gridColumns={2}
           emptyMessage="No top tracks yet"
         />
@@ -142,34 +154,40 @@ export default function PublicProfilePage({
           title="⭐ Top Artists (All Time)"
           loading={topArtistsLoading}
           items={topArtists}
-          renderItem={(item, idx) => (
-            <div
-              key={`artist-${idx}`}
-              className="surface-panel group p-4 text-center transition-transform hover:-translate-y-1.5"
-            >
-              <div className="mb-3 flex h-20 w-full items-center justify-center overflow-hidden rounded-lg bg-[linear-gradient(135deg,rgba(244,178,102,0.35),rgba(88,198,177,0.35))]">
-                {item.artist.picture_medium || item.artist.picture ? (
-                  <Image
-                    src={
-                      item.artist.picture_medium ??
-                      item.artist.picture ??
-                      ""
-                    }
-                    alt={item.artist.name}
-                    width={80}
-                    height={80}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="text-4xl text-white/40">🎤</div>
-                )}
+          renderItem={(item, idx) => {
+            if (typeof item !== 'object' || item === null || !('artist' in item) || !('playCount' in item)) {
+              return null;
+            }
+            const topArtist = item as { artist: Track['artist']; playCount: number };
+            return (
+              <div
+                key={`artist-${idx}`}
+                className="surface-panel group p-4 text-center transition-transform hover:-translate-y-1.5"
+              >
+                <div className="mb-3 flex h-20 w-full items-center justify-center overflow-hidden rounded-lg bg-[linear-gradient(135deg,rgba(244,178,102,0.35),rgba(88,198,177,0.35))]">
+                  {topArtist.artist.picture_medium || topArtist.artist.picture ? (
+                    <Image
+                      src={
+                        topArtist.artist.picture_medium ??
+                        topArtist.artist.picture ??
+                        ""
+                      }
+                      alt={topArtist.artist.name}
+                      width={80}
+                      height={80}
+                      className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="text-4xl text-white/40">🎤</div>
+                  )}
+                </div>
+                <h3 className="mb-1 truncate font-semibold text-[var(--color-text)]">
+                  {topArtist.artist.name}
+                </h3>
+                <p className="text-xs text-[var(--color-subtext)]">{topArtist.playCount} plays</p>
               </div>
-              <h3 className="mb-1 truncate font-semibold text-[var(--color-text)]">
-                {item.artist.name}
-              </h3>
-              <p className="text-xs text-[var(--color-subtext)]">{item.playCount} plays</p>
-            </div>
-          )}
+            );
+          }}
           gridColumns={6}
           skeletonHeight="h-32"
           emptyIcon="🎤"
@@ -180,14 +198,21 @@ export default function PublicProfilePage({
           title="⭐ Favorite Tracks"
           loading={favoritesLoading}
           items={favorites}
-          renderItem={(item, idx) => (
-            <EnhancedTrackCard
-              key={`fav-${idx}`}
-              track={item as Track}
-              onPlay={(track) => play(track)}
-              onAddToQueue={(track) => addToQueue(track)}
-            />
-          )}
+          renderItem={(item, idx) => {
+            // favorites is an array of Track objects directly
+            if (typeof item !== 'object' || item === null) {
+              return null;
+            }
+            const track = item as Track;
+            return (
+              <EnhancedTrackCard
+                key={`fav-${idx}`}
+                track={track}
+                onPlay={(t) => play(t)}
+                onAddToQueue={(t) => addToQueue(t)}
+              />
+            );
+          }}
           gridColumns={2}
           emptyIcon="💫"
           emptyMessage="No favorites yet"
@@ -197,83 +222,94 @@ export default function PublicProfilePage({
           title="📚 Public Playlists"
           loading={playlistsLoading}
           items={playlists}
-          renderItem={(playlist) => (
-            <Link
-              key={playlist.id}
-              href={`/playlists/${playlist.id}`}
-              className="surface-panel group p-4 transition-transform hover:-translate-y-1"
-            >
-              <div className="mb-3 aspect-square overflow-hidden rounded-lg bg-[linear-gradient(135deg,rgba(244,178,102,0.3),rgba(88,198,177,0.3))]">
-                {(() => {
-                  // Check if coverImage is a JSON array of album covers
-                  let albumCovers: string[] = [];
-                  try {
-                    if (playlist.coverImage?.startsWith("[")) {
-                      albumCovers = JSON.parse(playlist.coverImage) as string[];
+          renderItem={(item) => {
+            if (typeof item !== 'object' || item === null || !('id' in item) || !('name' in item)) {
+              return null;
+            }
+            const playlist = item as {
+              id: number;
+              name: string;
+              description: string | null;
+              coverImage: string | null;
+            };
+            return (
+              <Link
+                key={playlist.id}
+                href={`/playlists/${playlist.id}`}
+                className="surface-panel group p-4 transition-transform hover:-translate-y-1"
+              >
+                <div className="mb-3 aspect-square overflow-hidden rounded-lg bg-[linear-gradient(135deg,rgba(244,178,102,0.3),rgba(88,198,177,0.3))]">
+                  {(() => {
+                    // Check if coverImage is a JSON array of album covers
+                    let albumCovers: string[] = [];
+                    try {
+                      if (playlist.coverImage?.startsWith("[")) {
+                        albumCovers = JSON.parse(playlist.coverImage) as string[];
+                      }
+                    } catch {
+                      // Not JSON, treat as single image
                     }
-                  } catch {
-                    // Not JSON, treat as single image
-                  }
 
-                  if (albumCovers.length > 0) {
-                    // Render 2x2 grid of album covers
-                    return (
-                      <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-0.5">
-                        {albumCovers.slice(0, 4).map((cover, i) => (
-                          <div key={i} className="relative h-full w-full overflow-hidden">
-                            <Image
-                              src={cover}
-                              alt={`${playlist.name} track ${i + 1}`}
-                              fill
-                              sizes="(max-width: 768px) 100px, 125px"
-                              className="object-cover transition-transform group-hover:scale-110"
-                              quality={80}
-                              loading="lazy"
-                            />
-                          </div>
-                        ))}
-                        {/* Fill remaining slots with placeholder */}
-                        {Array.from({ length: 4 - albumCovers.length }).map((_, i) => (
-                          <div
-                            key={`placeholder-${i}`}
-                            className="flex h-full w-full items-center justify-center bg-[rgba(244,178,102,0.08)] text-2xl text-white/30"
-                          >
-                            🎵
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  } else if (playlist.coverImage) {
-                    // Single cover image
-                    return (
-                      <Image
-                        src={playlist.coverImage}
-                        alt={playlist.name}
-                        width={200}
-                        height={200}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                      />
-                    );
-                  } else {
-                    // No cover image
-                    return (
-                      <div className="flex h-full items-center justify-center text-6xl text-white/40">
-                        🎵
-                      </div>
-                    );
-                  }
-                })()}
-              </div>
-              <h3 className="mb-1 font-semibold text-[var(--color-text)] line-clamp-1">
-                {playlist.name}
-              </h3>
-              {playlist.description && (
-                <p className="text-sm text-[var(--color-subtext)] line-clamp-2">
-                  {playlist.description}
-                </p>
-              )}
-            </Link>
-          )}
+                    if (albumCovers.length > 0) {
+                      // Render 2x2 grid of album covers
+                      return (
+                        <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-0.5">
+                          {albumCovers.slice(0, 4).map((cover, i) => (
+                            <div key={i} className="relative h-full w-full overflow-hidden">
+                              <Image
+                                src={cover}
+                                alt={`${playlist.name} track ${i + 1}`}
+                                fill
+                                sizes="(max-width: 768px) 100px, 125px"
+                                className="object-cover transition-transform group-hover:scale-110"
+                                quality={80}
+                                loading="lazy"
+                              />
+                            </div>
+                          ))}
+                          {/* Fill remaining slots with placeholder */}
+                          {Array.from({ length: 4 - albumCovers.length }).map((_, i) => (
+                            <div
+                              key={`placeholder-${i}`}
+                              className="flex h-full w-full items-center justify-center bg-[rgba(244,178,102,0.08)] text-2xl text-white/30"
+                            >
+                              🎵
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    } else if (playlist.coverImage) {
+                      // Single cover image
+                      return (
+                        <Image
+                          src={playlist.coverImage}
+                          alt={playlist.name}
+                          width={200}
+                          height={200}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                        />
+                      );
+                    } else {
+                      // No cover image
+                      return (
+                        <div className="flex h-full items-center justify-center text-6xl text-white/40">
+                          🎵
+                        </div>
+                      );
+                    }
+                  })()}
+                </div>
+                <h3 className="mb-1 font-semibold text-[var(--color-text)] line-clamp-1">
+                  {playlist.name}
+                </h3>
+                {playlist.description && (
+                  <p className="text-sm text-[var(--color-subtext)] line-clamp-2">
+                    {playlist.description}
+                  </p>
+                )}
+              </Link>
+            );
+          }}
           gridColumns={4}
           skeletonCount={4}
           skeletonHeight="h-48"

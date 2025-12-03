@@ -3,7 +3,7 @@
 import { useToast } from "@/contexts/ToastContext";
 import { useWebShare } from "@/hooks/useWebShare";
 import { api } from "@/trpc/react";
-import type { Track } from "@/types";
+import type { Track, PlaylistWithTracks } from "@/types";
 import { hapticLight, hapticSuccess } from "@/utils/haptics";
 import { getCoverImage } from "@/utils/images";
 import { formatDuration } from "@/utils/time";
@@ -64,7 +64,7 @@ export default function EnhancedTrackCard({
     onSuccess: async (_, variables) => {
       await utils.music.getPlaylists.invalidate();
       const playlistName =
-        playlists?.find((p) => p.id === variables.playlistId)?.name ??
+        playlists?.find((p: PlaylistWithTracks) => p.id === variables.playlistId)?.name ??
         "playlist";
       showToast(`Added "${track.title}" to ${playlistName}`, "success");
       setShowMenu(false);
@@ -288,7 +288,7 @@ export default function EnhancedTrackCard({
                     Add to Playlist
                   </div>
                   {playlists && playlists.length > 0 ? (
-                    playlists.map((playlist) => (
+                    playlists.map((playlist: PlaylistWithTracks) => (
                       <button
                         key={playlist.id}
                         onClick={() => handleAddToPlaylist(playlist.id)}
