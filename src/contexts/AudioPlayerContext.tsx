@@ -8,12 +8,7 @@ import { api } from "@/trpc/react";
 import type { Track } from "@/types";
 import { getStreamUrlById } from "@/utils/api";
 import { useSession } from "next-auth/react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, type ReactNode } from "react";
 
 interface AudioPlayerContextType {
   // Player state
@@ -85,63 +80,63 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   // Mutation for logging recommendations
   const logRecommendationMutation = api.music.logRecommendation.useMutation();
 
-const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
-  if (!track) return false;
+  const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
+    if (!track) return false;
 
-  const {
-    id,
-    readable,
-    title,
-    title_short,
-    title_version,
-    duration,
-    rank,
-    explicit_lyrics,
-    explicit_content_lyrics,
-    explicit_content_cover,
-    preview,
-    md5_image,
-    artist,
-    album,
-  } = track as Partial<Track>;
+    const {
+      id,
+      readable,
+      title,
+      title_short,
+      title_version,
+      duration,
+      rank,
+      explicit_lyrics,
+      explicit_content_lyrics,
+      explicit_content_cover,
+      preview,
+      md5_image,
+      artist,
+      album,
+    } = track as Partial<Track>;
 
-  return (
-    typeof id === "number" &&
-    typeof readable === "boolean" &&
-    typeof title === "string" &&
-    typeof title_short === "string" &&
-    typeof title_version === "string" &&
-    typeof duration === "number" &&
-    typeof rank === "number" &&
-    typeof explicit_lyrics === "boolean" &&
-    typeof explicit_content_lyrics === "number" &&
-    typeof explicit_content_cover === "number" &&
-    typeof preview === "string" &&
-    typeof md5_image === "string" &&
-    artist !== undefined &&
-    album !== undefined &&
-    typeof artist?.id === "number" &&
-    typeof artist?.name === "string" &&
-    typeof artist?.link === "string" &&
-    typeof artist?.picture === "string" &&
-    typeof artist?.picture_small === "string" &&
-    typeof artist?.picture_medium === "string" &&
-    typeof artist?.picture_big === "string" &&
-    typeof artist?.picture_xl === "string" &&
-    typeof artist?.tracklist === "string" &&
-    typeof artist?.type === "string" &&
-    typeof album?.id === "number" &&
-    typeof album?.title === "string" &&
-    typeof album?.cover === "string" &&
-    typeof album?.cover_small === "string" &&
-    typeof album?.cover_medium === "string" &&
-    typeof album?.cover_big === "string" &&
-    typeof album?.cover_xl === "string" &&
-    typeof album?.md5_image === "string" &&
-    typeof album?.tracklist === "string" &&
-    typeof album?.type === "string"
-  );
-};
+    return (
+      typeof id === "number" &&
+      typeof readable === "boolean" &&
+      typeof title === "string" &&
+      typeof title_short === "string" &&
+      typeof title_version === "string" &&
+      typeof duration === "number" &&
+      typeof rank === "number" &&
+      typeof explicit_lyrics === "boolean" &&
+      typeof explicit_content_lyrics === "number" &&
+      typeof explicit_content_cover === "number" &&
+      typeof preview === "string" &&
+      typeof md5_image === "string" &&
+      artist !== undefined &&
+      album !== undefined &&
+      typeof artist?.id === "number" &&
+      typeof artist?.name === "string" &&
+      typeof artist?.link === "string" &&
+      typeof artist?.picture === "string" &&
+      typeof artist?.picture_small === "string" &&
+      typeof artist?.picture_medium === "string" &&
+      typeof artist?.picture_big === "string" &&
+      typeof artist?.picture_xl === "string" &&
+      typeof artist?.tracklist === "string" &&
+      typeof artist?.type === "string" &&
+      typeof album?.id === "number" &&
+      typeof album?.title === "string" &&
+      typeof album?.cover === "string" &&
+      typeof album?.cover_small === "string" &&
+      typeof album?.cover_medium === "string" &&
+      typeof album?.cover_big === "string" &&
+      typeof album?.cover_xl === "string" &&
+      typeof album?.md5_image === "string" &&
+      typeof album?.tracklist === "string" &&
+      typeof album?.type === "string"
+    );
+  };
 
   // Auto-queue trigger callback using the intelligent backend API
   const handleAutoQueueTrigger = useCallback(
@@ -162,19 +157,22 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
         const requestCount = Math.max(10, Math.ceil((20 - _queueLength) * 1.5));
 
         // Use the intelligent recommendations API through tRPC (server-side, no CORS)
-        const tracks = await utils.client.music.getIntelligentRecommendations.query({
-          trackNames: trackName ? [trackName] : [String(currentTrack.id)],
-          count: requestCount,
-          excludeTrackIds: excludeIds,
-        });
+        const tracks =
+          await utils.client.music.getIntelligentRecommendations.query({
+            trackNames: trackName ? [trackName] : [String(currentTrack.id)],
+            count: requestCount,
+            excludeTrackIds: excludeIds,
+          });
 
         const responseTime = Math.round(performance.now() - startTime);
 
         // Log the recommendation
         if (tracks && tracks.length > 0) {
-          const validSeedTracks = hasCompleteTrackData(currentTrack) ? [currentTrack] : [];
-          const validRecommendedTracks = tracks.filter(
-            (t): t is Track => hasCompleteTrackData(t)
+          const validSeedTracks = hasCompleteTrackData(currentTrack)
+            ? [currentTrack]
+            : [];
+          const validRecommendedTracks = tracks.filter((t): t is Track =>
+            hasCompleteTrackData(t),
           );
 
           if (validSeedTracks.length > 0 && validRecommendedTracks.length > 0) {
@@ -184,7 +182,8 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
               source: "hexmusic-api",
               requestParams: {
                 count: requestCount,
-                similarityLevel: smartQueueSettings.similarityPreference || "balanced",
+                similarityLevel:
+                  smartQueueSettings.similarityPreference || "balanced",
                 useAudioFeatures: smartQueueSettings.smartMixEnabled,
               },
               responseTime,
@@ -192,10 +191,13 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
               context: "auto-queue",
             });
           } else {
-            console.warn("[AudioPlayerContext] ⚠️ Skipping logRecommendation due to incomplete track data", {
-              seedTrackValid: validSeedTracks.length > 0,
-              recommendedCount: validRecommendedTracks.length,
-            });
+            console.warn(
+              "[AudioPlayerContext] ⚠️ Skipping logRecommendation due to incomplete track data",
+              {
+                seedTrackValid: validSeedTracks.length > 0,
+                recommendedCount: validRecommendedTracks.length,
+              },
+            );
           }
         }
 
@@ -214,24 +216,43 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
         if (hasCompleteTrackData(track)) {
           addToHistory.mutate({
             track,
-            duration: typeof track.duration === "number" ? track.duration : undefined,
+            duration:
+              typeof track.duration === "number" ? track.duration : undefined,
           });
         } else {
-          console.warn("[AudioPlayerContext] ⚠️ Skipping addToHistory due to incomplete track data", {
-            trackId: track.id,
-          });
+          console.warn(
+            "[AudioPlayerContext] ⚠️ Skipping addToHistory due to incomplete track data",
+            {
+              trackId: track.id,
+            },
+          );
         }
       }
     },
     onAutoQueueTrigger: handleAutoQueueTrigger,
     onError: (error, trackId) => {
-      console.error(`[AudioPlayerContext] Playback error for track ${trackId}:`, error);
-      
+      console.error(
+        `[AudioPlayerContext] Playback error for track ${trackId}:`,
+        error,
+      );
+
       // Check for upstream errors (backend can't reach upstream service)
-      if (error.includes("upstream error") || error.includes("ServiceUnavailableException")) {
-        showToast("Music service temporarily unavailable. The backend cannot reach the music source. Please try again in a moment.", "error");
-      } else if (error.includes("503") || error.includes("Service Unavailable")) {
-        showToast("Streaming service unavailable. Please try again later.", "error");
+      if (
+        error.includes("upstream error") ||
+        error.includes("ServiceUnavailableException")
+      ) {
+        showToast(
+          "Music service temporarily unavailable. The backend cannot reach the music source. Please try again in a moment.",
+          "error",
+        );
+      } else if (
+        error.includes("503") ||
+        error.includes("Service Unavailable")
+      ) {
+        showToast(
+          "Streaming service unavailable. Please try again later.",
+          "error",
+        );
       } else {
         showToast("Playback failed. Please try again.", "error");
       }
@@ -245,15 +266,19 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
       player.loadTrack(track, streamUrl);
       player.play().catch((error) => {
         // Ignore abort errors - these are normal when switching tracks quickly
-        if (error instanceof DOMException && 
-            (error.name === "AbortError" || 
-             error.message?.includes("aborted") ||
-             error.message?.includes("fetching process"))) {
-          console.debug('[AudioPlayerContext] Playback aborted (normal during rapid track changes)');
+        if (
+          error instanceof DOMException &&
+          (error.name === "AbortError" ||
+            error.message?.includes("aborted") ||
+            error.message?.includes("fetching process"))
+        ) {
+          console.debug(
+            "[AudioPlayerContext] Playback aborted (normal during rapid track changes)",
+          );
           return;
         }
-        console.error('Playback failed:', error);
-        showToast('Playback failed. Please try again.', 'error');
+        console.error("Playback failed:", error);
+        showToast("Playback failed. Please try again.", "error");
       });
     },
     [player, showToast],
@@ -266,15 +291,19 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
       player.loadTrack(nextTrack, streamUrl);
       player.play().catch((error) => {
         // Ignore abort errors - these are normal when switching tracks quickly
-        if (error instanceof DOMException && 
-            (error.name === "AbortError" || 
-             error.message?.includes("aborted") ||
-             error.message?.includes("fetching process"))) {
-          console.debug('[AudioPlayerContext] Playback aborted (normal during rapid track changes)');
+        if (
+          error instanceof DOMException &&
+          (error.name === "AbortError" ||
+            error.message?.includes("aborted") ||
+            error.message?.includes("fetching process"))
+        ) {
+          console.debug(
+            "[AudioPlayerContext] Playback aborted (normal during rapid track changes)",
+          );
           return;
         }
-        console.error('Playback failed:', error);
-        showToast('Playback failed. Please try again.', 'error');
+        console.error("Playback failed:", error);
+        showToast("Playback failed. Please try again.", "error");
       });
     }
   }, [player, showToast]);
@@ -286,15 +315,19 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
       player.loadTrack(prevTrack, streamUrl);
       player.play().catch((error) => {
         // Ignore abort errors - these are normal when switching tracks quickly
-        if (error instanceof DOMException && 
-            (error.name === "AbortError" || 
-             error.message?.includes("aborted") ||
-             error.message?.includes("fetching process"))) {
-          console.debug('[AudioPlayerContext] Playback aborted (normal during rapid track changes)');
+        if (
+          error instanceof DOMException &&
+          (error.name === "AbortError" ||
+            error.message?.includes("aborted") ||
+            error.message?.includes("fetching process"))
+        ) {
+          console.debug(
+            "[AudioPlayerContext] Playback aborted (normal during rapid track changes)",
+          );
           return;
         }
-        console.error('Playback failed:', error);
-        showToast('Playback failed. Please try again.', 'error');
+        console.error("Playback failed:", error);
+        showToast("Playback failed. Please try again.", "error");
       });
     }
   }, [player, showToast]);
@@ -307,15 +340,19 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
         player.loadTrack(track, streamUrl);
         player.play().catch((error) => {
           // Ignore abort errors - these are normal when switching tracks quickly
-          if (error instanceof DOMException && 
-              (error.name === "AbortError" || 
-               error.message?.includes("aborted") ||
-               error.message?.includes("fetching process"))) {
-            console.debug('[AudioPlayerContext] Playback aborted (normal during rapid track changes)');
+          if (
+            error instanceof DOMException &&
+            (error.name === "AbortError" ||
+              error.message?.includes("aborted") ||
+              error.message?.includes("fetching process"))
+          ) {
+            console.debug(
+              "[AudioPlayerContext] Playback aborted (normal during rapid track changes)",
+            );
             return;
           }
-          console.error('Playback failed:', error);
-          showToast('Playback failed. Please try again.', 'error');
+          console.error("Playback failed:", error);
+          showToast("Playback failed. Please try again.", "error");
         });
       }
     },
@@ -332,7 +369,9 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
       });
 
       if (!session) {
-        console.log("[AudioPlayerContext] ❌ No session, cannot add similar tracks");
+        console.log(
+          "[AudioPlayerContext] ❌ No session, cannot add similar tracks",
+        );
         return;
       }
 
@@ -340,9 +379,10 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
         console.log("[AudioPlayerContext] 🚀 Calling tRPC getSimilarTracks...");
 
         // Find the seed track for logging
-        const seedTrack = player.currentTrack?.id === trackId
-          ? player.currentTrack
-          : player.queue.find(t => t.id === trackId);
+        const seedTrack =
+          player.currentTrack?.id === trackId
+            ? player.currentTrack
+            : player.queue.find((t) => t.id === trackId);
 
         // Use tRPC endpoint directly - goes through Next.js backend, no CORS issues
         const tracks = await utils.client.music.getSimilarTracks.query({
@@ -356,18 +396,26 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
 
         console.log("[AudioPlayerContext] 📦 Received recommendations:", {
           count: tracks?.length ?? 0,
-          tracks: tracks?.slice(0, 3).map((t: Track) => `${t.title} - ${t.artist.name}`) ?? [],
+          tracks:
+            tracks
+              ?.slice(0, 3)
+              .map((t: Track) => `${t.title} - ${t.artist.name}`) ?? [],
         });
 
         if (tracks && tracks.length > 0) {
           // Log the recommendation
           if (seedTrack) {
-            const validSeedTracks = hasCompleteTrackData(seedTrack) ? [seedTrack] : [];
+            const validSeedTracks = hasCompleteTrackData(seedTrack)
+              ? [seedTrack]
+              : [];
             const validRecommendedTracks = tracks.filter(
-              (t: Track): t is Track => hasCompleteTrackData(t)
+              (t: Track): t is Track => hasCompleteTrackData(t),
             );
 
-            if (validSeedTracks.length > 0 && validRecommendedTracks.length > 0) {
+            if (
+              validSeedTracks.length > 0 &&
+              validRecommendedTracks.length > 0
+            ) {
               logRecommendationMutation.mutate({
                 seedTracks: validSeedTracks,
                 recommendedTracks: validRecommendedTracks,
@@ -377,23 +425,32 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
                 context: "similar-tracks",
               });
             } else {
-              console.warn("[AudioPlayerContext] ⚠️ Skipping logRecommendation for similar tracks due to incomplete data", {
-                hasSeedTrack: validSeedTracks.length > 0,
-                recommendedCount: validRecommendedTracks.length,
-              });
+              console.warn(
+                "[AudioPlayerContext] ⚠️ Skipping logRecommendation for similar tracks due to incomplete data",
+                {
+                  hasSeedTrack: validSeedTracks.length > 0,
+                  recommendedCount: validRecommendedTracks.length,
+                },
+              );
             }
           }
 
           console.log("[AudioPlayerContext] ➕ Adding tracks to queue...");
           player.addToQueue(tracks, false);
           console.log("[AudioPlayerContext] ✅ Tracks added successfully");
-          showToast(`Added ${tracks.length} similar ${tracks.length === 1 ? 'track' : 'tracks'}`, "success");
+          showToast(
+            `Added ${tracks.length} similar ${tracks.length === 1 ? "track" : "tracks"}`,
+            "success",
+          );
         } else {
           console.log("[AudioPlayerContext] ⚠️ No recommendations received");
           showToast("No similar tracks found", "info");
         }
       } catch (error) {
-        console.error("[AudioPlayerContext] ❌ Error adding similar tracks:", error);
+        console.error(
+          "[AudioPlayerContext] ❌ Error adding similar tracks:",
+          error,
+        );
         showToast("Failed to add similar tracks", "error");
         throw error;
       }
@@ -410,7 +467,9 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
       });
 
       if (!session) {
-        console.log("[AudioPlayerContext] ❌ No session, cannot generate smart mix");
+        console.log(
+          "[AudioPlayerContext] ❌ No session, cannot generate smart mix",
+        );
         return;
       }
 
@@ -425,7 +484,11 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
 
         // Find seed tracks for logging
         const seedTracks = seedTrackIds
-          .map(id => player.queue.find(t => t.id === id) ?? (player.currentTrack?.id === id ? player.currentTrack : null))
+          .map(
+            (id) =>
+              player.queue.find((t) => t.id === id) ??
+              (player.currentTrack?.id === id ? player.currentTrack : null),
+          )
           .filter((t): t is Track => t !== null);
 
         // Use tRPC mutation - goes through Next.js backend, no CORS issues
@@ -443,49 +506,71 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
         if (result.tracks.length > 0) {
           // Log the smart mix generation
           if (seedTracks.length > 0) {
-            const validSeedTracks = seedTracks.filter(
-              (t): t is Track => hasCompleteTrackData(t)
+            const validSeedTracks = seedTracks.filter((t): t is Track =>
+              hasCompleteTrackData(t),
             );
             const validRecommendedTracks = result.tracks.filter(
-              (t): t is Track => hasCompleteTrackData(t)
+              (t): t is Track => hasCompleteTrackData(t),
             );
 
-            if (validSeedTracks.length > 0 && validRecommendedTracks.length > 0) {
+            if (
+              validSeedTracks.length > 0 &&
+              validRecommendedTracks.length > 0
+            ) {
               logRecommendationMutation.mutate({
                 seedTracks: validSeedTracks,
                 recommendedTracks: validRecommendedTracks,
                 source: "cached",
                 requestParams: {
                   count,
-                  similarityLevel: smartQueueSettings?.similarityPreference ?? "balanced",
+                  similarityLevel:
+                    smartQueueSettings?.similarityPreference ?? "balanced",
                 },
                 success: true,
                 context: "smart-mix",
               });
             } else {
-              console.warn("[AudioPlayerContext] ⚠️ Skipping smart-mix logRecommendation due to incomplete track data", {
-                seedCount: validSeedTracks.length,
-                recommendedCount: validRecommendedTracks.length,
-              });
+              console.warn(
+                "[AudioPlayerContext] ⚠️ Skipping smart-mix logRecommendation due to incomplete track data",
+                {
+                  seedCount: validSeedTracks.length,
+                  recommendedCount: validRecommendedTracks.length,
+                },
+              );
             }
           }
 
-          console.log("[AudioPlayerContext] 🔄 Clearing queue and adding new tracks...");
+          console.log(
+            "[AudioPlayerContext] 🔄 Clearing queue and adding new tracks...",
+          );
           player.clearQueue();
           player.addToQueue(result.tracks, false);
           console.log("[AudioPlayerContext] ✅ Smart mix applied successfully");
-          showToast(`Smart mix created with ${result.tracks.length} tracks`, "success");
+          showToast(
+            `Smart mix created with ${result.tracks.length} tracks`,
+            "success",
+          );
         } else {
           console.log("[AudioPlayerContext] ⚠️ No tracks in smart mix");
           showToast("Could not generate smart mix", "error");
         }
       } catch (error) {
-        console.error("[AudioPlayerContext] ❌ Error generating smart mix:", error);
+        console.error(
+          "[AudioPlayerContext] ❌ Error generating smart mix:",
+          error,
+        );
         showToast("Failed to generate smart mix", "error");
         throw error;
       }
     },
-    [session, generateSmartMixMutation, smartQueueSettings, player, showToast, logRecommendationMutation],
+    [
+      session,
+      generateSmartMixMutation,
+      smartQueueSettings,
+      player,
+      showToast,
+      logRecommendationMutation,
+    ],
   );
 
   const saveQueueAsPlaylist = useCallback(async () => {
@@ -516,7 +601,9 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
     const playlistName = prompt("Name your new playlist", defaultName);
 
     if (playlistName === null) {
-      console.log("[AudioPlayerContext] ⚪ Playlist creation cancelled by user");
+      console.log(
+        "[AudioPlayerContext] ⚪ Playlist creation cancelled by user",
+      );
       return;
     }
 
@@ -548,14 +635,24 @@ const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
 
       showToast(
         `Saved ${tracksToSave.length} track${tracksToSave.length === 1 ? "" : "s"} to "${trimmedName}"`,
-        "success"
+        "success",
       );
       void utils.music.getPlaylists.invalidate();
     } catch (error) {
-      console.error("[AudioPlayerContext] ❌ Failed to save queue as playlist:", error);
+      console.error(
+        "[AudioPlayerContext] ❌ Failed to save queue as playlist:",
+        error,
+      );
       showToast("Failed to save playlist", "error");
     }
-  }, [session, player, createPlaylistMutation, addToPlaylistMutation, showToast, utils]);
+  }, [
+    session,
+    player,
+    createPlaylistMutation,
+    addToPlaylistMutation,
+    showToast,
+    utils,
+  ]);
 
   const value: AudioPlayerContextType = {
     // State

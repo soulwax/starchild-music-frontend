@@ -2,25 +2,36 @@
 
 export class RadialSpectrumRenderer {
   private rotationAngle = 0;
-  private particleRings: Array<{ angle: number; radius: number; life: number; hue: number }> = [];
+  private particleRings: Array<{
+    angle: number;
+    radius: number;
+    life: number;
+    hue: number;
+  }> = [];
   private peakHistory: number[] = [];
 
   constructor(barCount = 64) {
     this.peakHistory = new Array<number>(barCount).fill(0);
   }
 
-  public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement, barCount = 64): void {
+  public render(
+    ctx: CanvasRenderingContext2D,
+    data: Uint8Array,
+    canvas: HTMLCanvasElement,
+    barCount = 64,
+  ): void {
     // Vibrant radial gradient background
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const avgAmplitude =
+      data.reduce((sum, val) => sum + val, 0) / data.length / 255;
     const hueShift = avgAmplitude * 50;
-    
+
     const bgGradient = ctx.createRadialGradient(
       canvas.width / 2,
       canvas.height / 2,
       0,
       canvas.width / 2,
       canvas.height / 2,
-      Math.max(canvas.width, canvas.height) / 2
+      Math.max(canvas.width, canvas.height) / 2,
     );
     bgGradient.addColorStop(0, `hsla(${270 + hueShift}, 80%, 24%, 0.94)`);
     bgGradient.addColorStop(0.5, `hsla(${250 + hueShift}, 75%, 18%, 0.96)`);
@@ -85,8 +96,14 @@ export class RadialSpectrumRenderer {
 
       // Create gradient from inner to outer
       const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-      gradient.addColorStop(0, `hsla(${hue}, ${saturation}%, ${lightness - 15}%, 0.4)`);
-      gradient.addColorStop(0.4, `hsla(${hue}, ${saturation}%, ${lightness}%, 0.8)`);
+      gradient.addColorStop(
+        0,
+        `hsla(${hue}, ${saturation}%, ${lightness - 15}%, 0.4)`,
+      );
+      gradient.addColorStop(
+        0.4,
+        `hsla(${hue}, ${saturation}%, ${lightness}%, 0.8)`,
+      );
       gradient.addColorStop(1, `hsla(${hue}, 100%, ${lightness + 15}%, 1)`);
 
       // Draw main bar
@@ -94,7 +111,7 @@ export class RadialSpectrumRenderer {
       ctx.lineWidth = Math.max(3, 10 - barCount / 15);
       ctx.shadowBlur = 12 + normalizedValue * 15;
       ctx.shadowColor = `hsla(${hue}, 100%, 60%, ${normalizedValue * 0.8})`;
-      ctx.lineCap = 'round';
+      ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -127,7 +144,7 @@ export class RadialSpectrumRenderer {
           angle,
           radius: minRadius + barLength,
           life: 0,
-          hue
+          hue,
         });
       }
     }
@@ -136,7 +153,7 @@ export class RadialSpectrumRenderer {
 
     // Update and draw particle rings
     const newParticles: typeof this.particleRings = [];
-    this.particleRings.forEach(particle => {
+    this.particleRings.forEach((particle) => {
       particle.life++;
       particle.radius += 2;
 
@@ -163,12 +180,22 @@ export class RadialSpectrumRenderer {
 
     // Draw center glow
     const centerGradient = ctx.createRadialGradient(
-      centerX, centerY, 0,
-      centerX, centerY, minRadius
+      centerX,
+      centerY,
+      0,
+      centerX,
+      centerY,
+      minRadius,
     );
-    centerGradient.addColorStop(0, `rgba(138, 43, 226, ${0.4 + avgAmplitude * 0.4})`);
-    centerGradient.addColorStop(0.6, `rgba(75, 0, 130, ${0.2 + avgAmplitude * 0.3})`);
-    centerGradient.addColorStop(1, 'rgba(75, 0, 130, 0)');
+    centerGradient.addColorStop(
+      0,
+      `rgba(138, 43, 226, ${0.4 + avgAmplitude * 0.4})`,
+    );
+    centerGradient.addColorStop(
+      0.6,
+      `rgba(75, 0, 130, ${0.2 + avgAmplitude * 0.3})`,
+    );
+    centerGradient.addColorStop(1, "rgba(75, 0, 130, 0)");
 
     ctx.fillStyle = centerGradient;
     ctx.beginPath();
@@ -178,15 +205,19 @@ export class RadialSpectrumRenderer {
     // Center pulsing orb
     const orbSize = 6 + avgAmplitude * 10;
     ctx.shadowBlur = 35 + avgAmplitude * 30;
-    ctx.shadowColor = 'rgba(255, 200, 255, 0.9)';
+    ctx.shadowColor = "rgba(255, 200, 255, 0.9)";
 
     const orbGradient = ctx.createRadialGradient(
-      centerX, centerY, 0,
-      centerX, centerY, orbSize
+      centerX,
+      centerY,
+      0,
+      centerX,
+      centerY,
+      orbSize,
     );
-    orbGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    orbGradient.addColorStop(0.4, 'rgba(220, 180, 255, 0.9)');
-    orbGradient.addColorStop(1, 'rgba(138, 43, 226, 0.5)');
+    orbGradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+    orbGradient.addColorStop(0.4, "rgba(220, 180, 255, 0.9)");
+    orbGradient.addColorStop(1, "rgba(138, 43, 226, 0.5)");
 
     ctx.fillStyle = orbGradient;
     ctx.beginPath();

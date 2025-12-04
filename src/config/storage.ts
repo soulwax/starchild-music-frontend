@@ -56,7 +56,7 @@ export const STORAGE_KEYS = {
 /**
  * Type-safe storage key type
  */
-export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
+export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 
 /**
  * Helper to get all storage keys as an array
@@ -70,7 +70,7 @@ export function getAllStorageKeys(): StorageKey[] {
  */
 export function clearAllAppStorage(): void {
   const keys = getAllStorageKeys();
-  keys.forEach(key => {
+  keys.forEach((key) => {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);
   });

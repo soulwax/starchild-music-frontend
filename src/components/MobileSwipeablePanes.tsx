@@ -66,7 +66,7 @@ export default function MobileSwipeablePanes({
   // Calculate pane width (100vw) and handle resize
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
+
     const updatePaneWidth = () => {
       setPaneWidth(window.innerWidth);
       // Update x position when window resizes
@@ -74,7 +74,7 @@ export default function MobileSwipeablePanes({
         x.set(-currentPane * window.innerWidth);
       }
     };
-    
+
     updatePaneWidth();
     window.addEventListener("resize", updatePaneWidth);
     return () => window.removeEventListener("resize", updatePaneWidth);
@@ -103,21 +103,29 @@ export default function MobileSwipeablePanes({
     setIsDragging(true);
   };
 
-  const handleDrag = (_: MouseEvent | TouchEvent | PointerEvent, _info: PanInfo) => {
+  const handleDrag = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    _info: PanInfo,
+  ) => {
     // During drag, provide visual feedback but don't snap yet
     // The visual feedback is handled by the motion.div drag animation
   };
 
-  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     setIsDragging(false);
-    
+
     // Guard against division by zero if paneWidth is not yet initialized
     if (paneWidth <= 0) {
       // If width not initialized, just ensure we're at the current pane position
-      x.set(-currentPane * (typeof window !== "undefined" ? window.innerWidth : 0));
+      x.set(
+        -currentPane * (typeof window !== "undefined" ? window.innerWidth : 0),
+      );
       return;
     }
-    
+
     const offset = info.offset.x;
     const velocity = info.velocity.x;
     const currentX = x.get();
@@ -127,7 +135,10 @@ export default function MobileSwipeablePanes({
 
     // Calculate which pane we're closest to based on current position
     const currentPaneIndex = Math.round(-currentX / paneWidth);
-    const clampedIndex = Math.max(0, Math.min(2, currentPaneIndex)) as PaneIndex;
+    const clampedIndex = Math.max(
+      0,
+      Math.min(2, currentPaneIndex),
+    ) as PaneIndex;
 
     // Use velocity for fast swipes (more sensitive threshold)
     if (Math.abs(velocity) > 300) {
@@ -229,7 +240,7 @@ export default function MobileSwipeablePanes({
         </div>
 
         {/* Pane 2: Main Content */}
-        <div className="h-full w-screen flex-shrink-0 overflow-y-auto relative">
+        <div className="relative h-full w-screen flex-shrink-0 overflow-y-auto">
           {children}
           {/* Mini Player on Content Pane */}
           {player.currentTrack && (
@@ -249,7 +260,7 @@ export default function MobileSwipeablePanes({
       </motion.div>
 
       {/* Pane Indicators - Above mini player and navigation */}
-      <div className="fixed bottom-24 left-1/2 z-[60] flex -translate-x-1/2 gap-2 pointer-events-none">
+      <div className="pointer-events-none fixed bottom-24 left-1/2 z-[60] flex -translate-x-1/2 gap-2">
         {[0, 1, 2].map((index) => (
           <button
             key={index}
@@ -257,7 +268,7 @@ export default function MobileSwipeablePanes({
               hapticLight();
               navigateToPane(index as PaneIndex);
             }}
-            className={`h-2 rounded-full transition-all pointer-events-auto ${
+            className={`pointer-events-auto h-2 rounded-full transition-all ${
               currentPane === index
                 ? "w-8 bg-[var(--color-accent)]"
                 : "w-2 bg-[rgba(255,255,255,0.3)]"

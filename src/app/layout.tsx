@@ -26,11 +26,10 @@ const geist = Geist({
 
 export const metadata = {
   title: "Starchild Music Stream",
-  description: "Modern music streaming and discovery platform with smart recommendations",
+  description:
+    "Modern music streaming and discovery platform with smart recommendations",
   applicationName: "Starchild Music",
-  icons: [
-    { rel: "icon", url: "/favicon.ico" },
-  ],
+  icons: [{ rel: "icon", url: "/favicon.ico" }],
   other: {
     // Enhanced mobile meta tags
     "format-detection": "telephone=no", // Prevent auto-linking phone numbers

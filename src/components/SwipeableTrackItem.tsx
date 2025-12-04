@@ -35,7 +35,7 @@ export function SwipeableTrackItem({
 }: SwipeableTrackItemProps) {
   const x = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Transform for background actions visibility
   const leftActionOpacity = useTransform(x, [0, 80], [0, 1]);
   const rightActionOpacity = useTransform(x, [-80, 0], [1, 0]);
@@ -44,7 +44,10 @@ export function SwipeableTrackItem({
   const swipeThreshold = 80;
   const maxSwipe = 120;
 
-  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
@@ -82,14 +85,16 @@ export function SwipeableTrackItem({
             <ListX className="h-6 w-6 text-white" />
           </motion.div>
         )}
-        
+
         {/* Right action (Favorite) */}
         {showFavorite && (
           <motion.div
             style={{ opacity: leftActionOpacity }}
             className="ml-auto flex h-full items-center justify-start bg-gradient-to-l from-pink-500/90 to-red-500/90 px-6"
           >
-            <Heart className={`h-6 w-6 ${isFavorited ? "fill-white" : ""} text-white`} />
+            <Heart
+              className={`h-6 w-6 ${isFavorited ? "fill-white" : ""} text-white`}
+            />
           </motion.div>
         )}
       </div>
@@ -98,7 +103,10 @@ export function SwipeableTrackItem({
       <motion.div
         ref={containerRef}
         drag="x"
-        dragConstraints={{ left: showRemove ? -maxSwipe : 0, right: showFavorite ? maxSwipe : 0 }}
+        dragConstraints={{
+          left: showRemove ? -maxSwipe : 0,
+          right: showFavorite ? maxSwipe : 0,
+        }}
         dragElastic={0.2}
         dragMomentum={false}
         onDragEnd={handleDragEnd}

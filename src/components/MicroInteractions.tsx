@@ -46,7 +46,7 @@ export function BouncyIconButton({
       transition={springPresets.bouncy}
       className={`touch-target rounded-full p-2 transition-colors ${
         active ? "text-[var(--color-accent)]" : "text-[var(--color-subtext)]"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : "hover:text-[var(--color-text)]"} ${className}`}
+      } ${disabled ? "cursor-not-allowed opacity-50" : "hover:text-[var(--color-text)]"} ${className}`}
     >
       {icon}
     </motion.button>
@@ -127,7 +127,7 @@ export function FloatingActionButton({
           ? { repeat: Infinity, duration: 2, ease: "easeInOut" }
           : springPresets.snappy
       }
-      className={`fixed bottom-20 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-strong)] text-[#0f141d] shadow-[0_8px_24px_rgba(244,178,102,0.4)] md:hidden ${className}`}
+      className={`fixed right-4 bottom-20 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-strong)] text-[#0f141d] shadow-[0_8px_24px_rgba(244,178,102,0.4)] md:hidden ${className}`}
     >
       {icon}
     </motion.button>
@@ -143,7 +143,11 @@ export interface AnimatedCheckboxProps {
   label?: string;
 }
 
-export function AnimatedCheckbox({ checked, onChange, label }: AnimatedCheckboxProps) {
+export function AnimatedCheckbox({
+  checked,
+  onChange,
+  label,
+}: AnimatedCheckboxProps) {
   const handleChange = () => {
     hapticLight();
     onChange(!checked);
@@ -151,7 +155,7 @@ export function AnimatedCheckbox({ checked, onChange, label }: AnimatedCheckboxP
 
   return (
     <motion.label
-      className="flex items-center gap-2 cursor-pointer"
+      className="flex cursor-pointer items-center gap-2"
       whileTap={{ scale: 0.98 }}
     >
       <motion.div
@@ -199,11 +203,17 @@ export interface AnimatedProgressProps {
   className?: string;
 }
 
-export function AnimatedProgress({ value, max = 100, className = "" }: AnimatedProgressProps) {
+export function AnimatedProgress({
+  value,
+  max = 100,
+  className = "",
+}: AnimatedProgressProps) {
   const percentage = Math.min((value / max) * 100, 100);
 
   return (
-    <div className={`relative h-2 overflow-hidden rounded-full bg-[var(--color-surface)] ${className}`}>
+    <div
+      className={`relative h-2 overflow-hidden rounded-full bg-[var(--color-surface)] ${className}`}
+    >
       <motion.div
         className="h-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-strong)]"
         initial={{ width: 0 }}

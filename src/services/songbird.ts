@@ -13,18 +13,22 @@ const SONGBIRD_API_KEY = env.SONGBIRD_API_KEY;
  */
 async function songbirdRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   if (!SONGBIRD_API_URL) {
-    throw new Error("Songbird API URL is not configured. Set NEXT_PUBLIC_SONGBIRD_API_URL environment variable.");
+    throw new Error(
+      "Songbird API URL is not configured. Set NEXT_PUBLIC_SONGBIRD_API_URL environment variable.",
+    );
   }
-  
+
   if (!SONGBIRD_API_KEY) {
-    throw new Error("Songbird API key is not configured. Set SONGBIRD_API_KEY environment variable.");
+    throw new Error(
+      "Songbird API key is not configured. Set SONGBIRD_API_KEY environment variable.",
+    );
   }
 
   const url = `${SONGBIRD_API_URL}${endpoint.startsWith("/") ? endpoint.slice(1) : endpoint}`;
-  
+
   const response = await fetch(url, {
     ...options,
     headers: {
@@ -35,15 +39,17 @@ async function songbirdRequest<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`Songbird API error: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Songbird API error: ${response.status} ${response.statusText}`,
+    );
   }
 
-  return await response.json() as T;
+  return (await response.json()) as T;
 }
 
 /**
  * Songbird API service
- * 
+ *
  * This service will be expanded when the full API specification is available.
  * Currently prepared for future implementation.
  */

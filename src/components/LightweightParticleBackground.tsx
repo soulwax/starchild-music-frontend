@@ -15,7 +15,8 @@ export function LightweightParticleBackground() {
 
   const getParticleCount = () => {
     if (typeof window === "undefined") return 15;
-    const width = window.innerWidth || document.documentElement.clientWidth || 0;
+    const width =
+      window.innerWidth || document.documentElement.clientWidth || 0;
     if (width >= 1600) return 20;
     if (width >= 1200) return 15;
     if (width >= 900) return 12;

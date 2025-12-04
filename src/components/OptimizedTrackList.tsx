@@ -13,7 +13,11 @@ export interface OptimizedTrackListProps {
   className?: string;
 }
 
-export function OptimizedTrackList({ tracks, onPlay, className = "" }: OptimizedTrackListProps) {
+export function OptimizedTrackList({
+  tracks,
+  onPlay,
+  className = "",
+}: OptimizedTrackListProps) {
   return (
     <motion.div
       variants={listAnimation}
@@ -22,11 +26,7 @@ export function OptimizedTrackList({ tracks, onPlay, className = "" }: Optimized
       className={`space-y-2 ${className}`}
     >
       {tracks.map((track, index) => (
-        <motion.div
-          key={track.id}
-          variants={listItemAnimation}
-          custom={index}
-        >
+        <motion.div key={track.id} variants={listItemAnimation} custom={index}>
           <TrackCard track={track} onPlay={onPlay} />
         </motion.div>
       ))}

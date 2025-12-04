@@ -15,9 +15,12 @@ export default function Header() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Fetch current user's profile info to get their userHash
-  const { data: userProfile } = api.music.getCurrentUserProfile.useQuery(undefined, {
-    enabled: !!session,
-  });
+  const { data: userProfile } = api.music.getCurrentUserProfile.useQuery(
+    undefined,
+    {
+      enabled: !!session,
+    },
+  );
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -29,7 +32,8 @@ export default function Header() {
 
     if (showUserMenu) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showUserMenu]);
 
@@ -40,10 +44,10 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-[rgba(244,178,102,0.12)] bg-[rgba(10,16,24,0.88)] backdrop-blur-xl shadow-lg shadow-[rgba(5,10,18,0.6)]">
+      <header className="sticky top-0 z-30 border-b border-[rgba(244,178,102,0.12)] bg-[rgba(10,16,24,0.88)] shadow-lg shadow-[rgba(5,10,18,0.6)] backdrop-blur-xl">
         <div className="container flex items-center justify-between py-3.5">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/" className="group flex items-center gap-3">
             <Image
               src="/AppIcons/Assets.xcassets/AppIcon.appiconset/48.png"
               alt="Starchild Music"
@@ -61,7 +65,7 @@ export default function Header() {
           <nav className="hidden items-center gap-6 md:flex">
             <Link
               href="/"
-              className="text-sm font-medium text-[var(--color-subtext)] transition-all hover:text-[var(--color-text)] hover:scale-105"
+              className="text-sm font-medium text-[var(--color-subtext)] transition-all hover:scale-105 hover:text-[var(--color-text)]"
             >
               Home
             </Link>
@@ -69,13 +73,13 @@ export default function Header() {
               <>
                 <Link
                   href="/library"
-                  className="text-sm font-medium text-[var(--color-subtext)] transition-all hover:text-[var(--color-text)] hover:scale-105"
+                  className="text-sm font-medium text-[var(--color-subtext)] transition-all hover:scale-105 hover:text-[var(--color-text)]"
                 >
                   Library
                 </Link>
                 <Link
                   href="/playlists"
-                  className="text-sm font-medium text-[var(--color-subtext)] transition-all hover:text-[var(--color-text)] hover:scale-105"
+                  className="text-sm font-medium text-[var(--color-subtext)] transition-all hover:scale-105 hover:text-[var(--color-text)]"
                 >
                   Playlists
                 </Link>
@@ -114,13 +118,18 @@ export default function Header() {
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
                 {/* Dropdown Menu */}
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-52 rounded-xl border border-[rgba(244,178,102,0.16)] bg-[rgba(18,26,38,0.95)] p-1 shadow-xl shadow-[rgba(5,10,18,0.6)] backdrop-blur-lg animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 mt-2 w-52 rounded-xl border border-[rgba(244,178,102,0.16)] bg-[rgba(18,26,38,0.95)] p-1 shadow-xl shadow-[rgba(5,10,18,0.6)] backdrop-blur-lg duration-200">
                     <div className="space-y-1">
                       {userProfile?.userHash && (
                         <Link

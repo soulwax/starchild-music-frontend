@@ -18,7 +18,7 @@ import type { Album, Artist, Track } from "@/types";
  */
 export function getCoverImage(
   track: Track,
-  size: "small" | "medium" | "big" | "xl" = "medium"
+  size: "small" | "medium" | "big" | "xl" = "medium",
 ): string {
   const album = track.album;
 
@@ -56,7 +56,7 @@ export function getCoverImage(
  */
 export function getAlbumCover(
   album: Album,
-  size: "small" | "medium" | "big" | "xl" = "medium"
+  size: "small" | "medium" | "big" | "xl" = "medium",
 ): string {
   const normalize = (value?: string | null) =>
     value && value.trim().length > 0 ? value : undefined;
@@ -85,7 +85,7 @@ export function getAlbumCover(
  */
 export function getArtistPicture(
   artist: Artist,
-  size: "small" | "medium" | "big" | "xl" = "medium"
+  size: "small" | "medium" | "big" | "xl" = "medium",
 ): string {
   const normalize = (value?: string | null) =>
     value && value.trim().length > 0 ? value : undefined;

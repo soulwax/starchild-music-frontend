@@ -36,17 +36,17 @@ export function haptic(pattern: HapticPattern = "light"): void {
     light: 5, // Subtle tap - navigation, selections
     medium: 12, // Normal tap - button presses
     heavy: 25, // Strong tap - important actions
-    
+
     // Feedback patterns
     success: [8, 80, 8], // Celebration - completed actions
     error: [15, 50, 15, 50, 25], // Alert - failed actions
     warning: [10, 40, 10], // Caution - destructive action warning
-    
+
     // Interaction-specific
     selection: 3, // Ultra-subtle - list selection, tab change
     impact: 18, // Like a physical button - play/pause
     notification: [5, 100, 5, 100, 15], // Attention - new content
-    
+
     // Gesture feedback
     swipe: [5, 30, 5], // Swipe action complete
     toggle: 8, // Toggle switch
@@ -55,7 +55,7 @@ export function haptic(pattern: HapticPattern = "light"): void {
 
   try {
     const vibrationPattern = patterns[pattern];
-      navigator.vibrate(vibrationPattern);
+    navigator.vibrate(vibrationPattern);
   } catch {
     // Silently fail if vibration fails
     // Don't log in production to avoid console spam

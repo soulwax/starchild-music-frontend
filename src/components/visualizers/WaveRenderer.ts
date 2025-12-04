@@ -3,13 +3,23 @@
 export class WaveRenderer {
   private timeOffset = 0;
 
-  public renderWave(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
+  public renderWave(
+    ctx: CanvasRenderingContext2D,
+    data: Uint8Array,
+    canvas: HTMLCanvasElement,
+  ): void {
     // Calculate average amplitude for dynamic effects
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const avgAmplitude =
+      data.reduce((sum, val) => sum + val, 0) / data.length / 255;
     const hueShift = avgAmplitude * 40;
-    
+
     // Vibrant gradient background
-    const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    const bgGradient = ctx.createLinearGradient(
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
     bgGradient.addColorStop(0, `hsla(${260 + hueShift}, 75%, 22%, 0.92)`);
     bgGradient.addColorStop(1, `hsla(${240 + hueShift}, 70%, 20%, 0.92)`);
     ctx.fillStyle = bgGradient;
@@ -22,9 +32,14 @@ export class WaveRenderer {
 
     // Draw multiple wave layers for depth
     const layers = [
-      { offset: 0, color: 'rgba(138, 43, 226, 0.6)', width: 3, amplitude: 0.8 },
-      { offset: 5, color: 'rgba(75, 0, 130, 0.4)', width: 2, amplitude: 0.6 },
-      { offset: -5, color: 'rgba(147, 112, 219, 0.4)', width: 2, amplitude: 0.6 },
+      { offset: 0, color: "rgba(138, 43, 226, 0.6)", width: 3, amplitude: 0.8 },
+      { offset: 5, color: "rgba(75, 0, 130, 0.4)", width: 2, amplitude: 0.6 },
+      {
+        offset: -5,
+        color: "rgba(147, 112, 219, 0.4)",
+        width: 2,
+        amplitude: 0.6,
+      },
     ];
 
     layers.forEach((layer) => {
@@ -39,7 +54,10 @@ export class WaveRenderer {
       for (let i = 0; i < data.length; i++) {
         const value = data[i] ?? 128;
         const normalizedValue = ((value - 128) / 128) * layer.amplitude;
-        const y = centerY + normalizedValue * (canvas.height / 2.5) + Math.sin(this.timeOffset + i * 0.1) * 5;
+        const y =
+          centerY +
+          normalizedValue * (canvas.height / 2.5) +
+          Math.sin(this.timeOffset + i * 0.1) * 5;
 
         if (i === 0) {
           ctx.moveTo(x, y + layer.offset);
@@ -55,7 +73,7 @@ export class WaveRenderer {
     ctx.shadowBlur = 0;
 
     // Add glow particles along the wave
-    ctx.fillStyle = 'rgba(200, 150, 255, 0.8)';
+    ctx.fillStyle = "rgba(200, 150, 255, 0.8)";
     for (let i = 0; i < data.length; i += 10) {
       const value = data[i] ?? 128;
       const normalizedValue = ((value - 128) / 128) * 0.8;
@@ -63,7 +81,7 @@ export class WaveRenderer {
       const y = centerY + normalizedValue * (canvas.height / 2.5);
 
       ctx.shadowBlur = 15;
-      ctx.shadowColor = 'rgba(200, 150, 255, 1)';
+      ctx.shadowColor = "rgba(200, 150, 255, 1)";
       ctx.beginPath();
       ctx.arc(x, y, 2 + avgAmplitude * 3, 0, Math.PI * 2);
       ctx.fill();
@@ -72,7 +90,11 @@ export class WaveRenderer {
     ctx.shadowBlur = 0;
   }
 
-  public renderOscilloscope(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
+  public renderOscilloscope(
+    ctx: CanvasRenderingContext2D,
+    data: Uint8Array,
+    canvas: HTMLCanvasElement,
+  ): void {
     // Grid background
     this.drawGrid(ctx, canvas);
 
@@ -81,16 +103,16 @@ export class WaveRenderer {
 
     // Main oscilloscope line
     ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(0, 255, 200, 0.9)';
+    ctx.strokeStyle = "rgba(0, 255, 200, 0.9)";
     ctx.shadowBlur = 25;
-    ctx.shadowColor = 'rgba(0, 255, 200, 0.8)';
+    ctx.shadowColor = "rgba(0, 255, 200, 0.8)";
 
     ctx.beginPath();
     let x = 0;
 
     for (let i = 0; i < data.length; i++) {
       const value = data[i] ?? 128;
-      const normalizedValue = ((value - 128) / 128);
+      const normalizedValue = (value - 128) / 128;
       const y = centerY + normalizedValue * (canvas.height / 2.2);
 
       if (i === 0) {
@@ -105,18 +127,23 @@ export class WaveRenderer {
 
     // Add glow trail
     ctx.lineWidth = 8;
-    ctx.strokeStyle = 'rgba(0, 255, 200, 0.2)';
+    ctx.strokeStyle = "rgba(0, 255, 200, 0.2)";
     ctx.shadowBlur = 40;
     ctx.stroke();
 
     ctx.shadowBlur = 0;
   }
 
-  public renderWaveformMirror(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
+  public renderWaveformMirror(
+    ctx: CanvasRenderingContext2D,
+    data: Uint8Array,
+    canvas: HTMLCanvasElement,
+  ): void {
     // Calculate average for dynamic effects
-    const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length / 255;
+    const avgAmplitude =
+      data.reduce((sum, val) => sum + val, 0) / data.length / 255;
     const hueShift = avgAmplitude * 35;
-    
+
     // Vibrant gradient background
     const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
     bgGradient.addColorStop(0, `hsla(${270 + hueShift}, 80%, 24%, 0.92)`);
@@ -129,7 +156,7 @@ export class WaveRenderer {
     const sliceWidth = canvas.width / data.length;
 
     // Draw center line
-    ctx.strokeStyle = 'rgba(100, 100, 150, 0.3)';
+    ctx.strokeStyle = "rgba(100, 100, 150, 0.3)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, centerY);
@@ -140,14 +167,14 @@ export class WaveRenderer {
     ctx.lineWidth = 2.5;
     ctx.strokeStyle = `rgba(138, 43, 226, ${0.7 + avgAmplitude * 0.3})`;
     ctx.shadowBlur = 20;
-    ctx.shadowColor = 'rgba(138, 43, 226, 0.8)';
+    ctx.shadowColor = "rgba(138, 43, 226, 0.8)";
 
     ctx.beginPath();
     let x = 0;
 
     for (let i = 0; i < data.length; i++) {
       const value = data[i] ?? 128;
-      const normalizedValue = ((value - 128) / 128);
+      const normalizedValue = (value - 128) / 128;
       const y = centerY - Math.abs(normalizedValue) * (canvas.height / 2.3);
 
       if (i === 0) ctx.moveTo(x, y);
@@ -159,14 +186,14 @@ export class WaveRenderer {
 
     // Bottom waveform (mirror)
     ctx.strokeStyle = `rgba(75, 0, 130, ${0.7 + avgAmplitude * 0.3})`;
-    ctx.shadowColor = 'rgba(75, 0, 130, 0.8)';
+    ctx.shadowColor = "rgba(75, 0, 130, 0.8)";
 
     ctx.beginPath();
     x = 0;
 
     for (let i = 0; i < data.length; i++) {
       const value = data[i] ?? 128;
-      const normalizedValue = ((value - 128) / 128);
+      const normalizedValue = (value - 128) / 128;
       const y = centerY + Math.abs(normalizedValue) * (canvas.height / 2.3);
 
       if (i === 0) ctx.moveTo(x, y);
@@ -179,16 +206,16 @@ export class WaveRenderer {
     // Fill between waveforms
     ctx.globalAlpha = 0.15;
     const fillGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    fillGradient.addColorStop(0, 'rgba(138, 43, 226, 0.4)');
-    fillGradient.addColorStop(0.5, 'rgba(106, 21, 197, 0.6)');
-    fillGradient.addColorStop(1, 'rgba(75, 0, 130, 0.4)');
+    fillGradient.addColorStop(0, "rgba(138, 43, 226, 0.4)");
+    fillGradient.addColorStop(0.5, "rgba(106, 21, 197, 0.6)");
+    fillGradient.addColorStop(1, "rgba(75, 0, 130, 0.4)");
     ctx.fillStyle = fillGradient;
 
     ctx.beginPath();
     x = 0;
     for (let i = 0; i < data.length; i++) {
       const value = data[i] ?? 128;
-      const normalizedValue = ((value - 128) / 128);
+      const normalizedValue = (value - 128) / 128;
       const y = centerY - Math.abs(normalizedValue) * (canvas.height / 2.3);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
@@ -196,7 +223,7 @@ export class WaveRenderer {
     }
     for (let i = data.length - 1; i >= 0; i--) {
       const value = data[i] ?? 128;
-      const normalizedValue = ((value - 128) / 128);
+      const normalizedValue = (value - 128) / 128;
       const y = centerY + Math.abs(normalizedValue) * (canvas.height / 2.3);
       x -= sliceWidth;
       ctx.lineTo(x, y);
@@ -208,15 +235,23 @@ export class WaveRenderer {
     ctx.shadowBlur = 0;
   }
 
-  private drawGrid(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
+  private drawGrid(
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+  ): void {
     // Vibrant grid background
-    const gridGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gridGradient.addColorStop(0, 'hsla(200, 70%, 18%, 0.92)');
-    gridGradient.addColorStop(1, 'hsla(220, 65%, 15%, 0.92)');
+    const gridGradient = ctx.createLinearGradient(
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
+    gridGradient.addColorStop(0, "hsla(200, 70%, 18%, 0.92)");
+    gridGradient.addColorStop(1, "hsla(220, 65%, 15%, 0.92)");
     ctx.fillStyle = gridGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.strokeStyle = 'rgba(0, 255, 200, 0.1)';
+    ctx.strokeStyle = "rgba(0, 255, 200, 0.1)";
     ctx.lineWidth = 1;
 
     // Vertical grid lines
@@ -238,7 +273,7 @@ export class WaveRenderer {
     }
 
     // Center line (brighter)
-    ctx.strokeStyle = 'rgba(0, 255, 200, 0.3)';
+    ctx.strokeStyle = "rgba(0, 255, 200, 0.3)";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, canvas.height / 2);

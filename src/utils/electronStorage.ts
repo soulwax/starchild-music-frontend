@@ -53,13 +53,20 @@ export async function verifyStoragePersistence(): Promise<boolean> {
     const testValue = { timestamp: Date.now(), test: true };
 
     // Try to write and read back
-    storage.set(testKey as typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS], testValue);
-    const result = storage.get<typeof testValue>(testKey as typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS]);
+    storage.set(
+      testKey as (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS],
+      testValue,
+    );
+    const result = storage.get<typeof testValue>(
+      testKey as (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS],
+    );
 
     if (result.success && result.data?.test === true) {
       console.log("[ElectronStorage] ✅ Storage persistence verified");
       // Clean up test key
-      storage.remove(testKey as typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS]);
+      storage.remove(
+        testKey as (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS],
+      );
       return true;
     }
 
@@ -92,8 +99,12 @@ export function exportPreferences(): Record<string, unknown> {
  */
 export function importPreferences(preferences: Record<string, unknown>): void {
   for (const [key, value] of Object.entries(preferences)) {
-    if (PERSISTENT_PREFERENCES.includes(key as typeof PERSISTENT_PREFERENCES[number])) {
-      storage.set(key as typeof PERSISTENT_PREFERENCES[number], value);
+    if (
+      PERSISTENT_PREFERENCES.includes(
+        key as (typeof PERSISTENT_PREFERENCES)[number],
+      )
+    ) {
+      storage.set(key as (typeof PERSISTENT_PREFERENCES)[number], value);
     }
   }
 }

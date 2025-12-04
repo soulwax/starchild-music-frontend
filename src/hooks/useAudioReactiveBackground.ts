@@ -12,7 +12,7 @@ import { useEffect, useRef } from "react";
 export function useAudioReactiveBackground(
   audioElement: HTMLAudioElement | null,
   isPlaying: boolean,
-  enabled = true
+  enabled = true,
 ) {
   const visualizer = useAudioVisualizer(audioElement, {
     fftSize: 256,
@@ -28,16 +28,19 @@ export function useAudioReactiveBackground(
   const resumeContext = visualizer.resumeContext;
 
   const animationFrameRef = useRef<number | null>(null);
-  const previousAnalysisRef = useRef<{ overallVolume: number; bass: number } | null>(null);
+  const previousAnalysisRef = useRef<{
+    overallVolume: number;
+    bass: number;
+  } | null>(null);
 
   useEffect(() => {
     // Only hide backgrounds when explicitly disabled (not when just not playing)
     if (!enabled) {
-      document.documentElement.classList.add('visualizer-disabled');
-      document.body.classList.add('visualizer-disabled');
+      document.documentElement.classList.add("visualizer-disabled");
+      document.body.classList.add("visualizer-disabled");
     } else {
-      document.documentElement.classList.remove('visualizer-disabled');
-      document.body.classList.remove('visualizer-disabled');
+      document.documentElement.classList.remove("visualizer-disabled");
+      document.body.classList.remove("visualizer-disabled");
     }
 
     // Don't show dark screen when not playing - just reset variables
@@ -77,13 +80,15 @@ export function useAudioReactiveBackground(
       // Smooth the values to prevent jitter
       const previous = previousAnalysisRef.current;
       const smoothing = 0.7;
-      
+
       const overallVolume = previous
-        ? previous.overallVolume * smoothing + analysis.overallVolume * (1 - smoothing)
+        ? previous.overallVolume * smoothing +
+          analysis.overallVolume * (1 - smoothing)
         : analysis.overallVolume;
-      
+
       const bass = previous
-        ? previous.bass * smoothing + analysis.frequencyBands.bass * (1 - smoothing)
+        ? previous.bass * smoothing +
+          analysis.frequencyBands.bass * (1 - smoothing)
         : analysis.frequencyBands.bass;
 
       previousAnalysisRef.current = { overallVolume, bass };
@@ -99,35 +104,55 @@ export function useAudioReactiveBackground(
       const bassWeight = analysis.frequencyBands.bass;
       const midWeight = analysis.frequencyBands.mid;
       const trebleWeight = analysis.frequencyBands.treble;
-      
+
       // Normalize weights
       const total = bassWeight + midWeight + trebleWeight;
       const normalizedBass = total > 0 ? bassWeight / total : 0;
       const normalizedMid = total > 0 ? midWeight / total : 0;
       const normalizedTreble = total > 0 ? trebleWeight / total : 0;
-      
+
       // Kaleidoscope hue range: Wider separation for more distinct colors
       // Bass = red-orange (0-60), Mid = yellow-green-cyan (60-180), Treble = blue-purple-pink (180-360)
-      const hue = normalizedBass * 60 + normalizedMid * 120 + normalizedTreble * 180;
-      
+      const hue =
+        normalizedBass * 60 + normalizedMid * 120 + normalizedTreble * 180;
+
       // Add time-based color cycling for kaleidoscope effect (use performance.now() for better accuracy)
       // Only update when tab is visible to save resources
       // Increased multiplier for faster, more dramatic color shifts
-      const timeHue = typeof window !== "undefined" && !document.hidden
-        ? (performance.now() / 40) % 360
-        : 0;
+      const timeHue =
+        typeof window !== "undefined" && !document.hidden
+          ? (performance.now() / 40) % 360
+          : 0;
       const discoHue = (hue + timeHue * 0.5) % 360;
 
       // Strobe effect based on bass hits (reduced intensity for safety)
       const strobe = bass > 0.7 ? 0.7 : 0;
 
       // Update CSS variables with disco lightshow values
-      document.documentElement.style.setProperty("--audio-intensity", intensity.toString());
-      document.documentElement.style.setProperty("--audio-bass", bassBoost.toString());
-      document.documentElement.style.setProperty("--audio-energy", energy.toString());
-      document.documentElement.style.setProperty("--audio-treble", trebleBoost.toString());
-      document.documentElement.style.setProperty("--audio-hue", discoHue.toString());
-      document.documentElement.style.setProperty("--audio-strobe", strobe.toString());
+      document.documentElement.style.setProperty(
+        "--audio-intensity",
+        intensity.toString(),
+      );
+      document.documentElement.style.setProperty(
+        "--audio-bass",
+        bassBoost.toString(),
+      );
+      document.documentElement.style.setProperty(
+        "--audio-energy",
+        energy.toString(),
+      );
+      document.documentElement.style.setProperty(
+        "--audio-treble",
+        trebleBoost.toString(),
+      );
+      document.documentElement.style.setProperty(
+        "--audio-hue",
+        discoHue.toString(),
+      );
+      document.documentElement.style.setProperty(
+        "--audio-strobe",
+        strobe.toString(),
+      );
 
       animationFrameRef.current = requestAnimationFrame(updateBackground);
     };
@@ -150,5 +175,15 @@ export function useAudioReactiveBackground(
         animationFrameRef.current = null;
       }
     };
-  }, [enabled, isPlaying, isInitialized, audioElement, getFrequencyData, audioContext, getFFTSize, initialize, resumeContext]);
+  }, [
+    enabled,
+    isPlaying,
+    isInitialized,
+    audioElement,
+    getFrequencyData,
+    audioContext,
+    getFFTSize,
+    initialize,
+    resumeContext,
+  ]);
 }

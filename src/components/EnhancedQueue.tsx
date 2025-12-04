@@ -75,15 +75,16 @@ function SortableQueueItem({
   // to avoid redundant scroll calls and ensure proper timing
 
   const coverImage = getCoverImage(track, "small");
-  const altText =
-    track.album?.title?.trim()?.length
-      ? `${track.album.title} cover art`
-      : `${track.title} cover art`;
+  const altText = track.album?.title?.trim()?.length
+    ? `${track.album.title} cover art`
+    : `${track.title} cover art`;
 
-  const artistName =
-    track.artist?.name?.trim()?.length ? track.artist.name : "Unknown Artist";
-  const albumTitle =
-    track.album?.title?.trim()?.length ? track.album.title : null;
+  const artistName = track.artist?.name?.trim()?.length
+    ? track.artist.name
+    : "Unknown Artist";
+  const albumTitle = track.album?.title?.trim()?.length
+    ? track.album.title
+    : null;
 
   return (
     <div
@@ -132,7 +133,7 @@ function SortableQueueItem({
           className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
           title="Play from here"
         >
-          <Play className="h-5 w-5 text-white fill-white" />
+          <Play className="h-5 w-5 fill-white text-white" />
         </button>
       </div>
 
@@ -153,14 +154,14 @@ function SortableQueueItem({
       </div>
 
       {/* Duration */}
-      <span className="flex-shrink-0 tabular-nums text-xs text-[var(--color-muted)]">
+      <span className="flex-shrink-0 text-xs text-[var(--color-muted)] tabular-nums">
         {formatDuration(track.duration)}
       </span>
 
       {/* Remove Button */}
       <button
         onClick={onRemove}
-        className="flex-shrink-0 rounded p-1.5 opacity-0 transition-colors hover:bg-[rgba(244,178,102,0.12)] group-hover:opacity-100"
+        className="flex-shrink-0 rounded p-1.5 opacity-0 transition-colors group-hover:opacity-100 hover:bg-[rgba(244,178,102,0.12)]"
         aria-label="Remove from queue"
       >
         <X className="h-4 w-4 text-[var(--color-subtext)] transition-colors hover:text-[var(--color-text)]" />
@@ -179,7 +180,10 @@ interface EnhancedQueueProps {
   onPlayFrom: (index: number) => void;
   onSaveAsPlaylist?: () => void;
   onAddSimilarTracks?: (trackId: number, count?: number) => Promise<void>;
-  onGenerateSmartMix?: (seedTrackIds: number[], count?: number) => Promise<void>;
+  onGenerateSmartMix?: (
+    seedTrackIds: number[],
+    count?: number,
+  ) => Promise<void>;
   isAutoQueueing?: boolean;
 }
 
@@ -202,7 +206,7 @@ export function EnhancedQueue({
   const [generatingMix, setGeneratingMix] = useState(false);
   const [showAutoQueueInfo, setShowAutoQueueInfo] = useState(false);
   const [settingsDraft, setSettingsDraft] = useState<SmartQueueSettings | null>(
-    null
+    null,
   );
 
   const { data: session } = useSession();
@@ -220,7 +224,7 @@ export function EnhancedQueue({
       requestAnimationFrame(() => {
         // Re-query to ensure element is still in DOM and matches current track
         const activeItem = queueListRef.current?.querySelector(
-          `[data-track-id="${trackId}"]`
+          `[data-track-id="${trackId}"]`,
         );
         // Verify element is still connected to DOM
         if (activeItem?.isConnected) {
@@ -241,20 +245,17 @@ export function EnhancedQueue({
     counter: 0,
   });
 
-  const getSortableId = useCallback(
-    (track: Track) => {
-      const map = trackIdMapRef.current.map;
-      const existing = map.get(track);
-      if (existing) {
-        return existing;
-      }
+  const getSortableId = useCallback((track: Track) => {
+    const map = trackIdMapRef.current.map;
+    const existing = map.get(track);
+    if (existing) {
+      return existing;
+    }
 
-      const newId = `queue-item-${trackIdMapRef.current.counter++}`;
-      map.set(track, newId);
-      return newId;
-    },
-    []
-  );
+    const newId = `queue-item-${trackIdMapRef.current.counter++}`;
+    map.set(track, newId);
+    return newId;
+  }, []);
 
   const queueEntries = useMemo(
     () =>
@@ -263,20 +264,20 @@ export function EnhancedQueue({
         index,
         sortableId: getSortableId(track),
       })),
-    [queue, getSortableId]
+    [queue, getSortableId],
   );
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const findIndexBySortableId = useCallback(
     (id: string) =>
       queueEntries.find((entry) => entry.sortableId === id)?.index ?? -1,
-    [queueEntries]
+    [queueEntries],
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -299,9 +300,12 @@ export function EnhancedQueue({
   };
 
   // Fetch smart queue settings
-  const { data: smartQueueSettings } = api.music.getSmartQueueSettings.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
+  const { data: smartQueueSettings } = api.music.getSmartQueueSettings.useQuery(
+    undefined,
+    {
+      enabled: isAuthenticated,
+    },
+  );
 
   useEffect(() => {
     if (smartQueueSettings) {
@@ -384,7 +388,11 @@ export function EnhancedQueue({
     }
 
     // Confirm before clearing queue
-    if (!confirm("This will replace your current queue with a smart mix based on your current tracks. Continue?")) {
+    if (
+      !confirm(
+        "This will replace your current queue with a smart mix based on your current tracks. Continue?",
+      )
+    ) {
       return;
     }
 
@@ -400,7 +408,7 @@ export function EnhancedQueue({
       console.log("[EnhancedQueue] 📋 Smart mix details:", {
         seedCount: seedTracks.length,
         seedTrackIds,
-        seedTitles: seedTracks.map(t => `${t.title} - ${t.artist.name}`),
+        seedTitles: seedTracks.map((t) => `${t.title} - ${t.artist.name}`),
         targetCount: 50,
       });
 
@@ -446,14 +454,17 @@ export function EnhancedQueue({
       });
       console.log("[EnhancedQueue] ✅ Auto-queue setting updated successfully");
       setSettingsDraft((prev) =>
-        prev ? { ...prev, autoQueueEnabled: newValue } : prev
+        prev ? { ...prev, autoQueueEnabled: newValue } : prev,
       );
       showToast(
         newValue ? "Auto-queue enabled" : "Auto-queue disabled",
-        "success"
+        "success",
       );
     } catch (error) {
-      console.error("[EnhancedQueue] ❌ Error updating auto-queue setting:", error);
+      console.error(
+        "[EnhancedQueue] ❌ Error updating auto-queue setting:",
+        error,
+      );
       showToast("Failed to update auto-queue", "error");
     }
   };
@@ -466,14 +477,11 @@ export function EnhancedQueue({
     return queueEntries.filter(
       ({ track }) =>
         track.title.toLowerCase().includes(normalizedQuery) ||
-        track.artist.name.toLowerCase().includes(normalizedQuery)
+        track.artist.name.toLowerCase().includes(normalizedQuery),
     );
   }, [queueEntries, searchQuery]);
 
-  const totalDuration = queue.reduce(
-    (acc, track) => acc + track.duration,
-    0
-  );
+  const totalDuration = queue.reduce((acc, track) => acc + track.duration, 0);
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-[rgba(244,178,102,0.14)] bg-[rgba(10,16,24,0.96)] shadow-[0_0_40px_rgba(5,10,18,0.65)] backdrop-blur-lg">
@@ -581,18 +589,18 @@ export function EnhancedQueue({
         {/* Search Bar */}
         {queue.length > 0 && (
           <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
             <input
               type="text"
               placeholder="Search queue..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-[rgba(244,178,102,0.18)] bg-[rgba(18,26,38,0.92)] py-2 pl-10 pr-4 text-sm text-[var(--color-text)] placeholder-[var(--color-muted)] focus:border-[rgba(244,178,102,0.35)] focus:outline-none focus:ring-2 focus:ring-[rgba(244,178,102,0.28)]"
+              className="w-full rounded-lg border border-[rgba(244,178,102,0.18)] bg-[rgba(18,26,38,0.92)] py-2 pr-4 pl-10 text-sm text-[var(--color-text)] placeholder-[var(--color-muted)] focus:border-[rgba(244,178,102,0.35)] focus:ring-2 focus:ring-[rgba(244,178,102,0.28)] focus:outline-none"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-subtext)] transition-colors hover:text-[var(--color-text)]"
+                className="absolute top-1/2 right-3 -translate-y-1/2 text-[var(--color-subtext)] transition-colors hover:text-[var(--color-text)]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -605,7 +613,7 @@ export function EnhancedQueue({
           <div className="rounded-lg border border-[rgba(244,178,102,0.2)] bg-[rgba(244,178,102,0.12)] p-3 shadow-inner shadow-[rgba(244,178,102,0.15)]">
             <div className="flex items-center gap-3">
               <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin text-[var(--color-accent)]" />
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-[var(--color-text)]">
                   Auto-queue is working
                 </p>
@@ -636,14 +644,18 @@ export function EnhancedQueue({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--color-subtext)]">Tracks to add:</span>
+                  <span className="text-[var(--color-subtext)]">
+                    Tracks to add:
+                  </span>
                   <span className="font-medium text-[var(--color-text)]">
                     {effectiveSettings.autoQueueCount}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--color-subtext)]">Similarity:</span>
-                  <span className="font-medium capitalize text-[var(--color-text)]">
+                  <span className="text-[var(--color-subtext)]">
+                    Similarity:
+                  </span>
+                  <span className="font-medium text-[var(--color-text)] capitalize">
                     {effectiveSettings.similarityPreference}
                   </span>
                 </div>
@@ -660,12 +672,13 @@ export function EnhancedQueue({
                 <Zap className="h-5 w-5 text-[var(--color-success)]" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 animate-pulse rounded-full bg-[var(--color-success)]" />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-[var(--color-text)]">
                   Auto-queue is active
                 </p>
                 <p className="text-xs text-[var(--color-subtext)]">
-                  Will add tracks when queue has ≤ {effectiveSettings.autoQueueThreshold} tracks
+                  Will add tracks when queue has ≤{" "}
+                  {effectiveSettings.autoQueueThreshold} tracks
                 </p>
               </div>
               <button
@@ -683,7 +696,9 @@ export function EnhancedQueue({
             {showAutoQueueInfo && (
               <div className="mt-3 space-y-2 border-t border-[rgba(88,198,177,0.3)] pt-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--color-subtext)]">Current queue:</span>
+                  <span className="text-[var(--color-subtext)]">
+                    Current queue:
+                  </span>
                   <span className="font-medium text-[var(--color-text)]">
                     {queue.length} tracks
                   </span>
@@ -695,35 +710,38 @@ export function EnhancedQueue({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--color-subtext)]">Similarity mode:</span>
-                  <span className="font-medium capitalize text-[var(--color-text)]">
+                  <span className="text-[var(--color-subtext)]">
+                    Similarity mode:
+                  </span>
+                  <span className="font-medium text-[var(--color-text)] capitalize">
                     {effectiveSettings.similarityPreference}
                   </span>
                 </div>
-                {queue.length <= effectiveSettings.autoQueueThreshold && currentTrack && (
-                  <div className="mt-3 border-t border-[rgba(88,198,177,0.3)] pt-3">
-                    <p className="mb-2 text-xs text-[var(--color-subtext)]">
-                      Ready to trigger:
-                    </p>
-                    <button
-                      onClick={handleAddSimilar}
-                      disabled={addingSimilar}
-                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-success)] px-3 py-2 text-xs font-medium text-[#0d141d] transition-colors hover:bg-[#4bb19c] disabled:bg-[#346f60] disabled:text-[#0d141d]/70 disabled:opacity-70"
-                    >
-                      {addingSimilar ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Adding...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4" />
-                          Manually Trigger Now
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
+                {queue.length <= effectiveSettings.autoQueueThreshold &&
+                  currentTrack && (
+                    <div className="mt-3 border-t border-[rgba(88,198,177,0.3)] pt-3">
+                      <p className="mb-2 text-xs text-[var(--color-subtext)]">
+                        Ready to trigger:
+                      </p>
+                      <button
+                        onClick={handleAddSimilar}
+                        disabled={addingSimilar}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-success)] px-3 py-2 text-xs font-medium text-[#0d141d] transition-colors hover:bg-[#4bb19c] disabled:bg-[#346f60] disabled:text-[#0d141d]/70 disabled:opacity-70"
+                      >
+                        {addingSimilar ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Adding...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            Manually Trigger Now
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
               </div>
             )}
           </div>
@@ -790,7 +808,7 @@ export function EnhancedQueue({
                 onChange={async (e) => {
                   const newValue = parseInt(e.target.value);
                   setSettingsDraft((prev) =>
-                    prev ? { ...prev, autoQueueThreshold: newValue } : prev
+                    prev ? { ...prev, autoQueueThreshold: newValue } : prev,
                   );
                   try {
                     await updateSettings.mutateAsync({
@@ -804,7 +822,8 @@ export function EnhancedQueue({
                 className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-[rgba(255,255,255,0.12)]"
               />
               <p className="text-xs text-[var(--color-subtext)]">
-                Add tracks when queue has ≤ {effectiveSettings.autoQueueThreshold} tracks
+                Add tracks when queue has ≤{" "}
+                {effectiveSettings.autoQueueThreshold} tracks
               </p>
             </div>
 
@@ -826,7 +845,7 @@ export function EnhancedQueue({
                 onChange={async (e) => {
                   const newValue = parseInt(e.target.value);
                   setSettingsDraft((prev) =>
-                    prev ? { ...prev, autoQueueCount: newValue } : prev
+                    prev ? { ...prev, autoQueueCount: newValue } : prev,
                   );
                   try {
                     await updateSettings.mutateAsync({
@@ -851,9 +870,14 @@ export function EnhancedQueue({
                   <button
                     key={pref}
                     onClick={async () => {
-                      const preference = pref as "strict" | "balanced" | "diverse";
+                      const preference = pref as
+                        | "strict"
+                        | "balanced"
+                        | "diverse";
                       setSettingsDraft((prev) =>
-                        prev ? { ...prev, similarityPreference: preference } : prev
+                        prev
+                          ? { ...prev, similarityPreference: preference }
+                          : prev,
                       );
                       try {
                         await updateSettings.mutateAsync({
@@ -884,8 +908,8 @@ export function EnhancedQueue({
                 {effectiveSettings.similarityPreference === "strict"
                   ? "Same artists only - most similar tracks"
                   : effectiveSettings.similarityPreference === "balanced"
-                  ? "Related artists - good mix of familiar & new"
-                  : "Genre-based variety - maximum exploration"}
+                    ? "Related artists - good mix of familiar & new"
+                    : "Genre-based variety - maximum exploration"}
               </p>
             </div>
           </div>
@@ -906,13 +930,17 @@ export function EnhancedQueue({
         {queue.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center p-8 text-center text-[var(--color-subtext)]">
             <div className="mb-4 text-6xl">🎵</div>
-            <p className="mb-2 text-lg font-medium text-[var(--color-text)]">Queue is empty</p>
+            <p className="mb-2 text-lg font-medium text-[var(--color-text)]">
+              Queue is empty
+            </p>
             <p className="text-sm">Add tracks to start building your queue</p>
           </div>
         ) : filteredQueue.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center p-8 text-center text-[var(--color-subtext)]">
             <Search className="mb-4 h-12 w-12" />
-            <p className="mb-2 text-lg font-medium text-[var(--color-text)]">No results found</p>
+            <p className="mb-2 text-lg font-medium text-[var(--color-text)]">
+              No results found
+            </p>
             <p className="text-sm">Try a different search term</p>
           </div>
         ) : (

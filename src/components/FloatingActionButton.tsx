@@ -7,15 +7,13 @@ import { useMobilePanes } from "@/contexts/MobilePanesContext";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { hapticLight, hapticMedium, hapticSuccess } from "@/utils/haptics";
 import { springPresets } from "@/utils/spring-animations";
-import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
 import {
-    ListMusic,
-    Music2,
-    Plus,
-    Search,
-    Shuffle,
-    X,
-} from "lucide-react";
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
+import { ListMusic, Music2, Plus, Search, Shuffle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -139,7 +137,7 @@ export default function FloatingActionButton() {
       {/* Quick Action Buttons */}
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed bottom-36 right-4 z-[56] flex flex-col-reverse items-end gap-3">
+          <div className="fixed right-4 bottom-36 z-[56] flex flex-col-reverse items-end gap-3">
             {visibleActions.map((action, index) => (
               <motion.div
                 key={action.id}
@@ -168,7 +166,7 @@ export default function FloatingActionButton() {
                   whileTap={{ scale: 0.9 }}
                   whileHover={{ scale: 1.05 }}
                   onClick={action.action}
-                  className={`flex h-12 w-12 items-center justify-center rounded-full shadow-lg ${action.bgColor} ${action.color} backdrop-blur-md ring-1 ring-white/10`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-full shadow-lg ${action.bgColor} ${action.color} ring-1 ring-white/10 backdrop-blur-md`}
                 >
                   {action.icon}
                 </motion.button>
@@ -183,7 +181,7 @@ export default function FloatingActionButton() {
         style={{ scale }}
         whileTap={{ scale: 0.9 }}
         onClick={handleToggle}
-        className={`fixed bottom-36 right-4 z-[57] flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-colors ${
+        className={`fixed right-4 bottom-36 z-[57] flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-colors ${
           isOpen
             ? "bg-[var(--color-surface)] ring-1 ring-white/20"
             : "bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-strong)]"
@@ -226,7 +224,7 @@ export default function FloatingActionButton() {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="pointer-events-none fixed bottom-36 right-4 z-[54]"
+          className="pointer-events-none fixed right-4 bottom-36 z-[54]"
         >
           <motion.div
             animate={{

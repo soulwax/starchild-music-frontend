@@ -27,44 +27,50 @@ export function usePullToRefresh(config: PullToRefreshConfig) {
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLElement | null>(null);
 
-  const handleTouchStart = useCallback((e: TouchEvent<HTMLDivElement>) => {
-    if (!enabled || isRefreshing) return;
+  const handleTouchStart = useCallback(
+    (e: TouchEvent<HTMLDivElement>) => {
+      if (!enabled || isRefreshing) return;
 
-    const container = containerRef.current;
-    if (!container) return;
+      const container = containerRef.current;
+      if (!container) return;
 
-    // Only start pull-to-refresh if already at top
-    if (container.scrollTop > 0) return;
+      // Only start pull-to-refresh if already at top
+      if (container.scrollTop > 0) return;
 
-    const touch = e.touches[0];
-    if (!touch) return;
+      const touch = e.touches[0];
+      if (!touch) return;
 
-    startY.current = touch.clientY;
-    isDragging.current = true;
-  }, [enabled, isRefreshing]);
+      startY.current = touch.clientY;
+      isDragging.current = true;
+    },
+    [enabled, isRefreshing],
+  );
 
-  const handleTouchMove = useCallback((e: TouchEvent<HTMLDivElement>) => {
-    if (!isDragging.current || !enabled || isRefreshing) return;
+  const handleTouchMove = useCallback(
+    (e: TouchEvent<HTMLDivElement>) => {
+      if (!isDragging.current || !enabled || isRefreshing) return;
 
-    const touch = e.touches[0];
-    if (!touch) return;
+      const touch = e.touches[0];
+      if (!touch) return;
 
-    const container = containerRef.current;
-    if (!container || container.scrollTop > 0) return;
+      const container = containerRef.current;
+      if (!container || container.scrollTop > 0) return;
 
-    const diffY = touch.clientY - startY.current;
-    
-    if (diffY > 0) {
-      // Apply resistance curve
-      const resistance = Math.min(diffY, maxPullDistance) / 2;
-      setPullDistance(resistance);
+      const diffY = touch.clientY - startY.current;
 
-      // Haptic feedback at threshold
-      if (diffY >= threshold) {
-        hapticMedium();
+      if (diffY > 0) {
+        // Apply resistance curve
+        const resistance = Math.min(diffY, maxPullDistance) / 2;
+        setPullDistance(resistance);
+
+        // Haptic feedback at threshold
+        if (diffY >= threshold) {
+          hapticMedium();
+        }
       }
-    }
-  }, [enabled, isRefreshing, threshold, maxPullDistance]);
+    },
+    [enabled, isRefreshing, threshold, maxPullDistance],
+  );
 
   const handleTouchEnd = useCallback(async () => {
     if (!isDragging.current || !enabled) return;

@@ -168,11 +168,11 @@ export default function MaturePlayer({
         />
         <div
           className="absolute h-3 w-3 rounded-full bg-white opacity-70 shadow-lg transition-all group-hover:scale-125 group-hover:opacity-100"
-          style={{ 
-            left: `${progress}%`, 
+          style={{
+            left: `${progress}%`,
             top: "50%",
-            transform: "translate(-50%, -50%)", 
-            zIndex: 10 
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
           }}
         />
       </div>
@@ -273,7 +273,11 @@ export default function MaturePlayer({
               title="Play/Pause (Space)"
             >
               {isPlaying ? (
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
@@ -351,7 +355,13 @@ export default function MaturePlayer({
                     strokeWidth={2}
                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                   />
-                  <text x="12" y="16" fontSize="10" fill="currentColor" textAnchor="middle">
+                  <text
+                    x="12"
+                    y="16"
+                    fontSize="10"
+                    fill="currentColor"
+                    textAnchor="middle"
+                  >
                     1
                   </text>
                 </svg>
@@ -374,9 +384,9 @@ export default function MaturePlayer({
           </div>
 
           {/* Time Display */}
-        <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-subtext)]">
+          <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-subtext)]">
             <span>{formatTime(currentTime)}</span>
-          <span className="text-[var(--color-muted)]">/</span>
+            <span className="text-[var(--color-muted)]">/</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>
@@ -394,7 +404,7 @@ export default function MaturePlayer({
           <div className="relative hidden md:block">
             <button
               onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-            className="rounded px-2 py-1 text-xs font-medium text-[var(--color-subtext)] transition hover:bg-[rgba(244,178,102,0.12)] hover:text-[var(--color-text)]"
+              className="rounded px-2 py-1 text-xs font-medium text-[var(--color-subtext)] transition hover:bg-[rgba(244,178,102,0.12)] hover:text-[var(--color-text)]"
             >
               {playbackRate}x
             </button>
@@ -404,7 +414,7 @@ export default function MaturePlayer({
                   className="fixed inset-0 z-10"
                   onClick={() => setShowSpeedMenu(false)}
                 />
-                <div className="absolute bottom-full right-0 z-20 mb-2 rounded-lg border border-[rgba(244,178,102,0.18)] bg-[rgba(12,18,27,0.95)] py-2 shadow-lg shadow-[rgba(5,10,18,0.6)] backdrop-blur-lg">
+                <div className="absolute right-0 bottom-full z-20 mb-2 rounded-lg border border-[rgba(244,178,102,0.18)] bg-[rgba(12,18,27,0.95)] py-2 shadow-lg shadow-[rgba(5,10,18,0.6)] backdrop-blur-lg">
                   {PLAYBACK_RATES.map((rate) => (
                     <button
                       key={rate}
@@ -438,7 +448,11 @@ export default function MaturePlayer({
               title="Mute/Unmute (M)"
             >
               {isMuted || volume === 0 ? (
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z"
@@ -446,7 +460,11 @@ export default function MaturePlayer({
                   />
                 </svg>
               ) : volume < 0.5 ? (
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"
@@ -454,7 +472,11 @@ export default function MaturePlayer({
                   />
                 </svg>
               ) : (
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"
@@ -488,7 +510,12 @@ export default function MaturePlayer({
               className="text-[var(--color-subtext)] transition hover:text-[var(--color-text)]"
               title="Queue (Q)"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -506,7 +533,12 @@ export default function MaturePlayer({
               className="text-[var(--color-subtext)] transition hover:text-[var(--color-text)]"
               title="Equalizer (E)"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -526,17 +558,30 @@ export default function MaturePlayer({
                   ? "bg-[rgba(244,178,102,0.16)] text-[var(--color-accent)] shadow-[0_0_16px_rgba(244,178,102,0.2)]"
                   : "text-[var(--color-subtext)] hover:text-[var(--color-text)]"
               }`}
-              title={visualizerEnabled ? "Hide visualizer (V)" : "Show visualizer (V)"}
+              title={
+                visualizerEnabled
+                  ? "Hide visualizer (V)"
+                  : "Show visualizer (V)"
+              }
               aria-pressed={visualizerEnabled}
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"
                 />
-                <path strokeLinecap="round" strokeWidth={2} d="M3 16c2-4 4-4 6 0s4 4 6 0 4-4 6 0" />
+                <path
+                  strokeLinecap="round"
+                  strokeWidth={2}
+                  d="M3 16c2-4 4-4 6 0s4 4 6 0 4-4 6 0"
+                />
               </svg>
             </button>
           )}

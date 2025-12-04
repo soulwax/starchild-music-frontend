@@ -38,13 +38,13 @@ export function EmptyState({
   title,
   description,
   action,
-  className
+  className,
 }: EmptyStateProps) {
   return (
     <div
       className={cn(
         "flex flex-col items-center justify-center py-12 text-center",
-        className
+        className,
       )}
     >
       {icon && (

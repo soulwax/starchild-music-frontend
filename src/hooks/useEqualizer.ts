@@ -59,7 +59,11 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
   const isAuthenticated = status === "authenticated";
 
   const persistLocalPreferences = useCallback(
-    (bandsToPersist: EqualizerBand[], presetName: string, enabledValue: boolean) => {
+    (
+      bandsToPersist: EqualizerBand[],
+      presetName: string,
+      enabledValue: boolean,
+    ) => {
       const gains = bandsToPersist.map((band) => band.gain);
       void storage.set(STORAGE_KEYS.EQUALIZER_BANDS, gains);
       void storage.set(STORAGE_KEYS.EQUALIZER_PRESET, presetName);
@@ -69,7 +73,10 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
   );
 
   const loadLocalPreferences = useCallback(() => {
-    const storedPreset = storage.getOrDefault<string>(STORAGE_KEYS.EQUALIZER_PRESET, "Flat");
+    const storedPreset = storage.getOrDefault<string>(
+      STORAGE_KEYS.EQUALIZER_PRESET,
+      "Flat",
+    );
     const preset = PRESETS.find((p) => p.name === storedPreset) ?? PRESETS[0]!;
     const storedBands = storage.getOrDefault<number[]>(
       STORAGE_KEYS.EQUALIZER_BANDS,
@@ -96,15 +103,17 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     api.equalizer.getPreferences.useQuery(undefined, {
       refetchOnWindowFocus: false,
       refetchOnMount: true,
-    enabled: isAuthenticated,
+      enabled: isAuthenticated,
     });
 
   // Mutations for persisting to database
-  const updatePreferencesMutation = api.equalizer.updatePreferences.useMutation({
-    onError: (error) => {
-      console.error("Failed to update equalizer preferences:", error.message);
+  const updatePreferencesMutation = api.equalizer.updatePreferences.useMutation(
+    {
+      onError: (error) => {
+        console.error("Failed to update equalizer preferences:", error.message);
+      },
     },
-  });
+  );
 
   const applyPresetMutation = api.equalizer.applyPreset.useMutation({
     onError: (error) => {
@@ -123,9 +132,16 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
       setBands(nextBands);
       setCurrentPreset(preferences.preset);
       setIsEnabled(preferences.enabled);
-      persistLocalPreferences(nextBands, preferences.preset, preferences.enabled);
+      persistLocalPreferences(
+        nextBands,
+        preferences.preset,
+        preferences.enabled,
+      );
     } else if (preferencesError && isAuthenticated) {
-      console.error("Failed to load preferences from server:", preferencesError.message);
+      console.error(
+        "Failed to load preferences from server:",
+        preferencesError.message,
+      );
     }
   }, [preferences, preferencesError, isAuthenticated, persistLocalPreferences]);
 

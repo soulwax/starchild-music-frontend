@@ -25,11 +25,7 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_API_URL: z.string().url(),
-    NEXT_PUBLIC_SONGBIRD_API_URL: z
-      .string()
-      .url()
-      .optional()
-      .or(z.undefined()),
+    NEXT_PUBLIC_SONGBIRD_API_URL: z.string().url().optional().or(z.undefined()),
   },
   runtimeEnv: {
     AUTH_SECRET: process.env.AUTH_SECRET,

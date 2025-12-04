@@ -51,7 +51,7 @@ export function useSwipeGesture(config: SwipeGestureConfig) {
   const handleTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
     if (!touch) return;
-    
+
     swipeState.current = {
       startX: touch.clientX,
       startY: touch.clientY,
@@ -74,7 +74,7 @@ export function useSwipeGesture(config: SwipeGestureConfig) {
   const handleTouchEnd = useCallback(() => {
     const { distX, distY, startTime } = swipeState.current;
     const elapsedTime = Date.now() - startTime;
-    
+
     swipeState.current.elapsedTime = elapsedTime;
 
     if (elapsedTime > allowedTime) return;
@@ -100,7 +100,16 @@ export function useSwipeGesture(config: SwipeGestureConfig) {
         onSwipeDown?.();
       }
     }
-  }, [onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, threshold, restraint, allowedTime, hapticFeedback]);
+  }, [
+    onSwipeLeft,
+    onSwipeRight,
+    onSwipeUp,
+    onSwipeDown,
+    threshold,
+    restraint,
+    allowedTime,
+    hapticFeedback,
+  ]);
 
   return {
     onTouchStart: handleTouchStart,
@@ -134,7 +143,7 @@ export function useSwipeableItem(config: {
   const handleTouchStart = useCallback((e: TouchEvent) => {
     const touch = e.touches[0];
     if (!touch) return;
-    
+
     startX.current = touch.clientX;
     currentX.current = 0;
     isDragging.current = true;
@@ -144,31 +153,35 @@ export function useSwipeableItem(config: {
     }
   }, []);
 
-  const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isDragging.current) return;
-    
-    const touch = e.touches[0];
-    if (!touch) return;
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (!isDragging.current) return;
 
-    const diffX = touch.clientX - startX.current;
-    currentX.current = diffX;
+      const touch = e.touches[0];
+      if (!touch) return;
 
-    if (elementRef.current) {
-      elementRef.current.style.transform = `translateX(${diffX}px)`;
-    }
+      const diffX = touch.clientX - startX.current;
+      currentX.current = diffX;
 
-    // Provide haptic feedback at threshold
-    if (Math.abs(diffX) >= threshold && hapticFeedback) {
-      hapticLight();
-    }
-  }, [threshold, hapticFeedback]);
+      if (elementRef.current) {
+        elementRef.current.style.transform = `translateX(${diffX}px)`;
+      }
+
+      // Provide haptic feedback at threshold
+      if (Math.abs(diffX) >= threshold && hapticFeedback) {
+        hapticLight();
+      }
+    },
+    [threshold, hapticFeedback],
+  );
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging.current) return;
     isDragging.current = false;
 
     if (elementRef.current) {
-      elementRef.current.style.transition = "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+      elementRef.current.style.transition =
+        "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
       elementRef.current.style.transform = "translateX(0)";
     }
 

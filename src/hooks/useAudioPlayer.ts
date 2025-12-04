@@ -18,7 +18,7 @@ interface UseAudioPlayerOptions {
   onDuplicateTrack?: (track: Track) => void;
   onAutoQueueTrigger?: (
     currentTrack: Track,
-    currentQueueLength: number
+    currentQueueLength: number,
   ) => Promise<Track[]>;
   onError?: (error: string, trackId?: number) => void;
   smartQueueSettings?: SmartQueueSettings;
@@ -196,7 +196,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           : undefined,
       ].filter(
         (artwork): artwork is NonNullable<typeof artwork> =>
-          artwork !== undefined
+          artwork !== undefined,
       ),
     });
 
@@ -248,7 +248,10 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     const handleSeekBackward = (details: MediaSessionActionDetails) => {
       if (audioRef.current) {
         const seekTime = details.seekOffset ?? 10;
-        audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - seekTime);
+        audioRef.current.currentTime = Math.max(
+          0,
+          audioRef.current.currentTime - seekTime,
+        );
       }
     };
 
@@ -257,7 +260,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         const seekTime = details.seekOffset ?? 10;
         audioRef.current.currentTime = Math.min(
           audioRef.current.duration,
-          audioRef.current.currentTime + seekTime
+          audioRef.current.currentTime + seekTime,
         );
       }
     };
@@ -273,8 +276,14 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       navigator.mediaSession.setActionHandler("play", togglePlayPause);
       navigator.mediaSession.setActionHandler("pause", togglePlayPause);
       navigator.mediaSession.setActionHandler("nexttrack", handleNextTrack);
-      navigator.mediaSession.setActionHandler("previoustrack", handlePreviousTrack);
-      navigator.mediaSession.setActionHandler("seekbackward", handleSeekBackward);
+      navigator.mediaSession.setActionHandler(
+        "previoustrack",
+        handlePreviousTrack,
+      );
+      navigator.mediaSession.setActionHandler(
+        "seekbackward",
+        handleSeekBackward,
+      );
       navigator.mediaSession.setActionHandler("seekforward", handleSeekForward);
       navigator.mediaSession.setActionHandler("seekto", handleSeekTo);
     } catch (error) {
@@ -321,25 +330,37 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Check for HTTP errors (503, 404, etc.) in error message
       const errorMessage = error?.message ?? "";
-      
+
       // Check if this is an aborted fetch (common when skipping tracks quickly)
-      const isAborted = errorMessage.includes("aborted") || 
-                       errorMessage.includes("AbortError") ||
-                       (errorMessage.includes("fetching process") && errorMessage.includes("aborted"));
-      
+      const isAborted =
+        errorMessage.includes("aborted") ||
+        errorMessage.includes("AbortError") ||
+        (errorMessage.includes("fetching process") &&
+          errorMessage.includes("aborted"));
+
       if (isAborted) {
         // This is expected when switching tracks quickly, not a real error
-        console.debug("[useAudioPlayer] Fetch aborted (normal during rapid track changes)");
+        console.debug(
+          "[useAudioPlayer] Fetch aborted (normal during rapid track changes)",
+        );
         return;
       }
-      
-      const isHttpError = /^\d{3}:/.test(errorMessage) || errorMessage.includes("Service Unavailable") || errorMessage.includes("503");
-      const isUpstreamError = errorMessage.includes("upstream error") || errorMessage.includes("ServiceUnavailableException");
-      
+
+      const isHttpError =
+        /^\d{3}:/.test(errorMessage) ||
+        errorMessage.includes("Service Unavailable") ||
+        errorMessage.includes("503");
+      const isUpstreamError =
+        errorMessage.includes("upstream error") ||
+        errorMessage.includes("ServiceUnavailableException");
+
       if (isHttpError && currentTrack) {
         // For upstream errors, don't mark as permanently failed - might be temporary
         if (isUpstreamError) {
-          console.warn(`[useAudioPlayer] Upstream error for track ${currentTrack.id} - may be temporary:`, errorMessage);
+          console.warn(
+            `[useAudioPlayer] Upstream error for track ${currentTrack.id} - may be temporary:`,
+            errorMessage,
+          );
           setIsLoading(false);
           setIsPlaying(false);
           onError?.(errorMessage, currentTrack.id);
@@ -347,16 +368,19 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           retryCountRef.current = 0;
           return;
         }
-        
+
         // Mark this track as failed to prevent infinite retries (for other 503 errors)
         failedTracksRef.current.add(currentTrack.id);
-        console.error(`Audio error for track ${currentTrack.id}:`, errorMessage);
+        console.error(
+          `Audio error for track ${currentTrack.id}:`,
+          errorMessage,
+        );
         setIsLoading(false);
         setIsPlaying(false);
-        
+
         // Notify parent of error
         onError?.(errorMessage, currentTrack.id);
-        
+
         // Reset retry count for this track
         retryCountRef.current = 0;
         return;
@@ -395,7 +419,9 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Check if this track has already failed (prevent infinite retries)
       if (failedTracksRef.current.has(track.id)) {
-        console.warn(`[useAudioPlayer] Track ${track.id} previously failed, skipping load`);
+        console.warn(
+          `[useAudioPlayer] Track ${track.id} previously failed, skipping load`,
+        );
         setIsLoading(false);
         setIsPlaying(false);
         return;
@@ -430,7 +456,9 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       const applySource = () => {
         // Check if this load is still current
         if (currentLoadId !== loadIdRef.current) {
-          console.debug("[useAudioPlayer] Load cancelled, newer load in progress");
+          console.debug(
+            "[useAudioPlayer] Load cancelled, newer load in progress",
+          );
           return false;
         }
 
@@ -441,14 +469,21 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           return true;
         } catch (error) {
           // Ignore abort errors - these are normal when switching tracks quickly
-          if (error instanceof DOMException && 
-              (error.name === "AbortError" || 
-               error.message?.includes("aborted") ||
-               error.message?.includes("fetching process"))) {
-            console.debug("[useAudioPlayer] Loading aborted for new source (ignored).");
+          if (
+            error instanceof DOMException &&
+            (error.name === "AbortError" ||
+              error.message?.includes("aborted") ||
+              error.message?.includes("fetching process"))
+          ) {
+            console.debug(
+              "[useAudioPlayer] Loading aborted for new source (ignored).",
+            );
             return false;
           } else {
-            console.error("[useAudioPlayer] Failed to load new audio source:", error);
+            console.error(
+              "[useAudioPlayer] Failed to load new audio source:",
+              error,
+            );
             return false;
           }
         }
@@ -458,9 +493,11 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       if (!applied) {
         // Retry with exponential backoff, but only if we haven't exceeded max retries
         if (retryCountRef.current < maxRetries) {
-          const delay = AUDIO_CONSTANTS.AUDIO_LOAD_RETRY_DELAY_MS * Math.pow(2, retryCountRef.current);
+          const delay =
+            AUDIO_CONSTANTS.AUDIO_LOAD_RETRY_DELAY_MS *
+            Math.pow(2, retryCountRef.current);
           retryCountRef.current++;
-          
+
           retryTimeoutRef.current = setTimeout(() => {
             if (currentLoadId === loadIdRef.current && audioRef.current) {
               applySource();
@@ -468,12 +505,17 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           }, delay);
         } else {
           // Max retries exceeded, mark track as failed
-          console.error(`[useAudioPlayer] Max retries (${maxRetries}) exceeded for track ${track.id}`);
+          console.error(
+            `[useAudioPlayer] Max retries (${maxRetries}) exceeded for track ${track.id}`,
+          );
           failedTracksRef.current.add(track.id);
           retryCountRef.current = 0;
           setIsLoading(false);
           setIsPlaying(false);
-          onError?.(`Failed to load track after ${maxRetries} retries`, track.id);
+          onError?.(
+            `Failed to load track after ${maxRetries} retries`,
+            track.id,
+          );
         }
       } else {
         // Successfully applied, reset retry count
@@ -482,7 +524,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       onTrackChange?.(track);
     },
-    [currentTrack, onTrackChange, onError]
+    [currentTrack, onTrackChange, onError],
   );
 
   const play = useCallback(async () => {
@@ -536,25 +578,25 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         trackCount: tracks.length,
         checkDuplicates,
         currentQueueSize: queue.length,
-        tracks: tracks.map(t => `${t.title} - ${t.artist.name}`),
+        tracks: tracks.map((t) => `${t.title} - ${t.artist.name}`),
       });
 
       if (checkDuplicates) {
         const duplicates = tracks.filter(
           (t) =>
             queue.some((q) => q.id === t.id) ||
-            (currentTrack && currentTrack.id === t.id)
+            (currentTrack && currentTrack.id === t.id),
         );
 
-          if (duplicates.length > 0 && onDuplicateTrack) {
-            duplicates.forEach((dup) => onDuplicateTrack?.(dup));
-          }
+        if (duplicates.length > 0 && onDuplicateTrack) {
+          duplicates.forEach((dup) => onDuplicateTrack?.(dup));
+        }
 
         // Only add non-duplicate tracks
         const uniqueTracks = tracks.filter(
           (t) =>
             !queue.some((q) => q.id === t.id) &&
-            (!currentTrack || currentTrack.id !== t.id)
+            (!currentTrack || currentTrack.id !== t.id),
         );
 
         console.log("[useAudioPlayer] 🔍 After duplicate check:", {
@@ -572,10 +614,14 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
             return [...prev, ...uniqueTracks];
           });
         } else {
-          console.log("[useAudioPlayer] ⚠️ No unique tracks to add (all duplicates)");
+          console.log(
+            "[useAudioPlayer] ⚠️ No unique tracks to add (all duplicates)",
+          );
         }
       } else {
-        console.log("[useAudioPlayer] ➕ Adding tracks without duplicate check");
+        console.log(
+          "[useAudioPlayer] ➕ Adding tracks without duplicate check",
+        );
         setQueue((prev) => {
           console.log("[useAudioPlayer] ✅ Queue updated:", {
             previousSize: prev.length,
@@ -586,7 +632,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         });
       }
     },
-    [queue, currentTrack, onDuplicateTrack]
+    [queue, currentTrack, onDuplicateTrack],
   );
 
   const addToPlayNext = useCallback((track: Track | Track[]) => {
@@ -636,7 +682,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       setQueue(remainingQueue);
       return selectedTrack;
     },
-    [queue, currentTrack]
+    [queue, currentTrack],
   );
 
   const smartShuffle = useCallback(() => {
@@ -741,7 +787,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       seek(Math.min(duration, currentTime + seconds));
     },
-    [currentTime, duration, seek]
+    [currentTime, duration, seek],
   );
 
   const skipBackward = useCallback(
@@ -750,7 +796,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       seek(Math.max(0, currentTime - seconds));
     },
-    [currentTime, seek]
+    [currentTime, seek],
   );
 
   // Smart Queue: Auto-add tracks when queue is low
@@ -779,7 +825,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           if (onAutoQueueTrigger) {
             const recommendations = await onAutoQueueTrigger(
               currentTrack,
-              queue.length
+              queue.length,
             );
 
             // Calculate how many tracks to add:
@@ -795,10 +841,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
             // Add recommendations to queue
             if (recommendations.length > 0) {
-              addToQueue(
-                recommendations.slice(0, targetCount),
-                false
-              );
+              addToQueue(recommendations.slice(0, targetCount), false);
             }
           }
         } catch (error) {

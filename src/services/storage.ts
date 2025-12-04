@@ -111,8 +111,10 @@ class StorageService {
           error.name === "QuotaExceededError" ||
           error.name === "NS_ERROR_DOM_QUOTA_REACHED")
       ) {
-        console.warn(`${this.storageType} quota exceeded, attempting to free space...`);
-        
+        console.warn(
+          `${this.storageType} quota exceeded, attempting to free space...`,
+        );
+
         // Try to free up space by removing old history data
         // This is a safe item to remove as it's not critical
         try {
@@ -246,13 +248,17 @@ class StorageService {
     percentage: number;
   }> {
     // Try to use Storage Estimate API first (more accurate)
-    if (typeof navigator !== "undefined" && "storage" in navigator && "estimate" in navigator.storage) {
+    if (
+      typeof navigator !== "undefined" &&
+      "storage" in navigator &&
+      "estimate" in navigator.storage
+    ) {
       try {
         const estimate = await navigator.storage.estimate();
         const used = estimate.usage ?? 0;
         const total = estimate.quota ?? 0;
         const percentage = total > 0 ? (used / total) * 100 : 0;
-        
+
         return { used, total, percentage };
       } catch {
         // Fall back to basic size estimation

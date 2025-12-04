@@ -21,16 +21,16 @@ interface KeyboardShortcutHandlers {
 export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers) {
   useEffect(() => {
     // Handle Electron media keys
-    if (typeof window !== 'undefined' && window.electron) {
+    if (typeof window !== "undefined" && window.electron) {
       const handleMediaKey = (key: string) => {
         switch (key) {
-          case 'play-pause':
+          case "play-pause":
             handlers.onPlayPause?.();
             break;
-          case 'next':
+          case "next":
             handlers.onNext?.();
             break;
-          case 'previous':
+          case "previous":
             handlers.onPrevious?.();
             break;
         }

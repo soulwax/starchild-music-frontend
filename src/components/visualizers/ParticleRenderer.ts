@@ -10,7 +10,7 @@ interface Particle {
   size: number;
   rotation: number;
   rotationSpeed: number;
-  type: 'burst' | 'orbit' | 'fountain';
+  type: "burst" | "orbit" | "fountain";
   hue: number;
   orbitRadius?: number;
 }
@@ -21,25 +21,29 @@ export class ParticleRenderer {
   private barGap: number;
   private barColor: string;
 
-  constructor(barCount = 24, barGap = 2, barColor = 'rgba(79, 70, 229, 0.8)') {
+  constructor(barCount = 24, barGap = 2, barColor = "rgba(79, 70, 229, 0.8)") {
     this.barCount = barCount;
     this.barGap = barGap;
     this.barColor = barColor;
   }
 
-  public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
+  public render(
+    ctx: CanvasRenderingContext2D,
+    data: Uint8Array,
+    canvas: HTMLCanvasElement,
+  ): void {
     // Create vibrant gradient background
     const avgAmplitude = data.reduce((sum, val) => sum + val, 0) / data.length;
     const intensity = avgAmplitude / 255;
     const hue = (intensity * 60 + 240) % 360;
-    
+
     const gradient = ctx.createRadialGradient(
       canvas.width / 2,
       canvas.height / 2,
       0,
       canvas.width / 2,
       canvas.height / 2,
-      Math.max(canvas.width, canvas.height) / 2
+      Math.max(canvas.width, canvas.height) / 2,
     );
     gradient.addColorStop(0, `hsla(${hue}, 70%, 20%, 0.9)`);
     gradient.addColorStop(0.5, `hsla(${hue + 30}, 65%, 15%, 0.95)`);
@@ -52,7 +56,13 @@ export class ParticleRenderer {
     const trebleLevel = data.slice(-10).reduce((sum, val) => sum + val, 0) / 10;
 
     // Spawn new particles
-    this.spawnParticles(canvas, avgAmplitude, bassLevel, trebleLevel, intensity);
+    this.spawnParticles(
+      canvas,
+      avgAmplitude,
+      bassLevel,
+      trebleLevel,
+      intensity,
+    );
 
     // Update and draw particles
     this.updateAndDrawParticles(ctx, canvas);
@@ -69,7 +79,7 @@ export class ParticleRenderer {
     avgAmplitude: number,
     bassLevel: number,
     trebleLevel: number,
-    intensity: number
+    intensity: number,
   ): void {
     if (this.particles.length >= 300) return;
 
@@ -88,12 +98,21 @@ export class ParticleRenderer {
         this.spawnOrbitParticle(centerX, centerY, trebleLevel);
       } else {
         // Rising fountain particles
-        this.spawnFountainParticle(centerX, canvas.width, canvas.height, avgAmplitude);
+        this.spawnFountainParticle(
+          centerX,
+          canvas.width,
+          canvas.height,
+          avgAmplitude,
+        );
       }
     }
   }
 
-  private spawnBurstParticle(centerX: number, centerY: number, bassLevel: number): void {
+  private spawnBurstParticle(
+    centerX: number,
+    centerY: number,
+    bassLevel: number,
+  ): void {
     const angle = Math.random() * Math.PI * 2;
     const speed = bassLevel / 25 + Math.random() * 3;
 
@@ -107,12 +126,16 @@ export class ParticleRenderer {
       size: Math.random() * 4 + 2,
       rotation: Math.random() * Math.PI * 2,
       rotationSpeed: (Math.random() - 0.5) * 0.1,
-      type: 'burst',
+      type: "burst",
       hue: (bassLevel / 255) * 180 + 200,
     });
   }
 
-  private spawnOrbitParticle(centerX: number, centerY: number, trebleLevel: number): void {
+  private spawnOrbitParticle(
+    centerX: number,
+    centerY: number,
+    trebleLevel: number,
+  ): void {
     const orbitRadius = Math.random() * 100 + 50;
     const angle = Math.random() * Math.PI * 2;
 
@@ -126,13 +149,18 @@ export class ParticleRenderer {
       size: Math.random() * 3 + 1,
       rotation: angle,
       rotationSpeed: (trebleLevel / 255) * 0.05 + 0.02,
-      type: 'orbit',
+      type: "orbit",
       orbitRadius,
       hue: (trebleLevel / 255) * 180 + 280,
     });
   }
 
-  private spawnFountainParticle(centerX: number, canvasWidth: number, canvasHeight: number, avgAmplitude: number): void {
+  private spawnFountainParticle(
+    centerX: number,
+    canvasWidth: number,
+    canvasHeight: number,
+    avgAmplitude: number,
+  ): void {
     const spreadX = (Math.random() - 0.5) * canvasWidth * 0.3;
 
     this.particles.push({
@@ -145,12 +173,15 @@ export class ParticleRenderer {
       size: Math.random() * 3.5 + 1.5,
       rotation: Math.random() * Math.PI * 2,
       rotationSpeed: (Math.random() - 0.5) * 0.15,
-      type: 'fountain',
+      type: "fountain",
       hue: (avgAmplitude / 255) * 120 + 180,
     });
   }
 
-  private updateAndDrawParticles(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
+  private updateAndDrawParticles(
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+  ): void {
     const newParticles: Particle[] = [];
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
@@ -175,8 +206,11 @@ export class ParticleRenderer {
       this.drawParticle(ctx, particle, alpha, radius);
 
       // Keep particle if still alive and in bounds
-      const inBounds = particle.x > -50 && particle.x < canvas.width + 50 &&
-                      particle.y > -50 && particle.y < canvas.height + 50;
+      const inBounds =
+        particle.x > -50 &&
+        particle.x < canvas.width + 50 &&
+        particle.y > -50 &&
+        particle.y < canvas.height + 50;
       if (particle.life < particle.maxLife && inBounds) {
         newParticles.push(particle);
       }
@@ -186,16 +220,22 @@ export class ParticleRenderer {
     ctx.shadowBlur = 0;
   }
 
-  private updateParticlePosition(particle: Particle, centerX: number, centerY: number): void {
-    if (particle.type === 'orbit') {
+  private updateParticlePosition(
+    particle: Particle,
+    centerX: number,
+    centerY: number,
+  ): void {
+    if (particle.type === "orbit") {
       particle.rotation += particle.rotationSpeed;
-      particle.x = centerX + Math.cos(particle.rotation) * (particle.orbitRadius ?? 0);
-      particle.y = centerY + Math.sin(particle.rotation) * (particle.orbitRadius ?? 0);
+      particle.x =
+        centerX + Math.cos(particle.rotation) * (particle.orbitRadius ?? 0);
+      particle.y =
+        centerY + Math.sin(particle.rotation) * (particle.orbitRadius ?? 0);
       // Add spiral effect
       if (particle.orbitRadius) {
         particle.orbitRadius *= 0.995;
       }
-    } else if (particle.type === 'burst') {
+    } else if (particle.type === "burst") {
       particle.x += particle.vx;
       particle.y += particle.vy;
       particle.vx *= 0.98; // Drag
@@ -208,7 +248,12 @@ export class ParticleRenderer {
     }
   }
 
-  private drawParticleTrail(ctx: CanvasRenderingContext2D, particle: Particle, alpha: number, radius: number): void {
+  private drawParticleTrail(
+    ctx: CanvasRenderingContext2D,
+    particle: Particle,
+    alpha: number,
+    radius: number,
+  ): void {
     ctx.strokeStyle = `hsla(${particle.hue}, 80%, 60%, ${alpha * 0.3})`;
     ctx.lineWidth = radius * 0.5;
     ctx.beginPath();
@@ -217,13 +262,18 @@ export class ParticleRenderer {
     ctx.stroke();
   }
 
-  private drawParticle(ctx: CanvasRenderingContext2D, particle: Particle, alpha: number, radius: number): void {
+  private drawParticle(
+    ctx: CanvasRenderingContext2D,
+    particle: Particle,
+    alpha: number,
+    radius: number,
+  ): void {
     const color = `hsla(${particle.hue}, 85%, 65%, ${alpha})`;
 
     ctx.shadowBlur = radius * 8;
     ctx.shadowColor = color;
 
-    if (particle.type === 'burst' && Math.random() > 0.5) {
+    if (particle.type === "burst" && Math.random() > 0.5) {
       // Star shape for burst particles
       this.drawStar(ctx, particle, color, radius);
     } else {
@@ -232,7 +282,12 @@ export class ParticleRenderer {
     }
   }
 
-  private drawStar(ctx: CanvasRenderingContext2D, particle: Particle, color: string, radius: number): void {
+  private drawStar(
+    ctx: CanvasRenderingContext2D,
+    particle: Particle,
+    color: string,
+    radius: number,
+  ): void {
     ctx.save();
     ctx.translate(particle.x, particle.y);
     ctx.rotate(particle.rotation);
@@ -251,14 +306,32 @@ export class ParticleRenderer {
     ctx.restore();
   }
 
-  private drawGlowingCircle(ctx: CanvasRenderingContext2D, particle: Particle, alpha: number, radius: number): void {
+  private drawGlowingCircle(
+    ctx: CanvasRenderingContext2D,
+    particle: Particle,
+    alpha: number,
+    radius: number,
+  ): void {
     const particleGradient = ctx.createRadialGradient(
-      particle.x, particle.y, 0,
-      particle.x, particle.y, radius * 2
+      particle.x,
+      particle.y,
+      0,
+      particle.x,
+      particle.y,
+      radius * 2,
     );
-    particleGradient.addColorStop(0, `hsla(${particle.hue}, 100%, 80%, ${alpha})`);
-    particleGradient.addColorStop(0.5, `hsla(${particle.hue}, 85%, 65%, ${alpha})`);
-    particleGradient.addColorStop(1, `hsla(${particle.hue}, 80%, 40%, ${alpha * 0.3})`);
+    particleGradient.addColorStop(
+      0,
+      `hsla(${particle.hue}, 100%, 80%, ${alpha})`,
+    );
+    particleGradient.addColorStop(
+      0.5,
+      `hsla(${particle.hue}, 85%, 65%, ${alpha})`,
+    );
+    particleGradient.addColorStop(
+      1,
+      `hsla(${particle.hue}, 80%, 40%, ${alpha * 0.3})`,
+    );
 
     ctx.fillStyle = particleGradient;
     ctx.beginPath();
@@ -286,8 +359,13 @@ export class ParticleRenderer {
     }
   }
 
-  private drawFrequencyBars(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
-    const barWidth = (canvas.width - this.barGap * (this.barCount - 1)) / this.barCount;
+  private drawFrequencyBars(
+    ctx: CanvasRenderingContext2D,
+    data: Uint8Array,
+    canvas: HTMLCanvasElement,
+  ): void {
+    const barWidth =
+      (canvas.width - this.barGap * (this.barCount - 1)) / this.barCount;
     const dataStep = Math.floor(data.length / this.barCount);
 
     for (let i = 0; i < this.barCount; i++) {
@@ -304,7 +382,11 @@ export class ParticleRenderer {
     }
   }
 
-  public updateConfig(barCount: number, barGap: number, barColor: string): void {
+  public updateConfig(
+    barCount: number,
+    barGap: number,
+    barColor: string,
+  ): void {
     this.barCount = barCount;
     this.barGap = barGap;
     this.barColor = barColor;

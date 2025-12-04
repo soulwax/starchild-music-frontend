@@ -1,7 +1,7 @@
 // File: src/components/visualizers/SpectrumRenderer.ts
 
-import { PerlinNoise } from './utils/PerlinNoise';
-import { MathUtils } from './utils/MathUtils';
+import { PerlinNoise } from "./utils/PerlinNoise";
+import { MathUtils } from "./utils/MathUtils";
 
 export class SpectrumRenderer {
   private barCount: number;
@@ -11,7 +11,13 @@ export class SpectrumRenderer {
   private noise: PerlinNoise;
   private time = 0;
   private kaleidoscopeRotation = 0;
-  private metaballs: Array<{ x: number; y: number; radius: number; vx: number; vy: number }> = [];
+  private metaballs: Array<{
+    x: number;
+    y: number;
+    radius: number;
+    vx: number;
+    vy: number;
+  }> = [];
 
   constructor(barCount = 64, barGap = 2) {
     this.barCount = barCount;
@@ -27,17 +33,21 @@ export class SpectrumRenderer {
         y: Math.random() * 400,
         radius: 30 + Math.random() * 40,
         vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2
+        vy: (Math.random() - 0.5) * 2,
       });
     }
   }
 
-  public render(ctx: CanvasRenderingContext2D, data: Uint8Array, canvas: HTMLCanvasElement): void {
+  public render(
+    ctx: CanvasRenderingContext2D,
+    data: Uint8Array,
+    canvas: HTMLCanvasElement,
+  ): void {
     this.time += 0.03;
     this.kaleidoscopeRotation += 0.012; // Rotate the entire kaleidoscope
 
     // Update metaballs
-    this.metaballs.forEach(ball => {
+    this.metaballs.forEach((ball) => {
       ball.x += ball.vx;
       ball.y += ball.vy;
       if (ball.x < 0 || ball.x > canvas.width) ball.vx *= -1;
@@ -100,19 +110,26 @@ export class SpectrumRenderer {
       const mirrorY = seg % 2 === 0 ? 1 : -1;
       ctx.scale(mirrorX, mirrorY);
       ctx.translate(-centerX, -centerY);
-      
+
       // Clip to segment for cleaner edges
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       const angle1 = (seg * Math.PI * 2) / segments;
       const angle2 = ((seg + 1) * Math.PI * 2) / segments;
       const radius = Math.max(canvas.width, canvas.height);
-      ctx.lineTo(centerX + Math.cos(angle1) * radius, centerY + Math.sin(angle1) * radius);
-      ctx.lineTo(centerX + Math.cos(angle2) * radius, centerY + Math.sin(angle2) * radius);
+      ctx.lineTo(
+        centerX + Math.cos(angle1) * radius,
+        centerY + Math.sin(angle1) * radius,
+      );
+      ctx.lineTo(
+        centerX + Math.cos(angle2) * radius,
+        centerY + Math.sin(angle2) * radius,
+      );
       ctx.closePath();
       ctx.clip();
 
-      const barWidth = (canvas.width - this.barGap * (this.barCount - 1)) / this.barCount;
+      const barWidth =
+        (canvas.width - this.barGap * (this.barCount - 1)) / this.barCount;
       const dataStep = Math.floor(data.length / this.barCount);
 
       for (let i = 0; i < this.barCount; i++) {
@@ -121,8 +138,15 @@ export class SpectrumRenderer {
         const normalizedValue = value / 255;
 
         // Add perlin noise modulation
-        const noiseVal = this.noise.octaveNoise(i * 0.15, this.time, seg, 3, 0.6);
-        const barHeight = normalizedValue * canvas.height * 0.85 * (1 + noiseVal * 0.2);
+        const noiseVal = this.noise.octaveNoise(
+          i * 0.15,
+          this.time,
+          seg,
+          3,
+          0.6,
+        );
+        const barHeight =
+          normalizedValue * canvas.height * 0.85 * (1 + noiseVal * 0.2);
 
         const x = i * (barWidth + this.barGap);
         const y = canvas.height - barHeight;
@@ -141,14 +165,18 @@ export class SpectrumRenderer {
         }
 
         // Calculate colors with bitwise color cycling - extremely vibrant
-        const colorShift = ((Math.floor(this.time * 30) ^ i) & 0xFF) / 255;
-        const hue = (i / this.barCount) * 360 + 180 + colorShift * 100 + seg * 25; // Full spectrum, wider shifts
+        const colorShift = ((Math.floor(this.time * 30) ^ i) & 0xff) / 255;
+        const hue =
+          (i / this.barCount) * 360 + 180 + colorShift * 100 + seg * 25; // Full spectrum, wider shifts
         const saturation = 100; // Maximum saturation always
         const lightness = 70 + normalizedValue * 25; // Much brighter
 
         // Draw bar with gradient - maximum vividness
         const barGradient = ctx.createLinearGradient(x, y, x, canvas.height);
-        barGradient.addColorStop(0, `hsla(${hue}, 100%, ${lightness + 35}%, 1)`);
+        barGradient.addColorStop(
+          0,
+          `hsla(${hue}, 100%, ${lightness + 35}%, 1)`,
+        );
         barGradient.addColorStop(0.5, `hsla(${hue}, 100%, ${lightness}%, 1)`);
         barGradient.addColorStop(1, `hsla(${hue}, 100%, ${lightness - 5}%, 1)`);
 
@@ -163,7 +191,7 @@ export class SpectrumRenderer {
         if (barHeight > canvas.height * 0.5) {
           const points = [
             { x: x + barWidth * 0.2, y: y + barHeight * 0.3 },
-            { x: x + barWidth * 0.8, y: y + barHeight * 0.7 }
+            { x: x + barWidth * 0.8, y: y + barHeight * 0.7 },
           ];
 
           for (let py = Math.floor(y); py < y + barHeight; py += 4) {
@@ -179,9 +207,20 @@ export class SpectrumRenderer {
         // Draw reflection with wave distortion
         ctx.globalAlpha = 0.3;
         const reflectionHeight = barHeight * 0.4;
-        const reflectionGradient = ctx.createLinearGradient(x, canvas.height, x, canvas.height - reflectionHeight);
-        reflectionGradient.addColorStop(0, `hsla(${hue}, ${saturation}%, ${lightness}%, 0.4)`);
-        reflectionGradient.addColorStop(1, `hsla(${hue}, ${saturation}%, ${lightness}%, 0)`);
+        const reflectionGradient = ctx.createLinearGradient(
+          x,
+          canvas.height,
+          x,
+          canvas.height - reflectionHeight,
+        );
+        reflectionGradient.addColorStop(
+          0,
+          `hsla(${hue}, ${saturation}%, ${lightness}%, 0.4)`,
+        );
+        reflectionGradient.addColorStop(
+          1,
+          `hsla(${hue}, ${saturation}%, ${lightness}%, 0)`,
+        );
 
         // Apply sine wave distortion
         for (let ry = 0; ry < reflectionHeight; ry += 1) {
@@ -197,7 +236,7 @@ export class SpectrumRenderer {
         ctx.shadowColor = `hsla(${hue}, 100%, 70%, 0.9)`;
 
         // Peak with golden ratio proportions
-        const peakWidth = barWidth * MathUtils.PHI / 2;
+        const peakWidth = (barWidth * MathUtils.PHI) / 2;
         const peakX = x + (barWidth - peakWidth) / 2;
 
         ctx.fillStyle = `hsla(${hue + 20}, 90%, 75%, 0.9)`;
@@ -209,7 +248,13 @@ export class SpectrumRenderer {
             const spiral = MathUtils.fibonacciSpiralPoint(t, 8, 5);
             ctx.fillStyle = `hsla(${hue}, 100%, 80%, ${0.6 - t * 0.07})`;
             ctx.beginPath();
-            ctx.arc(x + barWidth / 2 + spiral.x, peakY + spiral.y, 1.5, 0, Math.PI * 2);
+            ctx.arc(
+              x + barWidth / 2 + spiral.x,
+              peakY + spiral.y,
+              1.5,
+              0,
+              Math.PI * 2,
+            );
             ctx.fill();
           }
         }

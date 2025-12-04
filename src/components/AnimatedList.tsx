@@ -31,7 +31,11 @@ export interface AnimatedListItemProps {
   index?: number;
 }
 
-export function AnimatedListItem({ children, className = "", index }: AnimatedListItemProps) {
+export function AnimatedListItem({
+  children,
+  className = "",
+  index,
+}: AnimatedListItemProps) {
   return (
     <motion.div
       variants={listItemAnimation}

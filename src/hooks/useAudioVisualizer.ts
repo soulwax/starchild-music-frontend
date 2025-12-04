@@ -13,7 +13,7 @@ export interface AudioVisualizerOptions {
 
 export function useAudioVisualizer(
   audioElement: HTMLAudioElement | null,
-  options: AudioVisualizerOptions = {}
+  options: AudioVisualizerOptions = {},
 ) {
   const {
     fftSize = 128,
@@ -28,7 +28,7 @@ export function useAudioVisualizer(
   const animationFrameRef = useRef<number | null>(null);
 
   const [frequencyData, setFrequencyData] = useState<Uint8Array>(
-    new Uint8Array(0)
+    new Uint8Array(0),
   );
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -40,7 +40,8 @@ export function useAudioVisualizer(
       // Create audio context
       const AudioContext =
         window.AudioContext ||
-        (window as Window & { webkitAudioContext?: typeof window.AudioContext }).webkitAudioContext;
+        (window as Window & { webkitAudioContext?: typeof window.AudioContext })
+          .webkitAudioContext;
       if (!AudioContext) {
         console.error("Web Audio API is not supported in this browser");
         return;
@@ -119,7 +120,7 @@ export function useAudioVisualizer(
 
       updateData();
     },
-    [getFrequencyData]
+    [getFrequencyData],
   );
 
   // Stop visualization loop

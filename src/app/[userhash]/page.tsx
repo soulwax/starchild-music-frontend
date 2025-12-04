@@ -107,7 +107,11 @@ export default function PublicProfilePage({
           loading={tracksLoading}
           items={recentTracks}
           renderItem={(item, idx) => {
-            if (typeof item !== 'object' || item === null || !('trackData' in item)) {
+            if (
+              typeof item !== "object" ||
+              item === null ||
+              !("trackData" in item)
+            ) {
               return null;
             }
             const historyItem = item as { trackData: Track; playedAt: Date };
@@ -129,10 +133,19 @@ export default function PublicProfilePage({
           loading={topTracksLoading}
           items={topTracks}
           renderItem={(item, idx) => {
-            if (typeof item !== 'object' || item === null || !('track' in item) || !('playCount' in item)) {
+            if (
+              typeof item !== "object" ||
+              item === null ||
+              !("track" in item) ||
+              !("playCount" in item)
+            ) {
               return null;
             }
-            const topTrack = item as { track: Track; playCount: number; totalDuration: number | null };
+            const topTrack = item as {
+              track: Track;
+              playCount: number;
+              totalDuration: number | null;
+            };
             return (
               <div key={`top-${idx}`} className="relative">
                 <EnhancedTrackCard
@@ -140,7 +153,7 @@ export default function PublicProfilePage({
                   onPlay={(track) => play(track)}
                   onAddToQueue={(track) => addToQueue(track)}
                 />
-                <div className="badge-accent absolute right-2 top-2 text-[0.65rem] leading-none">
+                <div className="badge-accent absolute top-2 right-2 text-[0.65rem] leading-none">
                   {topTrack.playCount} plays
                 </div>
               </div>
@@ -155,17 +168,26 @@ export default function PublicProfilePage({
           loading={topArtistsLoading}
           items={topArtists}
           renderItem={(item, idx) => {
-            if (typeof item !== 'object' || item === null || !('artist' in item) || !('playCount' in item)) {
+            if (
+              typeof item !== "object" ||
+              item === null ||
+              !("artist" in item) ||
+              !("playCount" in item)
+            ) {
               return null;
             }
-            const topArtist = item as { artist: Track['artist']; playCount: number };
+            const topArtist = item as {
+              artist: Track["artist"];
+              playCount: number;
+            };
             return (
               <div
                 key={`artist-${idx}`}
                 className="surface-panel group p-4 text-center transition-transform hover:-translate-y-1.5"
               >
                 <div className="mb-3 flex h-20 w-full items-center justify-center overflow-hidden rounded-lg bg-[linear-gradient(135deg,rgba(244,178,102,0.35),rgba(88,198,177,0.35))]">
-                  {topArtist.artist.picture_medium || topArtist.artist.picture ? (
+                  {topArtist.artist.picture_medium ||
+                  topArtist.artist.picture ? (
                     <Image
                       src={
                         topArtist.artist.picture_medium ??
@@ -184,7 +206,9 @@ export default function PublicProfilePage({
                 <h3 className="mb-1 truncate font-semibold text-[var(--color-text)]">
                   {topArtist.artist.name}
                 </h3>
-                <p className="text-xs text-[var(--color-subtext)]">{topArtist.playCount} plays</p>
+                <p className="text-xs text-[var(--color-subtext)]">
+                  {topArtist.playCount} plays
+                </p>
               </div>
             );
           }}
@@ -200,7 +224,7 @@ export default function PublicProfilePage({
           items={favorites}
           renderItem={(item, idx) => {
             // favorites is an array of Track objects directly
-            if (typeof item !== 'object' || item === null) {
+            if (typeof item !== "object" || item === null) {
               return null;
             }
             const track = item as Track;
@@ -223,7 +247,12 @@ export default function PublicProfilePage({
           loading={playlistsLoading}
           items={playlists}
           renderItem={(item) => {
-            if (typeof item !== 'object' || item === null || !('id' in item) || !('name' in item)) {
+            if (
+              typeof item !== "object" ||
+              item === null ||
+              !("id" in item) ||
+              !("name" in item)
+            ) {
               return null;
             }
             const playlist = item as {
@@ -245,7 +274,9 @@ export default function PublicProfilePage({
                     let albumCovers: string[] = [];
                     try {
                       if (playlist.coverImage?.startsWith("[")) {
-                        albumCovers = JSON.parse(playlist.coverImage) as string[];
+                        albumCovers = JSON.parse(
+                          playlist.coverImage,
+                        ) as string[];
                       }
                     } catch {
                       // Not JSON, treat as single image
@@ -256,7 +287,10 @@ export default function PublicProfilePage({
                       return (
                         <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-0.5">
                           {albumCovers.slice(0, 4).map((cover, i) => (
-                            <div key={i} className="relative h-full w-full overflow-hidden">
+                            <div
+                              key={i}
+                              className="relative h-full w-full overflow-hidden"
+                            >
                               <Image
                                 src={cover}
                                 alt={`${playlist.name} track ${i + 1}`}
@@ -269,14 +303,16 @@ export default function PublicProfilePage({
                             </div>
                           ))}
                           {/* Fill remaining slots with placeholder */}
-                          {Array.from({ length: 4 - albumCovers.length }).map((_, i) => (
-                            <div
-                              key={`placeholder-${i}`}
-                              className="flex h-full w-full items-center justify-center bg-[rgba(244,178,102,0.08)] text-2xl text-white/30"
-                            >
-                              🎵
-                            </div>
-                          ))}
+                          {Array.from({ length: 4 - albumCovers.length }).map(
+                            (_, i) => (
+                              <div
+                                key={`placeholder-${i}`}
+                                className="flex h-full w-full items-center justify-center bg-[rgba(244,178,102,0.08)] text-2xl text-white/30"
+                              >
+                                🎵
+                              </div>
+                            ),
+                          )}
                         </div>
                       );
                     } else if (playlist.coverImage) {
@@ -300,11 +336,11 @@ export default function PublicProfilePage({
                     }
                   })()}
                 </div>
-                <h3 className="mb-1 font-semibold text-[var(--color-text)] line-clamp-1">
+                <h3 className="mb-1 line-clamp-1 font-semibold text-[var(--color-text)]">
                   {playlist.name}
                 </h3>
                 {playlist.description && (
-                  <p className="text-sm text-[var(--color-subtext)] line-clamp-2">
+                  <p className="line-clamp-2 text-sm text-[var(--color-subtext)]">
                     {playlist.description}
                   </p>
                 )}

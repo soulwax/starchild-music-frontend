@@ -41,9 +41,15 @@ export const persistVisualizerStateToStorage = (
   const previous = base ?? readVisualizerStateFromStorage();
   const next = { ...previous, ...patch };
 
-  window.localStorage.setItem(STORAGE_KEYS.VISUALIZER_STATE, JSON.stringify(next));
+  window.localStorage.setItem(
+    STORAGE_KEYS.VISUALIZER_STATE,
+    JSON.stringify(next),
+  );
   if (patch.enabled !== undefined) {
-    window.localStorage.setItem(STORAGE_KEYS.VISUALIZER_ENABLED, JSON.stringify(patch.enabled));
+    window.localStorage.setItem(
+      STORAGE_KEYS.VISUALIZER_ENABLED,
+      JSON.stringify(patch.enabled),
+    );
   }
 
   return next;

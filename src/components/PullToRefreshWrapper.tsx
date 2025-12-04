@@ -2,7 +2,12 @@
 
 "use client";
 
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import type { ReactNode } from "react";
 import { RefreshCw, ArrowDown, Check } from "lucide-react";
@@ -29,23 +34,24 @@ export function PullToRefreshWrapper({
 }: PullToRefreshWrapperProps) {
   const [refreshState, setRefreshState] = useState<RefreshState>("idle");
   const pullY = useMotionValue(0);
-  
-  const { containerRef, isRefreshing, pullDistance, handlers } = usePullToRefresh({
-    onRefresh: async () => {
-      setRefreshState("refreshing");
-      await onRefresh();
-      hapticSuccess();
-      setRefreshState("success");
-      setTimeout(() => setRefreshState("idle"), 1000);
-    },
-    enabled,
-    threshold,
-  });
+
+  const { containerRef, isRefreshing, pullDistance, handlers } =
+    usePullToRefresh({
+      onRefresh: async () => {
+        setRefreshState("refreshing");
+        await onRefresh();
+        hapticSuccess();
+        setRefreshState("success");
+        setTimeout(() => setRefreshState("idle"), 1000);
+      },
+      enabled,
+      threshold,
+    });
 
   // Update pull motion value
   useEffect(() => {
     pullY.set(pullDistance);
-    
+
     if (!isRefreshing) {
       if (pullDistance > threshold) {
         if (refreshState === "pulling") {
@@ -65,9 +71,13 @@ export function PullToRefreshWrapper({
   // Progress transforms
   const refreshProgress = Math.min(pullDistance / threshold, 1);
   const indicatorOpacity = useTransform(pullY, [0, 20, threshold], [0, 0.5, 1]);
-  const indicatorScale = useTransform(pullY, [0, threshold * 0.5, threshold], [0.5, 0.8, 1]);
+  const indicatorScale = useTransform(
+    pullY,
+    [0, threshold * 0.5, threshold],
+    [0.5, 0.8, 1],
+  );
   const indicatorRotation = useTransform(pullY, [0, threshold], [0, 180]);
-  
+
   const getStateConfig = () => {
     switch (refreshState) {
       case "pulling":
@@ -119,19 +129,25 @@ export function PullToRefreshWrapper({
     >
       {/* Pull-to-refresh indicator */}
       <AnimatePresence>
-      {showIndicator && (
-        <motion.div
+        {showIndicator && (
+          <motion.div
             initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -40 }}
             transition={springPresets.gentle}
-            className="pointer-events-none absolute left-0 right-0 top-0 z-50 flex flex-col items-center pt-4"
+            className="pointer-events-none absolute top-0 right-0 left-0 z-50 flex flex-col items-center pt-4"
           >
             {/* Indicator Pill */}
             <motion.div
               style={{
-                opacity: refreshState === "refreshing" || refreshState === "success" ? 1 : indicatorOpacity,
-                scale: refreshState === "refreshing" || refreshState === "success" ? 1 : indicatorScale,
+                opacity:
+                  refreshState === "refreshing" || refreshState === "success"
+                    ? 1
+                    : indicatorOpacity,
+                scale:
+                  refreshState === "refreshing" || refreshState === "success"
+                    ? 1
+                    : indicatorScale,
               }}
               className={`flex items-center gap-2 rounded-full px-4 py-2 shadow-lg backdrop-blur-xl ${stateConfig.bgColor}`}
             >
@@ -146,7 +162,7 @@ export function PullToRefreshWrapper({
               <span className={`text-sm font-medium ${stateConfig.color}`}>
                 {stateConfig.text}
               </span>
-        </motion.div>
+            </motion.div>
 
             {/* Progress Ring (only in pulling state) */}
             {refreshState === "pulling" && (
@@ -178,8 +194,8 @@ export function PullToRefreshWrapper({
                 />
               </motion.svg>
             )}
-        </motion.div>
-      )}
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Content with pull effect */}
@@ -198,7 +214,7 @@ export function PullToRefreshWrapper({
       {/* Pull stretch effect */}
       {refreshState === "pulling" && (
         <motion.div
-          className="pointer-events-none absolute left-0 right-0 top-0 h-20 bg-gradient-to-b from-[rgba(244,178,102,0.08)] to-transparent"
+          className="pointer-events-none absolute top-0 right-0 left-0 h-20 bg-gradient-to-b from-[rgba(244,178,102,0.08)] to-transparent"
           style={{
             opacity: refreshProgress * 0.5,
             transform: `scaleY(${1 + refreshProgress * 0.5})`,

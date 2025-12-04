@@ -18,7 +18,7 @@ export interface ColorPalette {
  * Uses canvas to sample pixels and calculate average color
  */
 export async function extractColorsFromImage(
-  imageUrl: string
+  imageUrl: string,
 ): Promise<ColorPalette> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -140,7 +140,11 @@ export async function extractColorsFromImage(
 /**
  * Convert RGB to HSL
  */
-function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
+function rgbToHsl(
+  r: number,
+  g: number,
+  b: number,
+): { h: number; s: number; l: number } {
   r /= 255;
   g /= 255;
   b /= 255;
@@ -184,7 +188,7 @@ export function createGradientFromPalette(
   x1: number,
   y1: number,
   x2: number,
-  y2: number
+  y2: number,
 ): CanvasGradient {
   const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
   gradient.addColorStop(0, palette.primary);

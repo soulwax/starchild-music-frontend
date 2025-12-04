@@ -48,7 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {/* Mobile: top-center with safe area, Desktop: bottom-right */}
-      <div className="safe-top fixed top-4 left-1/2 z-50 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4 md:left-auto md:right-4 md:top-auto md:bottom-24 md:translate-x-0">
+      <div className="safe-top fixed top-4 left-1/2 z-50 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4 md:top-auto md:right-4 md:bottom-24 md:left-auto md:translate-x-0">
         {toasts.map((toast) => (
           <Toast
             key={toast.id}

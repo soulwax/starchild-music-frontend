@@ -7,7 +7,8 @@ import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { springPresets } from "@/utils/spring-animations";
 import type { ReactNode } from "react";
 
-export interface SnappyButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
+export interface SnappyButtonProps
+  extends Omit<HTMLMotionProps<"button">, "children"> {
   children: ReactNode;
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
@@ -32,15 +33,16 @@ export function SnappyButton({
 }: SnappyButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled) return;
-    
+
     if (haptic === "light") hapticLight();
     else if (haptic === "medium") hapticMedium();
-    
+
     onClick?.(e);
   };
 
-  const baseClass = "relative overflow-hidden font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
-  
+  const baseClass =
+    "relative overflow-hidden font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+
   const variantClasses = {
     primary: "btn-primary",
     secondary: "btn-secondary",
@@ -67,9 +69,13 @@ export function SnappyButton({
       {...props}
     >
       <span className="relative z-10 flex items-center justify-center gap-2">
-        {icon && iconPosition === "left" && <span className="flex-shrink-0">{icon}</span>}
+        {icon && iconPosition === "left" && (
+          <span className="flex-shrink-0">{icon}</span>
+        )}
         {children}
-        {icon && iconPosition === "right" && <span className="flex-shrink-0">{icon}</span>}
+        {icon && iconPosition === "right" && (
+          <span className="flex-shrink-0">{icon}</span>
+        )}
       </span>
     </motion.button>
   );

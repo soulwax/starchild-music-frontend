@@ -10,7 +10,12 @@ import { hapticLight, hapticMedium, hapticSuccess } from "@/utils/haptics";
 import { getCoverImage } from "@/utils/images";
 import { springPresets } from "@/utils/spring-animations";
 import { formatDuration } from "@/utils/time";
-import { motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  type PanInfo,
+} from "framer-motion";
 import { Heart, ListPlus, MoreHorizontal, Play, Share2 } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
@@ -40,19 +45,39 @@ export default function SwipeableTrackCard({
   const [showMenu, setShowMenu] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
-  
+
   const utils = api.useUtils();
   const { showToast } = useToast();
   const { share, isSupported: isShareSupported } = useWebShare();
 
   const x = useMotionValue(0);
-  
+
   // Transform values for visual feedback
-  const leftActionOpacity = useTransform(x, [-SWIPE_CONFIRM_THRESHOLD, -SWIPE_THRESHOLD, 0], [1, 0.5, 0]);
-  const leftActionScale = useTransform(x, [-SWIPE_CONFIRM_THRESHOLD, -SWIPE_THRESHOLD, 0], [1.2, 1, 0.8]);
-  const rightActionOpacity = useTransform(x, [0, SWIPE_THRESHOLD, SWIPE_CONFIRM_THRESHOLD], [0, 0.5, 1]);
-  const rightActionScale = useTransform(x, [0, SWIPE_THRESHOLD, SWIPE_CONFIRM_THRESHOLD], [0.8, 1, 1.2]);
-  const cardScale = useTransform(x, [-SWIPE_CONFIRM_THRESHOLD, 0, SWIPE_CONFIRM_THRESHOLD], [0.98, 1, 0.98]);
+  const leftActionOpacity = useTransform(
+    x,
+    [-SWIPE_CONFIRM_THRESHOLD, -SWIPE_THRESHOLD, 0],
+    [1, 0.5, 0],
+  );
+  const leftActionScale = useTransform(
+    x,
+    [-SWIPE_CONFIRM_THRESHOLD, -SWIPE_THRESHOLD, 0],
+    [1.2, 1, 0.8],
+  );
+  const rightActionOpacity = useTransform(
+    x,
+    [0, SWIPE_THRESHOLD, SWIPE_CONFIRM_THRESHOLD],
+    [0, 0.5, 1],
+  );
+  const rightActionScale = useTransform(
+    x,
+    [0, SWIPE_THRESHOLD, SWIPE_CONFIRM_THRESHOLD],
+    [0.8, 1, 1.2],
+  );
+  const cardScale = useTransform(
+    x,
+    [-SWIPE_CONFIRM_THRESHOLD, 0, SWIPE_CONFIRM_THRESHOLD],
+    [0.98, 1, 0.98],
+  );
 
   const { data: favoriteData } = api.music.isFavorite.useQuery(
     { trackId: track.id },
@@ -88,7 +113,10 @@ export default function SwipeableTrackCard({
   const addToPlaylist = api.music.addToPlaylist.useMutation({
     onSuccess: async (_, variables) => {
       await utils.music.getPlaylists.invalidate();
-      const playlistName = playlists?.find((p: { id: number; name: string }) => p.id === variables.playlistId)?.name ?? "playlist";
+      const playlistName =
+        playlists?.find(
+          (p: { id: number; name: string }) => p.id === variables.playlistId,
+        )?.name ?? "playlist";
       showToast(`Added "${track.title}" to ${playlistName}`, "success");
       setShowMenu(false);
     },
@@ -138,15 +166,24 @@ export default function SwipeableTrackCard({
     onPlay(track);
   };
 
-  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
     // Check for swipe actions
-    if (offset < -SWIPE_CONFIRM_THRESHOLD || (offset < -SWIPE_THRESHOLD && velocity < -500)) {
+    if (
+      offset < -SWIPE_CONFIRM_THRESHOLD ||
+      (offset < -SWIPE_THRESHOLD && velocity < -500)
+    ) {
       // Swipe left -> Add to queue
       handleAddToQueue();
-    } else if (offset > SWIPE_CONFIRM_THRESHOLD || (offset > SWIPE_THRESHOLD && velocity > 500)) {
+    } else if (
+      offset > SWIPE_CONFIRM_THRESHOLD ||
+      (offset > SWIPE_THRESHOLD && velocity > 500)
+    ) {
       // Swipe right -> Toggle favorite
       toggleFavorite();
     }
@@ -173,7 +210,10 @@ export default function SwipeableTrackCard({
               : "from-[rgba(244,178,102,0.25)] to-transparent"
           }`}
         >
-          <motion.div style={{ scale: rightActionScale }} className="flex items-center gap-3">
+          <motion.div
+            style={{ scale: rightActionScale }}
+            className="flex items-center gap-3"
+          >
             <Heart
               className={`h-7 w-7 ${
                 favoriteData?.isFavorite
@@ -192,8 +232,13 @@ export default function SwipeableTrackCard({
           style={{ opacity: leftActionOpacity }}
           className="flex flex-1 items-center justify-end bg-gradient-to-l from-[rgba(88,198,177,0.25)] to-transparent px-6"
         >
-          <motion.div style={{ scale: leftActionScale }} className="flex items-center gap-3">
-            <span className="text-sm font-medium text-[var(--color-text)]">Add to Queue</span>
+          <motion.div
+            style={{ scale: leftActionScale }}
+            className="flex items-center gap-3"
+          >
+            <span className="text-sm font-medium text-[var(--color-text)]">
+              Add to Queue
+            </span>
             <ListPlus className="h-7 w-7 text-[var(--color-accent-strong)]" />
           </motion.div>
         </motion.div>
@@ -231,9 +276,12 @@ export default function SwipeableTrackCard({
         </div>
 
         {/* Track Info */}
-        <div className="min-w-0 flex-1 space-y-1" onClick={!onArtistClick && !onAlbumClick ? handlePlay : undefined}>
-          <h3 
-            className="line-clamp-2 text-base font-semibold leading-tight text-[var(--color-text)] cursor-pointer transition-colors hover:text-[var(--color-accent-light)] md:text-lg"
+        <div
+          className="min-w-0 flex-1 space-y-1"
+          onClick={!onArtistClick && !onAlbumClick ? handlePlay : undefined}
+        >
+          <h3
+            className="line-clamp-2 cursor-pointer text-base leading-tight font-semibold text-[var(--color-text)] transition-colors hover:text-[var(--color-accent-light)] md:text-lg"
             onClick={handlePlay}
           >
             {track.title}
@@ -250,7 +298,7 @@ export default function SwipeableTrackCard({
               {track.artist.name}
             </button>
           ) : (
-            <p className="line-clamp-1 text-sm text-[var(--color-subtext)] cursor-pointer">
+            <p className="line-clamp-1 cursor-pointer text-sm text-[var(--color-subtext)]">
               {track.artist.name}
             </p>
           )}
@@ -268,13 +316,19 @@ export default function SwipeableTrackCard({
                   {track.album.title}
                 </button>
               ) : (
-                <span className="line-clamp-1 cursor-pointer">{track.album.title}</span>
+                <span className="line-clamp-1 cursor-pointer">
+                  {track.album.title}
+                </span>
               )
             ) : (
-              <span className="line-clamp-1 text-[var(--color-muted)]">Unknown Album</span>
+              <span className="line-clamp-1 text-[var(--color-muted)]">
+                Unknown Album
+              </span>
             )}
             <span>•</span>
-            <span className="tabular-nums">{formatDuration(track.duration)}</span>
+            <span className="tabular-nums">
+              {formatDuration(track.duration)}
+            </span>
           </div>
         </div>
 
@@ -357,20 +411,22 @@ export default function SwipeableTrackCard({
                     transition={springPresets.snappy}
                     className="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-[rgba(244,178,102,0.14)] bg-[rgba(16,23,33,0.98)] py-2 shadow-xl backdrop-blur-xl md:w-48"
                   >
-                    <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+                    <div className="px-4 py-2 text-xs font-semibold tracking-wider text-[var(--color-muted)] uppercase">
                       Add to Playlist
                     </div>
                     {playlists && playlists.length > 0 ? (
-                      playlists.map((playlist: { id: number; name: string }) => (
-                        <button
-                          key={playlist.id}
-                          onClick={() => handleAddToPlaylist(playlist.id)}
-                          className="w-full px-4 py-3 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[rgba(244,178,102,0.1)] md:py-2"
-                          disabled={addToPlaylist.isPending}
-                        >
-                          {playlist.name}
-                        </button>
-                      ))
+                      playlists.map(
+                        (playlist: { id: number; name: string }) => (
+                          <button
+                            key={playlist.id}
+                            onClick={() => handleAddToPlaylist(playlist.id)}
+                            className="w-full px-4 py-3 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[rgba(244,178,102,0.1)] md:py-2"
+                            disabled={addToPlaylist.isPending}
+                          >
+                            {playlist.name}
+                          </button>
+                        ),
+                      )
                     ) : (
                       <div className="px-4 py-3 text-sm text-[var(--color-muted)] md:py-2">
                         No playlists yet

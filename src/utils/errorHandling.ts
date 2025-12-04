@@ -67,7 +67,7 @@ function isApiError(error: unknown): error is ApiError {
  * Type guard for tRPC errors
  */
 function isTRPCError(
-  error: unknown
+  error: unknown,
 ): error is { message: string; code?: string } {
   return (
     typeof error === "object" &&
@@ -83,7 +83,7 @@ function isTRPCError(
 export function createError(
   error: unknown,
   severity: ErrorSeverity = "error",
-  code?: string
+  code?: string,
 ): AppError {
   return {
     message: getErrorMessage(error),
@@ -175,7 +175,7 @@ export async function handleAsyncError<T>(
     onError?: (error: AppError) => void;
     errorMessage?: string;
     showToast?: boolean;
-  } = {}
+  } = {},
 ): Promise<T | null> {
   try {
     return await promise;
@@ -183,7 +183,7 @@ export async function handleAsyncError<T>(
     const appError = createError(
       error,
       "error",
-      errorMessage ?? getErrorMessage(error)
+      errorMessage ?? getErrorMessage(error),
     );
 
     logError(appError);
@@ -216,7 +216,7 @@ export async function retryWithBackoff<T>(
     baseDelay?: number;
     maxDelay?: number;
     onRetry?: (attempt: number, error: unknown) => void;
-  } = {}
+  } = {},
 ): Promise<T> {
   let lastError: unknown;
 

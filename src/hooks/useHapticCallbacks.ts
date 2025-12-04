@@ -50,7 +50,7 @@ export interface HapticCallbacksOutput {
  * });
  */
 export function useHapticCallbacks(
-  callbacks: HapticCallbacksInput
+  callbacks: HapticCallbacksInput,
 ): HapticCallbacksOutput {
   const {
     onPlayPause,

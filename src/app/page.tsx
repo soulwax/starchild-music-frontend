@@ -9,9 +9,17 @@ import { useGlobalPlayer } from "@/contexts/AudioPlayerContext";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { api } from "@/trpc/react";
 import type { Track } from "@/types";
-import { getAlbumTracks, searchTracks, searchTracksByArtist } from "@/utils/api";
+import {
+  getAlbumTracks,
+  searchTracks,
+  searchTracksByArtist,
+} from "@/utils/api";
 import { hapticLight } from "@/utils/haptics";
-import { springPresets, staggerContainer, staggerItem } from "@/utils/spring-animations";
+import {
+  springPresets,
+  staggerContainer,
+  staggerItem,
+} from "@/utils/spring-animations";
 import { AnimatePresence, motion } from "framer-motion";
 import { Music2, Search, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -76,66 +84,71 @@ function SearchPageContent() {
     [session, addSearchQuery],
   );
 
-  const handleAlbumClick = useCallback(async (albumId: number) => {
-    setLoading(true);
-    setIsArtistSearch(false); // Album search, not artist-specific
-    setApiOffset(0); // Reset API offset for album search
-    
-    try {
-      const response = await getAlbumTracks(albumId);
-      setResults(response.data);
-      setTotal(response.total);
-      
-      // Update URL with album ID
-      const params = new URLSearchParams();
-      params.set("album", albumId.toString());
-      router.push(`?${params.toString()}`, { scroll: false });
-      
-      // Try to get album name from track data, or fetch album info separately
-      let albumName: string | undefined;
-      if (response.data.length > 0) {
-        // Check if first track has album info
-        const firstTrack = response.data[0];
-        if (firstTrack && "album" in firstTrack && firstTrack.album) {
-          albumName = firstTrack.album.title;
-        }
-      }
-      
-      // If album name not found in tracks, fetch album info through our proxy
-      if (!albumName) {
-        try {
-          const albumResponse = await fetch(`/api/album/${albumId}`);
-          if (albumResponse.ok) {
-            const albumData = await albumResponse.json() as { title?: string };
-            albumName = albumData.title;
+  const handleAlbumClick = useCallback(
+    async (albumId: number) => {
+      setLoading(true);
+      setIsArtistSearch(false); // Album search, not artist-specific
+      setApiOffset(0); // Reset API offset for album search
+
+      try {
+        const response = await getAlbumTracks(albumId);
+        setResults(response.data);
+        setTotal(response.total);
+
+        // Update URL with album ID
+        const params = new URLSearchParams();
+        params.set("album", albumId.toString());
+        router.push(`?${params.toString()}`, { scroll: false });
+
+        // Try to get album name from track data, or fetch album info separately
+        let albumName: string | undefined;
+        if (response.data.length > 0) {
+          // Check if first track has album info
+          const firstTrack = response.data[0];
+          if (firstTrack && "album" in firstTrack && firstTrack.album) {
+            albumName = firstTrack.album.title;
           }
-        } catch (err) {
-          console.warn("Failed to fetch album info:", err);
         }
-      }
-      
-      // Set query to album name if available
-      if (albumName) {
-        setQuery(albumName);
-        setCurrentQuery(albumName);
-        if (session) {
-          addSearchQuery.mutate({ query: albumName });
+
+        // If album name not found in tracks, fetch album info through our proxy
+        if (!albumName) {
+          try {
+            const albumResponse = await fetch(`/api/album/${albumId}`);
+            if (albumResponse.ok) {
+              const albumData = (await albumResponse.json()) as {
+                title?: string;
+              };
+              albumName = albumData.title;
+            }
+          } catch (err) {
+            console.warn("Failed to fetch album info:", err);
+          }
         }
+
+        // Set query to album name if available
+        if (albumName) {
+          setQuery(albumName);
+          setCurrentQuery(albumName);
+          if (session) {
+            addSearchQuery.mutate({ query: albumName });
+          }
+        }
+      } catch (error) {
+        console.error("Album search failed:", error);
+        setResults([]);
+        setTotal(0);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Album search failed:", error);
-      setResults([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [session, addSearchQuery, router]);
+    },
+    [session, addSearchQuery, router],
+  );
 
   useEffect(() => {
     try {
       const urlQuery = searchParams.get("q");
       const albumId = searchParams.get("album");
-      
+
       if (albumId && !isInitialized) {
         // Handle album URL parameter
         const albumIdNum = parseInt(albumId, 10);
@@ -186,8 +199,11 @@ function SearchPageContent() {
         // For artist searches, we need to use the API offset (not filtered result count)
         // since filtering happens client-side. Use the tracked API offset.
         const currentApiOffset = apiOffset;
-        const response = await searchTracksByArtist(currentQuery, currentApiOffset);
-        
+        const response = await searchTracksByArtist(
+          currentQuery,
+          currentApiOffset,
+        );
+
         // The API typically returns 25 results per page. Since we filter client-side,
         // we don't know exactly how many API results were returned, but we need to
         // increment by the standard page size to avoid overlapping results.
@@ -195,11 +211,11 @@ function SearchPageContent() {
         // If we got no filtered results but there's a next page, the API still returned results.
         const API_PAGE_SIZE = 25; // Standard Deezer API page size
         const newApiOffset = currentApiOffset + API_PAGE_SIZE;
-        
+
         // Append new filtered results
         setResults((prev) => {
           const newResults = [...prev, ...response.data];
-          
+
           // Update total based on new results - use the actual new length, not stale state
           // Only set total to filtered count when there are no more API pages to check
           // Don't stop pagination just because current page has no matches
@@ -211,10 +227,10 @@ function SearchPageContent() {
             // Even if this page had no matches, there might be matches on next pages
             setTotal(response.total);
           }
-          
+
           return newResults;
         });
-        
+
         // Update API offset for next pagination
         setApiOffset(newApiOffset);
       } else {
@@ -224,7 +240,7 @@ function SearchPageContent() {
           setLoadingMore(false);
           return;
         }
-        
+
         const response = await searchTracks(currentQuery, nextOffset);
         setResults((prev) => [...prev, ...response.data]);
         // Update total if it changed
@@ -245,40 +261,42 @@ function SearchPageContent() {
     }
   };
 
-  const handleArtistClick = useCallback(async (artistName: string) => {
-    setLoading(true);
-    setQuery(artistName);
-    setCurrentQuery(artistName);
-    setIsArtistSearch(true); // Mark as artist search mode
-    setApiOffset(0); // Reset API offset for new artist search
-    
-    try {
-      const response = await searchTracksByArtist(artistName, 0);
-      setResults(response.data);
-      setTotal(response.total);
-      
-      // Update API offset - first page is always 25 results from the API
-      const API_PAGE_SIZE = 25;
-      setApiOffset(API_PAGE_SIZE);
-      
-      // Update URL
-      const params = new URLSearchParams();
-      params.set("q", artistName);
-      router.push(`?${params.toString()}`, { scroll: false });
-      
-      if (session) {
-        addSearchQuery.mutate({ query: artistName });
-      }
-    } catch (error) {
-      console.error("Artist search failed:", error);
-      setResults([]);
-      setTotal(0);
-      setApiOffset(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [session, addSearchQuery, router]);
+  const handleArtistClick = useCallback(
+    async (artistName: string) => {
+      setLoading(true);
+      setQuery(artistName);
+      setCurrentQuery(artistName);
+      setIsArtistSearch(true); // Mark as artist search mode
+      setApiOffset(0); // Reset API offset for new artist search
 
+      try {
+        const response = await searchTracksByArtist(artistName, 0);
+        setResults(response.data);
+        setTotal(response.total);
+
+        // Update API offset - first page is always 25 results from the API
+        const API_PAGE_SIZE = 25;
+        setApiOffset(API_PAGE_SIZE);
+
+        // Update URL
+        const params = new URLSearchParams();
+        params.set("q", artistName);
+        router.push(`?${params.toString()}`, { scroll: false });
+
+        if (session) {
+          addSearchQuery.mutate({ query: artistName });
+        }
+      } catch (error) {
+        console.error("Artist search failed:", error);
+        setResults([]);
+        setTotal(0);
+        setApiOffset(0);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [session, addSearchQuery, router],
+  );
 
   const hasMore = results.length < total;
 
@@ -287,9 +305,9 @@ function SearchPageContent() {
   }
 
   const searchContent = (
-      <div className="flex min-h-screen flex-col">
-        <main className="container mx-auto w-full flex-1 py-6 md:py-8">
-          {/* Hero Section */}
+    <div className="flex min-h-screen flex-col">
+      <main className="container mx-auto w-full flex-1 py-6 md:py-8">
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -298,10 +316,10 @@ function SearchPageContent() {
         >
           <p className="text-sm text-[var(--color-subtext)] md:text-base">
             Search 50 million+ tracks. Log in for playlists and more.
-            </p>
+          </p>
         </motion.div>
 
-          {/* Search Card */}
+        {/* Search Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -330,57 +348,57 @@ function SearchPageContent() {
               <div className="flex items-center gap-3 md:flex-row">
                 <div className="flex flex-1 items-center gap-3 rounded-xl border border-[rgba(244,178,102,0.15)] bg-[rgba(18,26,38,0.9)] px-4 py-3 transition-all focus-within:border-[rgba(244,178,102,0.4)] focus-within:shadow-[0_0_0_4px_rgba(244,178,102,0.1)]">
                   <Search className="h-5 w-5 flex-shrink-0 text-[var(--color-muted)]" />
-                <input
+                  <input
                     className="min-w-0 flex-1 bg-transparent text-base text-[var(--color-text)] placeholder-[var(--color-muted)] outline-none"
-                  placeholder="Search for songs, artists, or albums..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && void handleSearch()}
-                />
-              </div>
-              <button
+                    placeholder="Search for songs, artists, or albums..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && void handleSearch()}
+                  />
+                </div>
+                <button
                   className="btn-primary touch-target-lg flex items-center justify-center gap-2 px-8"
-                onClick={() => void handleSearch()}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
+                  onClick={() => void handleSearch()}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
                       <div className="spinner spinner-sm" />
-                    <span>Searching...</span>
-                  </>
-                ) : (
-                  "Search"
-                )}
-              </button>
-            </div>
+                      <span>Searching...</span>
+                    </>
+                  ) : (
+                    "Search"
+                  )}
+                </button>
+              </div>
 
-            {session && recentSearches && recentSearches.length > 0 && (
+              {session && recentSearches && recentSearches.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-[var(--color-subtext)]">
-                  Recent:
-                </span>
-                {recentSearches.map((search: string) => (
-                  <button
-                    key={search}
+                  <span className="text-sm font-medium text-[var(--color-subtext)]">
+                    Recent:
+                  </span>
+                  {recentSearches.map((search: string) => (
+                    <button
+                      key={search}
                       onClick={() => {
                         hapticLight();
                         void handleSearch(search);
                       }}
                       className="touch-active rounded-full bg-[var(--color-surface-2)] px-3 py-1.5 text-sm text-[var(--color-text)] ring-1 ring-white/5 transition-all hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-accent-light)] hover:ring-[var(--color-accent)]/30"
-                  >
-                    {search}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+                    >
+                      {search}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </motion.div>
 
         {/* Results Section */}
-            <div className="w-full">
+        <div className="w-full">
           <AnimatePresence mode="wait">
-              {results.length > 0 ? (
+            {results.length > 0 ? (
               <motion.div
                 key="results"
                 initial={{ opacity: 0 }}
@@ -389,19 +407,19 @@ function SearchPageContent() {
                 transition={{ duration: 0.2 }}
               >
                 <div className="mb-4 flex items-center justify-between md:mb-5">
-                    <div>
+                  <div>
                     <h2 className="text-lg font-bold text-[var(--color-text)] md:text-2xl">
-                        Search Results
-                      </h2>
+                      Search Results
+                    </h2>
                     <p className="mt-0.5 text-xs text-[var(--color-subtext)] md:mt-1 md:text-sm">
-                        {results.length.toLocaleString()}
-                        {total > results.length
-                          ? ` of ${total.toLocaleString()}`
-                          : ""}{" "}
-                        tracks found
-                      </p>
-                    </div>
+                      {results.length.toLocaleString()}
+                      {total > results.length
+                        ? ` of ${total.toLocaleString()}`
+                        : ""}{" "}
+                      tracks found
+                    </p>
                   </div>
+                </div>
 
                 <motion.div
                   variants={staggerContainer}
@@ -421,33 +439,33 @@ function SearchPageContent() {
                         onAlbumClick={handleAlbumClick}
                       />
                     </motion.div>
-                    ))}
+                  ))}
                 </motion.div>
 
-                  {hasMore && (
+                {hasMore && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-6 flex justify-center md:mt-8"
                   >
-                      <button
-                        onClick={() => void handleLoadMore()}
-                        disabled={loadingMore}
-                        className="btn-primary touch-target-lg flex w-full items-center justify-center gap-2 md:w-auto md:px-12"
-                      >
-                        {loadingMore ? (
-                          <>
+                    <button
+                      onClick={() => void handleLoadMore()}
+                      disabled={loadingMore}
+                      className="btn-primary touch-target-lg flex w-full items-center justify-center gap-2 md:w-auto md:px-12"
+                    >
+                      {loadingMore ? (
+                        <>
                           <div className="spinner spinner-sm" />
-                            <span>Loading...</span>
-                          </>
-                        ) : (
-                          `Load More (${(total - results.length).toLocaleString()} remaining)`
-                        )}
-                      </button>
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        `Load More (${(total - results.length).toLocaleString()} remaining)`
+                      )}
+                    </button>
                   </motion.div>
-                  )}
+                )}
               </motion.div>
-              ) : (
+            ) : (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -471,15 +489,22 @@ function SearchPageContent() {
                   <Music2 className="h-10 w-10 text-[var(--color-accent)] md:h-12 md:w-12" />
                 </motion.div>
                 <h3 className="mb-2 text-lg font-bold text-[var(--color-text)] md:text-xl">
-                    Explore Starchild Music
-                  </h3>
+                  Explore Starchild Music
+                </h3>
                 <p className="max-w-md px-4 text-sm text-[var(--color-subtext)] md:text-base">
-                  Search for songs, artists, albums - anything you want to listen to.
+                  Search for songs, artists, albums - anything you want to
+                  listen to.
                 </p>
-                
+
                 {/* Quick Search Suggestions */}
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  {["Daft Punk", "Lofi Beats", "Jazz", "Electronic", "Trip-Hop"].map((suggestion) => (
+                  {[
+                    "Daft Punk",
+                    "Lofi Beats",
+                    "Jazz",
+                    "Electronic",
+                    "Trip-Hop",
+                  ].map((suggestion) => (
                     <motion.button
                       key={suggestion}
                       onClick={() => {
@@ -496,11 +521,11 @@ function SearchPageContent() {
                   ))}
                 </div>
               </motion.div>
-              )}
+            )}
           </AnimatePresence>
-          </div>
-        </main>
-      </div>
+        </div>
+      </main>
+    </div>
   );
 
   // Wrap with pull-to-refresh on mobile
@@ -509,7 +534,7 @@ function SearchPageContent() {
       <PullToRefreshWrapper onRefresh={handleRefresh} enabled={!!currentQuery}>
         {searchContent}
       </PullToRefreshWrapper>
-  );
+    );
   }
 
   return searchContent;

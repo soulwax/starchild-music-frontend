@@ -57,7 +57,7 @@ export default function MiniPlayer({
       animate={{ y: 0 }}
       exit={{ y: 100 }}
       transition={springPresets.gentle}
-      className="safe-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-[rgba(244,178,102,0.14)] bg-[rgba(10,16,24,0.94)] backdrop-blur-xl shadow-[0_-12px_32px_rgba(5,10,18,0.6)]"
+      className="safe-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-[rgba(244,178,102,0.14)] bg-[rgba(10,16,24,0.94)] shadow-[0_-12px_32px_rgba(5,10,18,0.6)] backdrop-blur-xl"
     >
       {/* Progress Bar */}
       <div
@@ -74,7 +74,7 @@ export default function MiniPlayer({
 
       {/* Mini Player Content */}
       <motion.div
-        className="flex items-center gap-3 px-4 py-3 cursor-pointer"
+        className="flex cursor-pointer items-center gap-3 px-4 py-3"
         onTap={onTap}
         whileTap={{ scale: 0.99 }}
         transition={springPresets.snappy}

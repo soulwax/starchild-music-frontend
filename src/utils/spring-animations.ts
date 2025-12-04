@@ -12,7 +12,7 @@ export const springPresets = {
     damping: 30,
     mass: 0.5,
   },
-  
+
   // Smooth and natural for cards and larger elements
   smooth: {
     type: "spring" as const,
@@ -20,7 +20,7 @@ export const springPresets = {
     damping: 35,
     mass: 0.8,
   },
-  
+
   // Bouncy for playful interactions
   bouncy: {
     type: "spring" as const,
@@ -28,7 +28,7 @@ export const springPresets = {
     damping: 25,
     mass: 0.6,
   },
-  
+
   // Gentle for sheets and panels
   gentle: {
     type: "spring" as const,
@@ -36,7 +36,7 @@ export const springPresets = {
     damping: 30,
     mass: 1,
   },
-  
+
   // Immediate for touch feedback
   immediate: {
     type: "spring" as const,
@@ -44,7 +44,7 @@ export const springPresets = {
     damping: 40,
     mass: 0.3,
   },
-  
+
   // Elastic for swipe actions
   elastic: {
     type: "spring" as const,
@@ -57,16 +57,16 @@ export const springPresets = {
 export const easePresets = {
   // Smooth ease out for exits
   easeOut: [0.4, 0, 0.2, 1],
-  
+
   // Quick ease in for entrances
   easeIn: [0.4, 0, 1, 1],
-  
+
   // Symmetric for bidirectional animations
   easeInOut: [0.4, 0, 0.2, 1],
-  
+
   // Sharp for snappy interactions
   sharp: [0.4, 0, 0.6, 1],
-  
+
   // Emphasized for important actions
   emphasized: [0.0, 0, 0.2, 1],
 };
@@ -143,8 +143,8 @@ export const listAnimation = {
 
 export const listItemAnimation = {
   hidden: { opacity: 0, x: -20 },
-  show: { 
-    opacity: 1, 
+  show: {
+    opacity: 1,
     x: 0,
     transition: springPresets.smooth,
   },

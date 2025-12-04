@@ -6,8 +6,20 @@ import { useGlobalPlayer } from "@/contexts/AudioPlayerContext";
 import { useMobilePanes } from "@/contexts/MobilePanesContext";
 import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { springPresets } from "@/utils/spring-animations";
-import { AnimatePresence, motion, useMotionValue, type PanInfo } from "framer-motion";
-import { ChevronUp, Home, Library, ListMusic, Music2, User } from "lucide-react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  type PanInfo,
+} from "framer-motion";
+import {
+  ChevronUp,
+  Home,
+  Library,
+  ListMusic,
+  Music2,
+  User,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -75,7 +87,10 @@ export default function MobileNavigation() {
   const indicatorLeft = activeIndex >= 0 ? activeIndex * indicatorWidth : 0;
 
   // Quick actions drag handling
-  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     if (info.offset.y < -50 || info.velocity.y < -300) {
       hapticMedium();
       setShowQuickActions(true);
@@ -111,11 +126,13 @@ export default function MobileNavigation() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={springPresets.gentle}
-              className="fixed bottom-0 left-0 right-0 z-[46] rounded-t-3xl border-t border-[rgba(244,178,102,0.16)] bg-[rgba(13,19,28,0.98)] pb-safe backdrop-blur-xl"
+              className="pb-safe fixed right-0 bottom-0 left-0 z-[46] rounded-t-3xl border-t border-[rgba(244,178,102,0.16)] bg-[rgba(13,19,28,0.98)] backdrop-blur-xl"
             >
               <div className="flex flex-col items-center pt-4">
                 <div className="mb-4 h-1 w-10 rounded-full bg-[rgba(255,255,255,0.2)]" />
-                <h3 className="mb-4 text-lg font-semibold text-[var(--color-text)]">Quick Actions</h3>
+                <h3 className="mb-4 text-lg font-semibold text-[var(--color-text)]">
+                  Quick Actions
+                </h3>
               </div>
 
               <div className="grid grid-cols-3 gap-4 px-6 pb-8">
@@ -131,7 +148,9 @@ export default function MobileNavigation() {
                     className="flex flex-col items-center gap-2 rounded-xl bg-[rgba(244,178,102,0.12)] p-4 transition-colors"
                   >
                     <Music2 className="h-6 w-6 text-[var(--color-accent)]" />
-                    <span className="text-xs text-[var(--color-text)]">Now Playing</span>
+                    <span className="text-xs text-[var(--color-text)]">
+                      Now Playing
+                    </span>
                   </motion.button>
                 )}
 
@@ -146,9 +165,11 @@ export default function MobileNavigation() {
                   className="flex flex-col items-center gap-2 rounded-xl bg-[rgba(88,198,177,0.12)] p-4 transition-colors"
                 >
                   <ListMusic className="h-6 w-6 text-[var(--color-accent-strong)]" />
-                  <span className="text-xs text-[var(--color-text)]">Queue</span>
+                  <span className="text-xs text-[var(--color-text)]">
+                    Queue
+                  </span>
                   {player.queue.length > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-xs font-bold text-[#0f141d]">
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-xs font-bold text-[#0f141d]">
                       {player.queue.length}
                     </span>
                   )}
@@ -163,10 +184,22 @@ export default function MobileNavigation() {
                   }}
                   className="flex flex-col items-center gap-2 rounded-xl bg-[rgba(140,167,255,0.12)] p-4 transition-colors"
                 >
-                  <svg className="h-6 w-6 text-[#8ca7ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <svg
+                    className="h-6 w-6 text-[#8ca7ff]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
                   </svg>
-                  <span className="text-xs text-[var(--color-text)]">Search</span>
+                  <span className="text-xs text-[var(--color-text)]">
+                    Search
+                  </span>
                 </motion.button>
               </div>
             </motion.div>
@@ -184,12 +217,12 @@ export default function MobileNavigation() {
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={{ top: 0.1, bottom: 0 }}
         onDragEnd={handleDragEnd}
-        className="safe-bottom fixed bottom-0 left-0 right-0 z-40 md:hidden"
+        className="safe-bottom fixed right-0 bottom-0 left-0 z-40 md:hidden"
       >
         {/* Drag hint indicator */}
         <motion.div
           animate={{ opacity: showQuickActions ? 0 : 0.5 }}
-          className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-3 items-center justify-center"
+          className="absolute top-0 left-1/2 flex -translate-x-1/2 -translate-y-3 items-center justify-center"
         >
           <motion.div
             animate={{ y: [0, -4, 0] }}
@@ -214,8 +247,10 @@ export default function MobileNavigation() {
             }}
             transition={springPresets.snappy}
             style={{
-              background: "linear-gradient(90deg, var(--color-accent), var(--color-accent-strong))",
-              boxShadow: "0 0 12px rgba(244,178,102,0.5), 0 0 24px rgba(244,178,102,0.3)",
+              background:
+                "linear-gradient(90deg, var(--color-accent), var(--color-accent-strong))",
+              boxShadow:
+                "0 0 12px rgba(244,178,102,0.5), 0 0 24px rgba(244,178,102,0.3)",
             }}
           />
         </div>
@@ -253,7 +288,9 @@ export default function MobileNavigation() {
                       transition={springPresets.gentle}
                     />
                   )}
-                  <span className="relative z-10">{active ? tab.activeIcon : tab.icon}</span>
+                  <span className="relative z-10">
+                    {active ? tab.activeIcon : tab.icon}
+                  </span>
                 </motion.div>
 
                 {/* Label */}

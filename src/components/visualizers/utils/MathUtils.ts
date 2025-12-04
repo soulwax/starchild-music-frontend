@@ -9,7 +9,7 @@ export class MathUtils {
     const view = new Int32Array(i.buffer);
     view[0] = 0x5f3759df - (view[0]! >> 1);
     let y = new Float32Array(view.buffer)[0]!;
-    y = y * (threehalfs - (x2 * y * y));
+    y = y * (threehalfs - x2 * y * y);
     return y;
   }
 
@@ -17,7 +17,13 @@ export class MathUtils {
   static readonly PHI = (1 + Math.sqrt(5)) / 2;
 
   // Map value from one range to another
-  static map(value: number, start1: number, stop1: number, start2: number, stop2: number): number {
+  static map(
+    value: number,
+    start1: number,
+    stop1: number,
+    start2: number,
+    stop2: number,
+  ): number {
     return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
   }
 
@@ -33,26 +39,31 @@ export class MathUtils {
   }
 
   // Generate fibonacci spiral point
-  static fibonacciSpiralPoint(index: number, total: number, radius: number): { x: number; y: number } {
+  static fibonacciSpiralPoint(
+    index: number,
+    total: number,
+    radius: number,
+  ): { x: number; y: number } {
     const angle = index * MathUtils.PHI * Math.PI * 2;
     const r = radius * Math.sqrt(index / total);
     return {
       x: r * Math.cos(angle),
-      y: r * Math.sin(angle)
+      y: r * Math.sin(angle),
     };
   }
 
   // XOR pattern for glitch effects
   static xorPattern(x: number, y: number, time: number): number {
-    const ix = Math.floor(x) & 0xFF;
-    const iy = Math.floor(y) & 0xFF;
-    const it = Math.floor(time) & 0xFF;
+    const ix = Math.floor(x) & 0xff;
+    const iy = Math.floor(y) & 0xff;
+    const it = Math.floor(time) & 0xff;
     return (ix ^ iy ^ it) / 255;
   }
 
   // Mandelbrot iteration
   static mandelbrot(cx: number, cy: number, maxIterations: number): number {
-    let x = 0, y = 0;
+    let x = 0,
+      y = 0;
     let iteration = 0;
 
     while (x * x + y * y <= 4 && iteration < maxIterations) {
@@ -67,15 +78,20 @@ export class MathUtils {
 
   // Plasma effect
   static plasma(x: number, y: number, time: number): number {
-    const value = Math.sin(x * 0.05 + time) +
-                  Math.sin(y * 0.05 + time) +
-                  Math.sin((x + y) * 0.05 + time) +
-                  Math.sin(Math.sqrt(x * x + y * y) * 0.05 + time);
+    const value =
+      Math.sin(x * 0.05 + time) +
+      Math.sin(y * 0.05 + time) +
+      Math.sin((x + y) * 0.05 + time) +
+      Math.sin(Math.sqrt(x * x + y * y) * 0.05 + time);
     return (value + 4) / 8;
   }
 
   // Voronoi cell distance
-  static voronoi(x: number, y: number, points: Array<{ x: number; y: number }>): { distance: number; index: number } {
+  static voronoi(
+    x: number,
+    y: number,
+    points: Array<{ x: number; y: number }>,
+  ): { distance: number; index: number } {
     let minDist = Infinity;
     let minIndex = 0;
 
@@ -92,11 +108,18 @@ export class MathUtils {
   }
 
   // Chromatic aberration offset
-  static chromaticAberration(angle: number, strength: number): { r: { x: number; y: number }; g: { x: number; y: number }; b: { x: number; y: number } } {
+  static chromaticAberration(
+    angle: number,
+    strength: number,
+  ): {
+    r: { x: number; y: number };
+    g: { x: number; y: number };
+    b: { x: number; y: number };
+  } {
     return {
       r: { x: Math.cos(angle) * strength, y: Math.sin(angle) * strength },
       g: { x: 0, y: 0 },
-      b: { x: -Math.cos(angle) * strength, y: -Math.sin(angle) * strength }
+      b: { x: -Math.cos(angle) * strength, y: -Math.sin(angle) * strength },
     };
   }
 
@@ -104,19 +127,32 @@ export class MathUtils {
   static simpleNoise(x: number, y: number): number {
     const n = Math.floor(x) + Math.floor(y) * 57;
     const nn = (n << 13) ^ n;
-    return 1.0 - ((nn * (nn * nn * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0;
+    return (
+      1.0 -
+      ((nn * (nn * nn * 15731 + 789221) + 1376312589) & 0x7fffffff) /
+        1073741824.0
+    );
   }
 
   // Lissajous curve
-  static lissajous(t: number, a: number, b: number, delta: number): { x: number; y: number } {
+  static lissajous(
+    t: number,
+    a: number,
+    b: number,
+    delta: number,
+  ): { x: number; y: number } {
     return {
       x: Math.sin(a * t + delta),
-      y: Math.sin(b * t)
+      y: Math.sin(b * t),
     };
   }
 
   // Metaball field strength
-  static metaball(x: number, y: number, balls: Array<{ x: number; y: number; radius: number }>): number {
+  static metaball(
+    x: number,
+    y: number,
+    balls: Array<{ x: number; y: number; radius: number }>,
+  ): number {
     let sum = 0;
     for (const ball of balls) {
       const dx = x - ball.x;
@@ -130,7 +166,11 @@ export class MathUtils {
   }
 
   // HSL to RGB with bitmagic
-  static hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
+  static hslToRgb(
+    h: number,
+    s: number,
+    l: number,
+  ): { r: number; g: number; b: number } {
     h = h % 360;
     s = MathUtils.constrain(s, 0, 100) / 100;
     l = MathUtils.constrain(l, 0, 100) / 100;
@@ -139,19 +179,40 @@ export class MathUtils {
     const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
     const m = l - c / 2;
 
-    let r = 0, g = 0, b = 0;
+    let r = 0,
+      g = 0,
+      b = 0;
 
-    if (h < 60) { r = c; g = x; b = 0; }
-    else if (h < 120) { r = x; g = c; b = 0; }
-    else if (h < 180) { r = 0; g = c; b = x; }
-    else if (h < 240) { r = 0; g = x; b = c; }
-    else if (h < 300) { r = x; g = 0; b = c; }
-    else { r = c; g = 0; b = x; }
+    if (h < 60) {
+      r = c;
+      g = x;
+      b = 0;
+    } else if (h < 120) {
+      r = x;
+      g = c;
+      b = 0;
+    } else if (h < 180) {
+      r = 0;
+      g = c;
+      b = x;
+    } else if (h < 240) {
+      r = 0;
+      g = x;
+      b = c;
+    } else if (h < 300) {
+      r = x;
+      g = 0;
+      b = c;
+    } else {
+      r = c;
+      g = 0;
+      b = x;
+    }
 
     return {
       r: Math.floor((r + m) * 255),
       g: Math.floor((g + m) * 255),
-      b: Math.floor((b + m) * 255)
+      b: Math.floor((b + m) * 255),
     };
   }
 }

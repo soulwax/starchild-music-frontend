@@ -46,7 +46,11 @@ interface AudioVisualizerProps {
   ensureVisibleSignal?: number;
 }
 
-const TIME_DOMAIN_TYPES = new Set<VisualizerType>(["wave", "oscilloscope", "waveform-mirror"]);
+const TIME_DOMAIN_TYPES = new Set<VisualizerType>([
+  "wave",
+  "oscilloscope",
+  "waveform-mirror",
+]);
 const FREQUENCY_ANALYSIS_TYPES = new Set<VisualizerType>([
   "frequency-bands",
   "frequency-circular",
@@ -90,7 +94,9 @@ export function AudioVisualizer({
   const [isResizing, setIsResizing] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentType, setCurrentType] = useState<VisualizerType>(persistedState?.type ?? type);
+  const [currentType, setCurrentType] = useState<VisualizerType>(
+    persistedState?.type ?? type,
+  );
   const [showTypeLabel, setShowTypeLabel] = useState(false);
   const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const dragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 });
@@ -100,8 +106,14 @@ export function AudioVisualizer({
     height: Math.max(MIN_HEIGHT, persistedState?.height ?? height),
   };
   const initialCollapsedDimensions = {
-    width: Math.max(MIN_WIDTH, persistedState?.collapsedWidth ?? initialDimensions.width),
-    height: Math.max(MIN_HEIGHT, persistedState?.collapsedHeight ?? initialDimensions.height),
+    width: Math.max(
+      MIN_WIDTH,
+      persistedState?.collapsedWidth ?? initialDimensions.width,
+    ),
+    height: Math.max(
+      MIN_HEIGHT,
+      persistedState?.collapsedHeight ?? initialDimensions.height,
+    ),
   };
   const getInitialPosition = () => {
     const defaultPosition = { x: VIEWPORT_PADDING, y: VIEWPORT_PADDING };
@@ -129,15 +141,23 @@ export function AudioVisualizer({
   const [showControls, setShowControls] = useState(false);
   const dimensionsRef = useRef(dimensions);
   const positionRef = useRef(position);
-  const renderParamsRef = useRef({ currentType: persistedState?.type ?? type, barCount, barGap });
+  const renderParamsRef = useRef({
+    currentType: persistedState?.type ?? type,
+    barCount,
+    barGap,
+  });
   const collapsedDimensionsRef = useRef(initialCollapsedDimensions);
-  const onStateChangeRef = useRef<AudioVisualizerProps["onStateChange"]>(onStateChange);
+  const onStateChangeRef =
+    useRef<AudioVisualizerProps["onStateChange"]>(onStateChange);
   useEffect(() => {
     onStateChangeRef.current = onStateChange;
   }, [onStateChange]);
-  const persistLayoutState = useCallback((patch: Partial<VisualizerLayoutState>) => {
-    onStateChangeRef.current?.(patch);
-  }, []);
+  const persistLayoutState = useCallback(
+    (patch: Partial<VisualizerLayoutState>) => {
+      onStateChangeRef.current?.(patch);
+    },
+    [],
+  );
   const clampPositionWithDimensions = useCallback(
     (
       nextPosition: VisualizerPosition,
@@ -246,8 +266,14 @@ export function AudioVisualizer({
         y: persistedState.y ?? prev.y,
       };
       const next = clampPositionWithDimensions(desired, {
-        width: Math.max(MIN_WIDTH, persistedState.width ?? dimensionsRef.current.width),
-        height: Math.max(MIN_HEIGHT, persistedState.height ?? dimensionsRef.current.height),
+        width: Math.max(
+          MIN_WIDTH,
+          persistedState.width ?? dimensionsRef.current.width,
+        ),
+        height: Math.max(
+          MIN_HEIGHT,
+          persistedState.height ?? dimensionsRef.current.height,
+        ),
       });
       if (prev.x === next.x && prev.y === next.y) {
         return prev;
@@ -256,8 +282,14 @@ export function AudioVisualizer({
     });
 
     collapsedDimensionsRef.current = {
-      width: Math.max(MIN_WIDTH, persistedState.collapsedWidth ?? collapsedDimensionsRef.current.width),
-      height: Math.max(MIN_HEIGHT, persistedState.collapsedHeight ?? collapsedDimensionsRef.current.height),
+      width: Math.max(
+        MIN_WIDTH,
+        persistedState.collapsedWidth ?? collapsedDimensionsRef.current.width,
+      ),
+      height: Math.max(
+        MIN_HEIGHT,
+        persistedState.collapsedHeight ?? collapsedDimensionsRef.current.height,
+      ),
     };
   }, [persistedState, clampPositionWithDimensions]);
   useEffect(() => {
@@ -279,12 +311,19 @@ export function AudioVisualizer({
   const radialSpectrumRendererRef = useRef<RadialSpectrumRenderer | null>(null);
   const particleRendererRef = useRef<ParticleRenderer | null>(null);
   const frequencyRingsRendererRef = useRef<FrequencyRingsRenderer | null>(null);
-  const frequencyBandBarsRendererRef = useRef<FrequencyBandBarsRenderer | null>(null);
-  const frequencyBandCircularRendererRef = useRef<FrequencyBandCircularRenderer | null>(null);
-  const frequencyBandLayeredRendererRef = useRef<FrequencyBandLayeredRenderer | null>(null);
-  const frequencyBandWaterfallRendererRef = useRef<FrequencyBandWaterfallRenderer | null>(null);
-  const frequencyBandRadialRendererRef = useRef<FrequencyBandRadialRenderer | null>(null);
-  const frequencyBandParticlesRendererRef = useRef<FrequencyBandParticlesRenderer | null>(null);
+  const frequencyBandBarsRendererRef = useRef<FrequencyBandBarsRenderer | null>(
+    null,
+  );
+  const frequencyBandCircularRendererRef =
+    useRef<FrequencyBandCircularRenderer | null>(null);
+  const frequencyBandLayeredRendererRef =
+    useRef<FrequencyBandLayeredRenderer | null>(null);
+  const frequencyBandWaterfallRendererRef =
+    useRef<FrequencyBandWaterfallRenderer | null>(null);
+  const frequencyBandRadialRendererRef =
+    useRef<FrequencyBandRadialRenderer | null>(null);
+  const frequencyBandParticlesRendererRef =
+    useRef<FrequencyBandParticlesRenderer | null>(null);
 
   const visualizer = useAudioVisualizer(audioElement, {
     fftSize: 2048,
@@ -292,7 +331,10 @@ export function AudioVisualizer({
   });
 
   // Enhanced audio analysis cache (using ref for immediate access in render loop)
-  const audioAnalysisRef = useRef<{ data: AudioAnalysis; timestamp: number } | null>(null);
+  const audioAnalysisRef = useRef<{
+    data: AudioAnalysis;
+    timestamp: number;
+  } | null>(null);
 
   // Initialize renderers
   useEffect(() => {
@@ -302,14 +344,22 @@ export function AudioVisualizer({
     circularRendererRef.current = new CircularRenderer(barCount);
     spectralWavesRendererRef.current = new SpectralWavesRenderer();
     radialSpectrumRendererRef.current = new RadialSpectrumRenderer(barCount);
-    particleRendererRef.current = new ParticleRenderer(barCount, barGap, barColor);
+    particleRendererRef.current = new ParticleRenderer(
+      barCount,
+      barGap,
+      barColor,
+    );
     frequencyRingsRendererRef.current = new FrequencyRingsRenderer(8);
     frequencyBandBarsRendererRef.current = new FrequencyBandBarsRenderer();
-    frequencyBandCircularRendererRef.current = new FrequencyBandCircularRenderer();
-    frequencyBandLayeredRendererRef.current = new FrequencyBandLayeredRenderer();
-    frequencyBandWaterfallRendererRef.current = new FrequencyBandWaterfallRenderer();
+    frequencyBandCircularRendererRef.current =
+      new FrequencyBandCircularRenderer();
+    frequencyBandLayeredRendererRef.current =
+      new FrequencyBandLayeredRenderer();
+    frequencyBandWaterfallRendererRef.current =
+      new FrequencyBandWaterfallRenderer();
     frequencyBandRadialRendererRef.current = new FrequencyBandRadialRenderer();
-    frequencyBandParticlesRendererRef.current = new FrequencyBandParticlesRenderer();
+    frequencyBandParticlesRendererRef.current =
+      new FrequencyBandParticlesRenderer();
   }, [barCount, barGap, barColor]);
 
   // Sync external type changes
@@ -426,7 +476,10 @@ export function AudioVisualizer({
       const expandedSize: VisualizerDimensions = {
         width: Math.max(
           MIN_WIDTH,
-          Math.min(MAX_EXPANDED_WIDTH, window.innerWidth - VIEWPORT_PADDING * 2),
+          Math.min(
+            MAX_EXPANDED_WIDTH,
+            window.innerWidth - VIEWPORT_PADDING * 2,
+          ),
         ),
         height: Math.max(
           MIN_HEIGHT,
@@ -506,17 +559,12 @@ export function AudioVisualizer({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, isDraggable, clampPositionWithDimensions, persistLayoutState]);
-
-
-
-
-
-
-
-
-
-
+  }, [
+    isDragging,
+    isDraggable,
+    clampPositionWithDimensions,
+    persistLayoutState,
+  ]);
 
   // Start/stop visualization based on playing state
   useEffect(() => {
@@ -527,7 +575,11 @@ export function AudioVisualizer({
     if (!ctx) return;
 
     const renderFrame = (data: Uint8Array) => {
-      const { currentType: activeType, barCount: frameBarCount, barGap: frameBarGap } = renderParamsRef.current;
+      const {
+        currentType: activeType,
+        barCount: frameBarCount,
+        barGap: frameBarGap,
+      } = renderParamsRef.current;
 
       const needsFrequencyAnalysis = FREQUENCY_ANALYSIS_TYPES.has(activeType);
       let currentAnalysis: AudioAnalysis | null = null;
@@ -536,7 +588,10 @@ export function AudioVisualizer({
         if (visualizer.audioContext && visualizer.analyser) {
           const now = performance.now();
           const cachedAnalysis = audioAnalysisRef.current;
-          if (!cachedAnalysis || now - cachedAnalysis.timestamp > ANALYSIS_INTERVAL_MS) {
+          if (
+            !cachedAnalysis ||
+            now - cachedAnalysis.timestamp > ANALYSIS_INTERVAL_MS
+          ) {
             const sampleRate = visualizer.getSampleRate();
             const fftSize = visualizer.getFFTSize();
             const analysis = analyzeAudio(data, sampleRate, fftSize);
@@ -553,18 +608,30 @@ export function AudioVisualizer({
       }
 
       const needsTimeDomainData = TIME_DOMAIN_TYPES.has(activeType);
-      const timeDomainData = needsTimeDomainData ? visualizer.getTimeDomainData() : null;
+      const timeDomainData = needsTimeDomainData
+        ? visualizer.getTimeDomainData()
+        : null;
 
       switch (activeType) {
         case "bars":
-          barsRendererRef.current?.render(ctx, data, canvas, frameBarCount, frameBarGap);
+          barsRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            frameBarCount,
+            frameBarGap,
+          );
           break;
         case "spectrum":
           spectrumRendererRef.current?.render(ctx, data, canvas);
           break;
         case "oscilloscope":
           if (timeDomainData) {
-            waveRendererRef.current?.renderOscilloscope(ctx, timeDomainData, canvas);
+            waveRendererRef.current?.renderOscilloscope(
+              ctx,
+              timeDomainData,
+              canvas,
+            );
           }
           break;
         case "wave":
@@ -574,17 +641,31 @@ export function AudioVisualizer({
           break;
         case "waveform-mirror":
           if (timeDomainData) {
-            waveRendererRef.current?.renderWaveformMirror(ctx, timeDomainData, canvas);
+            waveRendererRef.current?.renderWaveformMirror(
+              ctx,
+              timeDomainData,
+              canvas,
+            );
           }
           break;
         case "circular":
           circularRendererRef.current?.render(ctx, data, canvas, frameBarCount);
           break;
         case "spectral-waves":
-          spectralWavesRendererRef.current?.render(ctx, data, canvas, frameBarCount);
+          spectralWavesRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            frameBarCount,
+          );
           break;
         case "radial-spectrum":
-          radialSpectrumRendererRef.current?.render(ctx, data, canvas, frameBarCount);
+          radialSpectrumRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            frameBarCount,
+          );
           break;
         case "particles":
           particleRendererRef.current?.render(ctx, data, canvas);
@@ -593,25 +674,61 @@ export function AudioVisualizer({
           frequencyRingsRendererRef.current?.render(ctx, data, canvas);
           break;
         case "frequency-bands":
-          frequencyBandBarsRendererRef.current?.render(ctx, data, canvas, currentAnalysis);
+          frequencyBandBarsRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            currentAnalysis,
+          );
           break;
         case "frequency-circular":
-          frequencyBandCircularRendererRef.current?.render(ctx, data, canvas, currentAnalysis);
+          frequencyBandCircularRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            currentAnalysis,
+          );
           break;
         case "frequency-layered":
-          frequencyBandLayeredRendererRef.current?.render(ctx, data, canvas, currentAnalysis);
+          frequencyBandLayeredRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            currentAnalysis,
+          );
           break;
         case "frequency-waterfall":
-          frequencyBandWaterfallRendererRef.current?.render(ctx, data, canvas, currentAnalysis);
+          frequencyBandWaterfallRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            currentAnalysis,
+          );
           break;
         case "frequency-radial":
-          frequencyBandRadialRendererRef.current?.render(ctx, data, canvas, currentAnalysis);
+          frequencyBandRadialRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            currentAnalysis,
+          );
           break;
         case "frequency-particles":
-          frequencyBandParticlesRendererRef.current?.render(ctx, data, canvas, currentAnalysis);
+          frequencyBandParticlesRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            currentAnalysis,
+          );
           break;
         default:
-          barsRendererRef.current?.render(ctx, data, canvas, frameBarCount, frameBarGap);
+          barsRendererRef.current?.render(
+            ctx,
+            data,
+            canvas,
+            frameBarCount,
+            frameBarGap,
+          );
           break;
       }
     };
@@ -632,14 +749,13 @@ export function AudioVisualizer({
   if (!visualizer.isInitialized) {
     return (
       <div
-        className="flex items-center justify-center bg-gray-800/50 rounded-lg border border-gray-700"
+        className="flex items-center justify-center rounded-lg border border-gray-700 bg-gray-800/50"
         style={{ width: dimensions.width, height: dimensions.height }}
       >
         <p className="text-xs text-gray-500">Click to enable visualizer</p>
       </div>
     );
   }
-
 
   // Container style
   const containerStyle: React.CSSProperties = isDraggable
@@ -658,29 +774,33 @@ export function AudioVisualizer({
       };
 
   // Background style with blend mode matching page aesthetic
-  const backgroundStyle = blendWithBackground && colorPalette
-    ? {
-        background: `linear-gradient(135deg, 
+  const backgroundStyle =
+    blendWithBackground && colorPalette
+      ? {
+          background: `linear-gradient(135deg, 
           hsla(${colorPalette.hue}, ${colorPalette.saturation}%, ${colorPalette.lightness}%, 0.25), 
           hsla(${colorPalette.hue}, ${colorPalette.saturation}%, ${Math.max(colorPalette.lightness - 10, 5)}%, 0.2))`,
-        backdropFilter: "blur(16px)",
-        boxShadow: "0 8px 32px rgba(5, 10, 18, 0.5), 0 0 24px rgba(244, 178, 102, 0.08)",
-      }
-    : {
-        background: "linear-gradient(135deg, rgba(18, 26, 38, 0.85), rgba(11, 17, 24, 0.85))",
-        backdropFilter: "blur(16px)",
-        boxShadow: "0 8px 32px rgba(5, 10, 18, 0.5), 0 0 24px rgba(244, 178, 102, 0.08)",
-      };
+          backdropFilter: "blur(16px)",
+          boxShadow:
+            "0 8px 32px rgba(5, 10, 18, 0.5), 0 0 24px rgba(244, 178, 102, 0.08)",
+        }
+      : {
+          background:
+            "linear-gradient(135deg, rgba(18, 26, 38, 0.85), rgba(11, 17, 24, 0.85))",
+          backdropFilter: "blur(16px)",
+          boxShadow:
+            "0 8px 32px rgba(5, 10, 18, 0.5), 0 0 24px rgba(244, 178, 102, 0.08)",
+        };
 
   return (
     <div
       ref={containerRef}
       className="group relative rounded-xl border border-[rgba(244,178,102,0.2)] transition-all duration-300 ease-out"
-      style={{ 
-        ...containerStyle, 
+      style={{
+        ...containerStyle,
         ...backgroundStyle,
         opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'scale(1)' : 'scale(0.95)',
+        transform: isVisible ? "scale(1)" : "scale(0.95)",
       }}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
@@ -689,8 +809,8 @@ export function AudioVisualizer({
       {isDraggable && (
         <div
           onMouseDown={handleDragStart}
-          className={`absolute left-2 top-2 z-30 cursor-grab rounded-lg bg-[rgba(244,178,102,0.15)] p-2 text-[var(--color-accent)] transition-all hover:bg-[rgba(244,178,102,0.25)] hover:shadow-[0_0_12px_rgba(244,178,102,0.3)] active:cursor-grabbing ${
-            showControls ? 'opacity-100' : 'opacity-0'
+          className={`absolute top-2 left-2 z-30 cursor-grab rounded-lg bg-[rgba(244,178,102,0.15)] p-2 text-[var(--color-accent)] transition-all hover:bg-[rgba(244,178,102,0.25)] hover:shadow-[0_0_12px_rgba(244,178,102,0.3)] active:cursor-grabbing ${
+            showControls ? "opacity-100" : "opacity-0"
           }`}
           title="Drag to move"
         >
@@ -718,7 +838,7 @@ export function AudioVisualizer({
       {showTypeLabel && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="rounded-xl border border-[rgba(244,178,102,0.3)] bg-[rgba(12,18,27,0.95)] px-5 py-2.5 shadow-[0_8px_32px_rgba(5,10,18,0.6)] backdrop-blur-md">
-            <p className="text-sm font-semibold capitalize tracking-wide text-[var(--color-accent)]">
+            <p className="text-sm font-semibold tracking-wide text-[var(--color-accent)] capitalize">
               {currentType.replace(/-/g, " ")}
             </p>
           </div>
@@ -726,9 +846,11 @@ export function AudioVisualizer({
       )}
 
       {/* Controls Overlay (visible on hover) */}
-      <div className={`absolute right-2 top-2 flex gap-1.5 transition-all ${
-        showControls ? 'opacity-100' : 'opacity-0'
-      }`}>
+      <div
+        className={`absolute top-2 right-2 flex gap-1.5 transition-all ${
+          showControls ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <button
           onClick={toggleExpanded}
           className="rounded-lg bg-[rgba(12,18,27,0.85)] p-2 text-[var(--color-subtext)] transition-all hover:bg-[rgba(12,18,27,0.95)] hover:text-[var(--color-accent)] hover:shadow-[0_0_12px_rgba(244,178,102,0.2)]"
@@ -754,8 +876,8 @@ export function AudioVisualizer({
       {/* Resize Handle (visible on hover) */}
       <div
         onMouseDown={handleResizeStart}
-        className={`absolute bottom-0 right-0 cursor-nwse-resize rounded-tl-lg bg-[rgba(244,178,102,0.15)] p-1.5 text-[var(--color-accent)] transition-all hover:bg-[rgba(244,178,102,0.25)] hover:shadow-[0_0_12px_rgba(244,178,102,0.3)] ${
-          showControls ? 'opacity-100' : 'opacity-0'
+        className={`absolute right-0 bottom-0 cursor-nwse-resize rounded-tl-lg bg-[rgba(244,178,102,0.15)] p-1.5 text-[var(--color-accent)] transition-all hover:bg-[rgba(244,178,102,0.25)] hover:shadow-[0_0_12px_rgba(244,178,102,0.3)] ${
+          showControls ? "opacity-100" : "opacity-0"
         }`}
         title="Drag to resize"
       >

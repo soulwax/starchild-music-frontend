@@ -31,10 +31,10 @@ export const AUDIO_CONSTANTS = {
 
   /** Media Session artwork sizes */
   ARTWORK_SIZES: {
-    SMALL: '56x56',
-    MEDIUM: '250x250',
-    BIG: '500x500',
-    XL: '1000x1000',
+    SMALL: "56x56",
+    MEDIUM: "250x250",
+    BIG: "500x500",
+    XL: "1000x1000",
   },
 
   /** Audio loading retry delay */

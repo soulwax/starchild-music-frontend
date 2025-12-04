@@ -43,9 +43,12 @@ export default function PersistentPlayer() {
   const isAuthenticated = !!session?.user;
 
   // Fetch user preferences for visualizer settings and panel visibility
-  const { data: preferences } = api.music.getUserPreferences.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
+  const { data: preferences } = api.music.getUserPreferences.useQuery(
+    undefined,
+    {
+      enabled: isAuthenticated,
+    },
+  );
 
   // Mutation to update preferences
   const updatePreferences = api.music.updatePreferences.useMutation();
@@ -74,7 +77,7 @@ export default function PersistentPlayer() {
   useEffect(() => {
     if (isAuthenticated) return; // Skip if authenticated (preferences come from DB)
     if (typeof window === "undefined") return;
-    
+
     const stored = window.localStorage.getItem(STORAGE_KEYS.VISUALIZER_ENABLED);
     if (stored !== null) {
       try {
@@ -88,7 +91,11 @@ export default function PersistentPlayer() {
   }, [isAuthenticated]); // Only run when auth status changes or on mount
 
   // Audio-reactive background effects (only when visualizer enabled)
-  useAudioReactiveBackground(player.audioElement, player.isPlaying, visualizerEnabled);
+  useAudioReactiveBackground(
+    player.audioElement,
+    player.isPlaying,
+    visualizerEnabled,
+  );
 
   // Extract colors from album art when track changes - DISABLED (visualizer is disabled)
   // useEffect(() => {
@@ -107,7 +114,11 @@ export default function PersistentPlayer() {
 
   // Persist queue panel state to database
   useEffect(() => {
-    if (isAuthenticated && preferences && showQueue !== preferences.queuePanelOpen) {
+    if (
+      isAuthenticated &&
+      preferences &&
+      showQueue !== preferences.queuePanelOpen
+    ) {
       updatePreferences.mutate({ queuePanelOpen: showQueue });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,7 +126,11 @@ export default function PersistentPlayer() {
 
   // Persist equalizer panel state to database
   useEffect(() => {
-    if (isAuthenticated && preferences && showEqualizer !== preferences.equalizerPanelOpen) {
+    if (
+      isAuthenticated &&
+      preferences &&
+      showEqualizer !== preferences.equalizerPanelOpen
+    ) {
       updatePreferences.mutate({ equalizerPanelOpen: showEqualizer });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,7 +142,10 @@ export default function PersistentPlayer() {
       if (isAuthenticated) {
         updatePreferences.mutate({ visualizerEnabled: next });
       } else if (typeof window !== "undefined") {
-        window.localStorage.setItem(STORAGE_KEYS.VISUALIZER_ENABLED, JSON.stringify(next));
+        window.localStorage.setItem(
+          STORAGE_KEYS.VISUALIZER_ENABLED,
+          JSON.stringify(next),
+        );
       }
     },
     [isAuthenticated, updatePreferences],
@@ -165,9 +183,10 @@ export default function PersistentPlayer() {
     onPlaybackRateChange: player.setPlaybackRate,
     onSkipForward: player.skipForward,
     onSkipBackward: player.skipBackward,
-    onToggleQueue: isMobile && navigateToPane
-      ? () => navigateToPane(1) // Navigate to queue pane on mobile
-      : () => setShowQueue(!showQueue),
+    onToggleQueue:
+      isMobile && navigateToPane
+        ? () => navigateToPane(1) // Navigate to queue pane on mobile
+        : () => setShowQueue(!showQueue),
     onToggleEqualizer: () => setShowEqualizer(!showEqualizer),
     onToggleVisualizer: !isMobile ? handleVisualizerToggle : undefined,
     visualizerEnabled,
@@ -214,7 +233,7 @@ export default function PersistentPlayer() {
           )}
         </>
       )}
-      
+
       {/* Mobile Player - Handled by MobileSwipeablePanes, nothing to render here */}
 
       {/* Equalizer Panel */}

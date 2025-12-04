@@ -1,11 +1,11 @@
 // File: src/utils/audioAnalysis.ts
 
 export interface FrequencyBands {
-  bass: number;      // 20-250 Hz
-  lowMid: number;    // 250-500 Hz
-  mid: number;       // 500-2000 Hz
-  highMid: number;  // 2000-4000 Hz
-  treble: number;    // 4000-20000 Hz
+  bass: number; // 20-250 Hz
+  lowMid: number; // 250-500 Hz
+  mid: number; // 500-2000 Hz
+  highMid: number; // 2000-4000 Hz
+  treble: number; // 4000-20000 Hz
 }
 
 export interface AudioAnalysis {
@@ -21,11 +21,11 @@ export interface AudioAnalysis {
 export function analyzeFrequencyBands(
   frequencyData: Uint8Array,
   sampleRate = 44100,
-  fftSize = 2048
+  fftSize = 2048,
 ): FrequencyBands {
   const nyquist = sampleRate / 2;
   const binSize = nyquist / (fftSize / 2);
-  
+
   // Define frequency ranges
   const bassRange = { start: 20, end: 250 };
   const lowMidRange = { start: 250, end: 500 };
@@ -36,17 +36,20 @@ export function analyzeFrequencyBands(
   // Calculate average amplitude for each band
   const getBandAverage = (startHz: number, endHz: number): number => {
     const startBin = Math.floor(startHz / binSize);
-    const endBin = Math.min(Math.floor(endHz / binSize), frequencyData.length - 1);
-    
+    const endBin = Math.min(
+      Math.floor(endHz / binSize),
+      frequencyData.length - 1,
+    );
+
     if (startBin >= endBin) return 0;
-    
+
     let sum = 0;
     let count = 0;
     for (const value of frequencyData.slice(startBin, endBin + 1)) {
       sum += value ?? 0;
       count++;
     }
-    
+
     return count > 0 ? sum / count / 255 : 0;
   };
 
@@ -77,18 +80,18 @@ export function calculateRMS(frequencyData: Uint8Array): number {
 export function findPeakFrequency(
   frequencyData: Uint8Array,
   sampleRate = 44100,
-  fftSize = 2048
+  fftSize = 2048,
 ): number {
   let maxValue = 0;
   let maxIndex = 0;
-  
+
   for (let i = 0; i < frequencyData.length; i++) {
     if ((frequencyData[i] ?? 0) > maxValue) {
       maxValue = frequencyData[i] ?? 0;
       maxIndex = i;
     }
   }
-  
+
   const nyquist = sampleRate / 2;
   const binSize = nyquist / (fftSize / 2);
   return maxIndex * binSize;
@@ -100,14 +103,21 @@ export function findPeakFrequency(
 export function analyzeAudio(
   frequencyData: Uint8Array,
   sampleRate = 44100,
-  fftSize = 2048
+  fftSize = 2048,
 ): AudioAnalysis {
-  const frequencyBands = analyzeFrequencyBands(frequencyData, sampleRate, fftSize);
+  const frequencyBands = analyzeFrequencyBands(
+    frequencyData,
+    sampleRate,
+    fftSize,
+  );
   const rms = calculateRMS(frequencyData);
   const peakFrequency = findPeakFrequency(frequencyData, sampleRate, fftSize);
-  
+
   // Overall volume is the average of all frequency data
-  const overallVolume = frequencyData.reduce((sum, val) => sum + (val ?? 0), 0) / frequencyData.length / 255;
+  const overallVolume =
+    frequencyData.reduce((sum, val) => sum + (val ?? 0), 0) /
+    frequencyData.length /
+    255;
 
   return {
     frequencyBands,
@@ -123,7 +133,7 @@ export function analyzeAudio(
 export function smoothFrequencyData(
   data: Uint8Array,
   previousData: Uint8Array | null,
-  smoothingFactor = 0.7
+  smoothingFactor = 0.7,
 ): Uint8Array {
   if (!previousData || previousData.length !== data.length) {
     return data;
@@ -132,10 +142,11 @@ export function smoothFrequencyData(
   const smoothed = new Uint8Array(data.length);
   for (let i = 0; i < data.length; i++) {
     smoothed[i] = Math.round(
-      (data[i] ?? 0) * (1 - smoothingFactor) + (previousData[i] ?? 0) * smoothingFactor
+      (data[i] ?? 0) * (1 - smoothingFactor) +
+        (previousData[i] ?? 0) * smoothingFactor,
     );
   }
-  
+
   return smoothed;
 }
 
@@ -145,13 +156,18 @@ export function smoothFrequencyData(
 export function detectBeat(
   currentEnergy: number,
   previousEnergies: number[],
-  threshold = 1.5
+  threshold = 1.5,
 ): boolean {
   if (previousEnergies.length < 2) return false;
-  
-  const averageEnergy = previousEnergies.reduce((a, b) => a + b, 0) / previousEnergies.length;
-  const variance = previousEnergies.reduce((sum, e) => sum + Math.pow(e - averageEnergy, 2), 0) / previousEnergies.length;
-  const constant = (-0.0025714 * variance) + 1.5142857;
-  
+
+  const averageEnergy =
+    previousEnergies.reduce((a, b) => a + b, 0) / previousEnergies.length;
+  const variance =
+    previousEnergies.reduce(
+      (sum, e) => sum + Math.pow(e - averageEnergy, 2),
+      0,
+    ) / previousEnergies.length;
+  const constant = -0.0025714 * variance + 1.5142857;
+
   return currentEnergy > averageEnergy * constant * threshold;
 }

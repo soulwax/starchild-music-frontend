@@ -22,9 +22,11 @@ async function populateUserHash() {
 
     // Check how many users have null userHash
     const checkResult = await pool.query(
-      'SELECT COUNT(*) as count FROM "hexmusic-stream_user" WHERE "userHash" IS NULL'
+      'SELECT COUNT(*) as count FROM "hexmusic-stream_user" WHERE "userHash" IS NULL',
     );
-    console.log(`Found ${checkResult.rows[0]?.count ?? 0} users without userHash`);
+    console.log(
+      `Found ${checkResult.rows[0]?.count ?? 0} users without userHash`,
+    );
 
     if (parseInt(checkResult.rows[0]?.count ?? "0") === 0) {
       console.log("No users need userHash population. Exiting.");

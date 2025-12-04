@@ -10,10 +10,10 @@ export class FrequencyBandCircularRenderer {
 
   // Color mapping for each frequency band
   private readonly bandColors = [
-    { name: "bass", hue: 0, saturation: 80, lightness: 50 },      // Red/Orange
-    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 },  // Yellow
-    { name: "mid", hue: 120, saturation: 70, lightness: 50 },     // Green
-    { name: "highMid", hue: 180, saturation: 80, lightness: 55 },  // Cyan
+    { name: "bass", hue: 0, saturation: 80, lightness: 50 }, // Red/Orange
+    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 }, // Yellow
+    { name: "mid", hue: 120, saturation: 70, lightness: 50 }, // Green
+    { name: "highMid", hue: 180, saturation: 80, lightness: 55 }, // Cyan
     { name: "treble", hue: 240, saturation: 85, lightness: 50 }, // Blue/Purple
   ];
 
@@ -26,7 +26,7 @@ export class FrequencyBandCircularRenderer {
     ctx: CanvasRenderingContext2D,
     data: Uint8Array,
     canvas: HTMLCanvasElement,
-    audioAnalysis?: AudioAnalysis | null
+    audioAnalysis?: AudioAnalysis | null,
   ): void {
     if (audioAnalysis) {
       this.time += 0.02;
@@ -37,7 +37,11 @@ export class FrequencyBandCircularRenderer {
       const centerY = canvas.height / 2;
       const maxRadius = Math.min(canvas.width, canvas.height) / 2;
       // Frequency bands are already normalized to 0-1 range
-      const avgIntensity = (audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble) / 3;
+      const avgIntensity =
+        (audioAnalysis.frequencyBands.bass +
+          audioAnalysis.frequencyBands.mid +
+          audioAnalysis.frequencyBands.treble) /
+        3;
       const hueShift = Math.min(60, avgIntensity * 45); // Clamp to max 60 degrees
 
       const bgGradient = ctx.createRadialGradient(
@@ -46,7 +50,7 @@ export class FrequencyBandCircularRenderer {
         0,
         centerX,
         centerY,
-        maxRadius
+        maxRadius,
       );
       bgGradient.addColorStop(0, `hsla(${270 + hueShift}, 78%, 24%, 0.95)`);
       bgGradient.addColorStop(0.5, `hsla(${260 + hueShift}, 72%, 19%, 0.97)`);
@@ -73,8 +77,10 @@ export class FrequencyBandCircularRenderer {
         this.segmentHistory[index] = newSize;
 
         // Pulse effect
-        this.pulsePhases[index] = (this.pulsePhases[index] ?? 0) + 0.05 * (1 + bandValue);
-        const pulse = 1 + Math.sin(this.pulsePhases[index] ?? 0) * bandValue * 0.3;
+        this.pulsePhases[index] =
+          (this.pulsePhases[index] ?? 0) + 0.05 * (1 + bandValue);
+        const pulse =
+          1 + Math.sin(this.pulsePhases[index] ?? 0) * bandValue * 0.3;
         const radius = Math.max(1, baseRadius * pulse * (0.5 + newSize * 0.5));
 
         const startAngle = index * segmentAngle + this.rotationOffset;
@@ -94,11 +100,20 @@ export class FrequencyBandCircularRenderer {
           innerRadius,
           centerX,
           centerY,
-          outerRadius
+          outerRadius,
         );
-        segmentGradient.addColorStop(0, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, 0.9)`);
-        segmentGradient.addColorStop(0.5, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, 0.85)`);
-        segmentGradient.addColorStop(1, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness - 10}%, 0.7)`);
+        segmentGradient.addColorStop(
+          0,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, 0.9)`,
+        );
+        segmentGradient.addColorStop(
+          0.5,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, 0.85)`,
+        );
+        segmentGradient.addColorStop(
+          1,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness - 10}%, 0.7)`,
+        );
 
         // Draw segment
         ctx.beginPath();

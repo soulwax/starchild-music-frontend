@@ -9,10 +9,10 @@ export class FrequencyBandLayeredRenderer {
 
   // Color mapping for each frequency band
   private readonly bandColors = [
-    { name: "bass", hue: 0, saturation: 80, lightness: 50 },      // Red/Orange
-    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 },  // Yellow
-    { name: "mid", hue: 120, saturation: 70, lightness: 50 },     // Green
-    { name: "highMid", hue: 180, saturation: 80, lightness: 55 },  // Cyan
+    { name: "bass", hue: 0, saturation: 80, lightness: 50 }, // Red/Orange
+    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 }, // Yellow
+    { name: "mid", hue: 120, saturation: 70, lightness: 50 }, // Green
+    { name: "highMid", hue: 180, saturation: 80, lightness: 55 }, // Cyan
     { name: "treble", hue: 240, saturation: 85, lightness: 50 }, // Blue/Purple
   ];
 
@@ -25,14 +25,18 @@ export class FrequencyBandLayeredRenderer {
     ctx: CanvasRenderingContext2D,
     data: Uint8Array,
     canvas: HTMLCanvasElement,
-    audioAnalysis?: AudioAnalysis | null
+    audioAnalysis?: AudioAnalysis | null,
   ): void {
     if (audioAnalysis) {
       this.time += 0.02;
 
       // Vibrant gradient background
       // Frequency bands are already normalized to 0-1 range
-      const avgIntensity = (audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble) / 3;
+      const avgIntensity =
+        (audioAnalysis.frequencyBands.bass +
+          audioAnalysis.frequencyBands.mid +
+          audioAnalysis.frequencyBands.treble) /
+        3;
       const hueShift = Math.min(60, avgIntensity * 40); // Clamp to max 60 degrees
       const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       bgGradient.addColorStop(0, `hsla(${265 + hueShift}, 100%, 42%, 1)`);
@@ -60,11 +64,13 @@ export class FrequencyBandLayeredRenderer {
         // Smooth layer amplitude
         const targetAmplitude = bandValue;
         const currentAmplitude = this.layerHistory[layerIndex] ?? 0;
-        const newAmplitude = currentAmplitude + (targetAmplitude - currentAmplitude) * 0.15;
+        const newAmplitude =
+          currentAmplitude + (targetAmplitude - currentAmplitude) * 0.15;
         this.layerHistory[layerIndex] = newAmplitude;
 
         // Update wave phase
-        this.wavePhases[layerIndex] = (this.wavePhases[layerIndex] ?? 0) + 0.02 * (1 + layerIndex * 0.1);
+        this.wavePhases[layerIndex] =
+          (this.wavePhases[layerIndex] ?? 0) + 0.02 * (1 + layerIndex * 0.1);
 
         // Vertical offset for parallax effect
         const layerOffset = (layerIndex - 2) * (canvas.height / 8);
@@ -75,10 +81,24 @@ export class FrequencyBandLayeredRenderer {
         const lightness = Math.min(95, 75 + newAmplitude * 20); // Much brighter
 
         // Create gradient for wave - maximum vividness
-        const waveGradient = ctx.createLinearGradient(0, centerY - amplitude, 0, centerY + amplitude);
-        waveGradient.addColorStop(0, `hsla(${color.hue + hueShift}, 100%, ${lightness + 30}%, 1)`);
-        waveGradient.addColorStop(0.5, `hsla(${color.hue + hueShift}, 100%, ${lightness}%, 1)`);
-        waveGradient.addColorStop(1, `hsla(${color.hue + hueShift}, 100%, ${lightness - 5}%, 1)`);
+        const waveGradient = ctx.createLinearGradient(
+          0,
+          centerY - amplitude,
+          0,
+          centerY + amplitude,
+        );
+        waveGradient.addColorStop(
+          0,
+          `hsla(${color.hue + hueShift}, 100%, ${lightness + 30}%, 1)`,
+        );
+        waveGradient.addColorStop(
+          0.5,
+          `hsla(${color.hue + hueShift}, 100%, ${lightness}%, 1)`,
+        );
+        waveGradient.addColorStop(
+          1,
+          `hsla(${color.hue + hueShift}, 100%, ${lightness - 5}%, 1)`,
+        );
 
         ctx.strokeStyle = waveGradient;
         ctx.lineWidth = 4 + newAmplitude * 6;
@@ -92,9 +112,20 @@ export class FrequencyBandLayeredRenderer {
           const progress = i / points;
 
           // Complex wave with multiple frequencies
-          const mainWave = Math.sin(progress * Math.PI * (2 + layerIndex) + this.wavePhases[layerIndex]!);
-          const secondaryWave = Math.sin(progress * Math.PI * (4 + layerIndex * 2) + this.wavePhases[layerIndex]! * 1.5) * 0.3;
-          const tertiaryWave = Math.sin(progress * Math.PI * (8 + layerIndex * 4) + this.wavePhases[layerIndex]! * 2) * 0.15;
+          const mainWave = Math.sin(
+            progress * Math.PI * (2 + layerIndex) +
+              this.wavePhases[layerIndex]!,
+          );
+          const secondaryWave =
+            Math.sin(
+              progress * Math.PI * (4 + layerIndex * 2) +
+                this.wavePhases[layerIndex]! * 1.5,
+            ) * 0.3;
+          const tertiaryWave =
+            Math.sin(
+              progress * Math.PI * (8 + layerIndex * 4) +
+                this.wavePhases[layerIndex]! * 2,
+            ) * 0.15;
 
           const combinedWave = mainWave + secondaryWave + tertiaryWave;
           const y = centerY + layerOffset + combinedWave * amplitude;

@@ -20,8 +20,7 @@ export function useWebShare(): UseWebShareResult {
   const [error, setError] = useState<string | null>(null);
 
   // Check if Web Share API is supported
-  const isSupported =
-    typeof navigator !== "undefined" && "share" in navigator;
+  const isSupported = typeof navigator !== "undefined" && "share" in navigator;
 
   const share = useCallback(
     async (data: ShareData): Promise<boolean> => {

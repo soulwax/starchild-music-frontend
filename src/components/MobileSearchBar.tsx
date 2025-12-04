@@ -3,7 +3,12 @@
 "use client";
 
 import { useIsMobile } from "@/hooks/useMediaQuery";
-import { hapticLight, hapticMedium, hapticError, hapticSuccess } from "@/utils/haptics";
+import {
+  hapticLight,
+  hapticMedium,
+  hapticError,
+  hapticSuccess,
+} from "@/utils/haptics";
 import { springPresets } from "@/utils/spring-animations";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Search, X, Loader2 } from "lucide-react";
@@ -41,9 +46,13 @@ interface SpeechRecognition extends EventTarget {
   onaudiostart: ((this: SpeechRecognition, ev: Event) => void) | null;
   onaudioend: ((this: SpeechRecognition, ev: Event) => void) | null;
   onend: ((this: SpeechRecognition, ev: Event) => void) | null;
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
+  onerror:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void)
+    | null;
   onnomatch: ((this: SpeechRecognition, ev: Event) => void) | null;
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
+  onresult:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
+    | null;
   onsoundstart: ((this: SpeechRecognition, ev: Event) => void) | null;
   onsoundend: ((this: SpeechRecognition, ev: Event) => void) | null;
   onspeechend: ((this: SpeechRecognition, ev: Event) => void) | null;
@@ -79,13 +88,15 @@ export default function MobileSearchBar({
 
   // Check for speech recognition support
   useEffect(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+    const SpeechRecognitionAPI =
+      window.SpeechRecognition ?? window.webkitSpeechRecognition;
     setVoiceSupported(!!SpeechRecognitionAPI);
   }, []);
 
   // Initialize speech recognition
   const initSpeechRecognition = useCallback(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+    const SpeechRecognitionAPI =
+      window.SpeechRecognition ?? window.webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) return null;
 
     const recognition = new SpeechRecognitionAPI();
@@ -113,7 +124,7 @@ export default function MobileSearchBar({
       }
 
       setInterimTranscript(interimText);
-      
+
       if (finalText) {
         hapticSuccess();
         onChange(finalText);
@@ -139,7 +150,7 @@ export default function MobileSearchBar({
 
   const startListening = () => {
     if (!voiceSupported) return;
-    
+
     hapticLight();
     const recognition = initSpeechRecognition();
     if (recognition) {
@@ -193,7 +204,7 @@ export default function MobileSearchBar({
         <motion.div
           animate={{
             scale: isFocused ? 1.02 : 1,
-            boxShadow: isFocused 
+            boxShadow: isFocused
               ? "0 8px 32px rgba(244, 178, 102, 0.15), 0 0 0 2px rgba(244, 178, 102, 0.3)"
               : "0 4px 16px rgba(0, 0, 0, 0.2)",
           }}
@@ -212,9 +223,13 @@ export default function MobileSearchBar({
             }}
             transition={springPresets.snappy}
           >
-            <Search className={`h-5 w-5 transition-colors ${
-              isFocused ? "text-[var(--color-accent)]" : "text-[var(--color-muted)]"
-            }`} />
+            <Search
+              className={`h-5 w-5 transition-colors ${
+                isFocused
+                  ? "text-[var(--color-accent)]"
+                  : "text-[var(--color-muted)]"
+              }`}
+            />
           </motion.div>
 
           {/* Loading Spinner */}
@@ -334,10 +349,10 @@ export default function MobileSearchBar({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
             transition={springPresets.snappy}
-            className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-[rgba(244,178,102,0.15)] bg-[rgba(16,23,33,0.98)] shadow-xl backdrop-blur-xl"
+            className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border border-[rgba(244,178,102,0.15)] bg-[rgba(16,23,33,0.98)] shadow-xl backdrop-blur-xl"
           >
             <div className="px-4 py-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+              <span className="text-xs font-semibold tracking-wider text-[var(--color-muted)] uppercase">
                 Recent Searches
               </span>
             </div>

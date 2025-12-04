@@ -28,8 +28,8 @@ export default function ProfileHeader({
 }: ProfileHeaderProps) {
   return (
     <div className="surface-panel relative mb-8 overflow-hidden p-8">
-      <div className="pointer-events-none absolute -top-24 -left-16 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(244,178,102,0.2),transparent 60%)] blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(88,198,177,0.18),transparent 65%)] blur-3xl" />
+      <div className="bg-[radial-gradient(circle,rgba(244,178,102,0.2),transparent 60%)] pointer-events-none absolute -top-24 -left-16 h-72 w-72 rounded-full blur-3xl" />
+      <div className="bg-[radial-gradient(circle,rgba(88,198,177,0.18),transparent 65%)] pointer-events-none absolute -right-24 -bottom-32 h-80 w-80 rounded-full blur-3xl" />
 
       <div className="relative flex flex-col items-center gap-6 md:flex-row">
         {/* Avatar */}
@@ -47,7 +47,7 @@ export default function ProfileHeader({
               {profile.name?.charAt(0).toUpperCase() ?? "U"}
             </div>
           )}
-          <div className="absolute -bottom-2 -right-2 rounded-full bg-[var(--color-success)] p-2 shadow-lg shadow-[rgba(88,198,177,0.35)]">
+          <div className="absolute -right-2 -bottom-2 rounded-full bg-[var(--color-success)] p-2 shadow-lg shadow-[rgba(88,198,177,0.35)]">
             <svg
               className="h-6 w-6 text-white"
               fill="currentColor"
@@ -60,11 +60,13 @@ export default function ProfileHeader({
 
         {/* Profile Info */}
         <div className="relative flex-1 text-center md:text-left">
-          <h1 className="mb-2 text-4xl font-bold text-[var(--color-text)] text-glow">
+          <h1 className="text-glow mb-2 text-4xl font-bold text-[var(--color-text)]">
             {profile.name ?? "Anonymous User"}
           </h1>
           {profile.bio && (
-            <p className="mb-4 text-lg text-[var(--color-subtext)]">{profile.bio}</p>
+            <p className="mb-4 text-lg text-[var(--color-subtext)]">
+              {profile.bio}
+            </p>
           )}
 
           {/* Stats */}
@@ -73,19 +75,25 @@ export default function ProfileHeader({
               <div className="text-2xl font-bold text-[var(--color-accent)]">
                 {profile.stats?.tracksPlayed ?? 0}
               </div>
-              <div className="text-sm text-[var(--color-subtext)]">Tracks Played</div>
+              <div className="text-sm text-[var(--color-subtext)]">
+                Tracks Played
+              </div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--color-accent-strong)]">
                 {profile.stats?.favorites ?? 0}
               </div>
-              <div className="text-sm text-[var(--color-subtext)]">Favorites</div>
+              <div className="text-sm text-[var(--color-subtext)]">
+                Favorites
+              </div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--color-danger)]">
                 {profile.stats?.playlists ?? 0}
               </div>
-              <div className="text-sm text-[var(--color-subtext)]">Playlists</div>
+              <div className="text-sm text-[var(--color-subtext)]">
+                Playlists
+              </div>
             </div>
           </div>
         </div>

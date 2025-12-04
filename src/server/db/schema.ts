@@ -10,7 +10,6 @@ type AdapterAccountType = Extract<
   string
 >;
 
-
 export const posts = createTable(
   "post",
   (d) => ({
@@ -52,7 +51,7 @@ export const users = createTable("user", (d) => ({
     .unique()
     .$defaultFn(() => {
       // Generate a short, URL-friendly hash from UUID
-      return crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+      return crypto.randomUUID().replace(/-/g, "").substring(0, 16);
     }),
   profilePublic: d.boolean().default(true).notNull(),
   bio: d.text(),
@@ -225,7 +224,10 @@ export const userPreferences = createTable(
     shuffleEnabled: d.boolean().default(false).notNull(),
     equalizerEnabled: d.boolean().notNull().default(false),
     equalizerPreset: d.varchar({ length: 255 }).notNull().default("Flat"),
-    equalizerBands: d.jsonb().$type<number[]>().default(sql`'[]'::jsonb`),
+    equalizerBands: d
+      .jsonb()
+      .$type<number[]>()
+      .default(sql`'[]'::jsonb`),
     equalizerPanelOpen: d.boolean().default(false).notNull(),
     queuePanelOpen: d.boolean().default(false).notNull(),
     visualizerType: d.varchar({ length: 30 }).default("bars"), // 'bars' | 'wave' | 'circular' | 'oscilloscope' | 'spectrum' | 'spectral-waves' | 'radial-spectrum' | 'particles' | 'waveform-mirror' | 'frequency-rings' | 'frequency-bands' | 'frequency-circular' | 'frequency-layered' | 'frequency-waterfall' | 'frequency-radial' | 'frequency-particles'
@@ -357,9 +359,7 @@ export const recommendationCache = createTable(
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    expiresAt: d
-      .timestamp({ withTimezone: true })
-      .notNull(), // Cache expiry (24-48 hours)
+    expiresAt: d.timestamp({ withTimezone: true }).notNull(), // Cache expiry (24-48 hours)
   }),
   (t) => [
     index("rec_cache_seed_idx").on(t.seedTrackId),
@@ -552,9 +552,12 @@ export const audioFeaturesRelations = relations(audioFeatures, () => ({
   // Track ID references Deezer API, no direct DB relation
 }));
 
-export const recommendationLogsRelations = relations(recommendationLogs, ({ one }) => ({
-  user: one(users, {
-    fields: [recommendationLogs.userId],
-    references: [users.id],
+export const recommendationLogsRelations = relations(
+  recommendationLogs,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [recommendationLogs.userId],
+      references: [users.id],
+    }),
   }),
-}));
+);

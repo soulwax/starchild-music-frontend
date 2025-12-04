@@ -112,7 +112,8 @@ export default function PlaylistsPage() {
                       >
                         <Image
                           src={
-                            playlistTrack.track?.album?.cover_medium ?? "/placeholder.png"
+                            playlistTrack.track?.album?.cover_medium ??
+                            "/placeholder.png"
                           }
                           alt=""
                           fill
@@ -185,7 +186,7 @@ export default function PlaylistsPage() {
               setIsPublic(false);
             }}
           />
-          <div className="fixed inset-x-4 top-1/2 z-50 -translate-y-1/2 md:left-1/2 md:right-auto md:-translate-x-1/2">
+          <div className="fixed inset-x-4 top-1/2 z-50 -translate-y-1/2 md:right-auto md:left-1/2 md:-translate-x-1/2">
             <div className="surface-panel slide-in-up w-full max-w-md p-4 md:p-6">
               <h2 className="mb-4 text-xl font-bold text-[var(--color-text)] md:text-2xl">
                 Create Playlist
@@ -193,9 +194,7 @@ export default function PlaylistsPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="form-label">
-                    Playlist Name *
-                  </label>
+                  <label className="form-label">Playlist Name *</label>
                   <input
                     type="text"
                     value={newPlaylistName}
@@ -207,9 +206,7 @@ export default function PlaylistsPage() {
                 </div>
 
                 <div>
-                  <label className="form-label">
-                    Description (optional)
-                  </label>
+                  <label className="form-label">Description (optional)</label>
                   <textarea
                     value={newPlaylistDescription}
                     onChange={(e) => setNewPlaylistDescription(e.target.value)}
@@ -227,7 +224,10 @@ export default function PlaylistsPage() {
                     onChange={(e) => setIsPublic(e.target.checked)}
                     className="touch-target h-5 w-5 rounded border-[rgba(244,178,102,0.25)] bg-[rgba(16,22,31,0.85)] text-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(244,178,102,0.25)]"
                   />
-                  <label htmlFor="isPublic" className="text-sm text-[var(--color-subtext)]">
+                  <label
+                    htmlFor="isPublic"
+                    className="text-sm text-[var(--color-subtext)]"
+                  >
                     Make this playlist public
                   </label>
                 </div>

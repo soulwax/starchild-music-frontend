@@ -38,7 +38,9 @@ export default function Section<T>({
 
   return (
     <section className={`mb-12 ${className}`}>
-      <h2 className="mb-6 text-2xl font-bold text-[var(--color-text)] text-glow">{title}</h2>
+      <h2 className="text-glow mb-6 text-2xl font-bold text-[var(--color-text)]">
+        {title}
+      </h2>
       {loading ? (
         <SkeletonGrid
           rows={skeletonCount}

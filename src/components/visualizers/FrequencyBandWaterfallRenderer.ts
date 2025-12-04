@@ -14,10 +14,10 @@ export class FrequencyBandWaterfallRenderer {
 
   // Color mapping for each frequency band
   private readonly bandColors = [
-    { name: "bass", hue: 0, saturation: 80, lightness: 50 },      // Red/Orange
-    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 },  // Yellow
-    { name: "mid", hue: 120, saturation: 70, lightness: 50 },     // Green
-    { name: "highMid", hue: 180, saturation: 80, lightness: 55 },  // Cyan
+    { name: "bass", hue: 0, saturation: 80, lightness: 50 }, // Red/Orange
+    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 }, // Yellow
+    { name: "mid", hue: 120, saturation: 70, lightness: 50 }, // Green
+    { name: "highMid", hue: 180, saturation: 80, lightness: 55 }, // Cyan
     { name: "treble", hue: 240, saturation: 85, lightness: 50 }, // Blue/Purple
   ];
 
@@ -35,14 +35,18 @@ export class FrequencyBandWaterfallRenderer {
     ctx: CanvasRenderingContext2D,
     data: Uint8Array,
     canvas: HTMLCanvasElement,
-    audioAnalysis?: AudioAnalysis | null
+    audioAnalysis?: AudioAnalysis | null,
   ): void {
     if (audioAnalysis) {
       this.time += 0.02;
 
       // Vibrant background
       // Frequency bands are already normalized to 0-1 range
-      const avgIntensity = (audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble) / 3;
+      const avgIntensity =
+        (audioAnalysis.frequencyBands.bass +
+          audioAnalysis.frequencyBands.mid +
+          audioAnalysis.frequencyBands.treble) /
+        3;
       const hueShift = Math.min(60, avgIntensity * 40); // Clamp to max 60 degrees
       const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       bgGradient.addColorStop(0, `hsla(${250 + hueShift}, 70%, 18%, 1)`);
@@ -93,9 +97,20 @@ export class FrequencyBandWaterfallRenderer {
           const lightness = color.lightness + bandValue * 30;
 
           // Create gradient for band segment
-          const segmentGradient = ctx.createLinearGradient(x, y, x + width, y + height);
-          segmentGradient.addColorStop(0, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, ${bandValue * line.opacity * 0.9})`);
-          segmentGradient.addColorStop(1, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness - 10}%, ${bandValue * line.opacity * 0.7})`);
+          const segmentGradient = ctx.createLinearGradient(
+            x,
+            y,
+            x + width,
+            y + height,
+          );
+          segmentGradient.addColorStop(
+            0,
+            `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, ${bandValue * line.opacity * 0.9})`,
+          );
+          segmentGradient.addColorStop(
+            1,
+            `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness - 10}%, ${bandValue * line.opacity * 0.7})`,
+          );
 
           ctx.fillStyle = segmentGradient;
           ctx.fillRect(x, y, width, height);
@@ -125,9 +140,20 @@ export class FrequencyBandWaterfallRenderer {
         const lightness = color.lightness + bandValue * 35;
 
         // Bright overlay gradient
-        const overlayGradient = ctx.createLinearGradient(x, overlayY, x, overlayY + height);
-        overlayGradient.addColorStop(0, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, ${bandValue * 0.9})`);
-        overlayGradient.addColorStop(1, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, 0)`);
+        const overlayGradient = ctx.createLinearGradient(
+          x,
+          overlayY,
+          x,
+          overlayY + height,
+        );
+        overlayGradient.addColorStop(
+          0,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, ${bandValue * 0.9})`,
+        );
+        overlayGradient.addColorStop(
+          1,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, 0)`,
+        );
 
         ctx.fillStyle = overlayGradient;
         ctx.fillRect(x, overlayY, width, height);

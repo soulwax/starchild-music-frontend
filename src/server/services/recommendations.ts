@@ -1,6 +1,9 @@
 // File: src/server/services/recommendations.ts
 
-import { ENABLE_AUDIO_FEATURES, RECOMMENDATION_CACHE_HOURS } from "@/config/features";
+import {
+  ENABLE_AUDIO_FEATURES,
+  RECOMMENDATION_CACHE_HOURS,
+} from "@/config/features";
 import type { Track } from "@/types";
 
 /**
@@ -82,7 +85,7 @@ export async function fetchDeezerRecommendations(
       throw new Error(`Deezer API error: ${response.status}`);
     }
 
-    const data = await response.json() as DeezerTrackResponse;
+    const data = (await response.json()) as DeezerTrackResponse;
 
     if (!data.data || !Array.isArray(data.data)) {
       return [];
@@ -113,7 +116,7 @@ export async function fetchArtistRecommendations(
       throw new Error(`Deezer API error: ${response.status}`);
     }
 
-    const data = await response.json() as DeezerTrackResponse;
+    const data = (await response.json()) as DeezerTrackResponse;
 
     if (!data.data || !Array.isArray(data.data)) {
       return [];
@@ -142,7 +145,7 @@ export async function fetchRelatedArtists(
       throw new Error(`Deezer API error: ${response.status}`);
     }
 
-    const data = await response.json() as DeezerArtistsResponse;
+    const data = (await response.json()) as DeezerArtistsResponse;
 
     if (!data.data || !Array.isArray(data.data)) {
       return [];
@@ -171,7 +174,7 @@ export async function fetchArtistTopTracks(
       throw new Error(`Deezer API error: ${response.status}`);
     }
 
-    const data = await response.json() as DeezerTrackResponse;
+    const data = (await response.json()) as DeezerTrackResponse;
 
     if (!data.data || !Array.isArray(data.data)) {
       return [];
@@ -197,7 +200,7 @@ export async function fetchTrackDetails(
       throw new Error(`Deezer API error: ${response.status}`);
     }
 
-    return await response.json() as DeezerTrackDetails;
+    return (await response.json()) as DeezerTrackDetails;
   } catch (error) {
     console.error("Error fetching track details:", error);
     return null;
@@ -221,16 +224,18 @@ export async function fetchGenreChart(
       const editorialResponse = await fetch(
         `https://api.deezer.com/editorial/${genreId}/charts?limit=${limit}`,
       );
-      
+
       if (!editorialResponse.ok) {
         return [];
       }
-      
-      const editorialData = await editorialResponse.json() as { tracks?: DeezerTrackResponse };
+
+      const editorialData = (await editorialResponse.json()) as {
+        tracks?: DeezerTrackResponse;
+      };
       return editorialData.tracks?.data ?? [];
     }
 
-    const data = await response.json() as DeezerTrackResponse;
+    const data = (await response.json()) as DeezerTrackResponse;
 
     if (!data.data || !Array.isArray(data.data)) {
       return [];
@@ -248,13 +253,15 @@ export async function fetchGenreChart(
  */
 export async function fetchAlbumTracks(albumId: number): Promise<Track[]> {
   try {
-    const response = await fetch(`https://api.deezer.com/album/${albumId}/tracks`);
+    const response = await fetch(
+      `https://api.deezer.com/album/${albumId}/tracks`,
+    );
 
     if (!response.ok) {
       throw new Error(`Deezer API error: ${response.status}`);
     }
 
-    const data = await response.json() as DeezerTrackResponse;
+    const data = (await response.json()) as DeezerTrackResponse;
 
     if (!data.data || !Array.isArray(data.data)) {
       return [];
@@ -278,13 +285,13 @@ export function getCacheExpiryDate(): Date {
 
 /**
  * Enhanced Smart Queue Recommendations
- * 
+ *
  * Uses multiple strategies for better relevance:
  * 1. Track radio (core similar tracks)
  * 2. Related artist exploration
  * 3. Genre-based discovery
  * 4. Artist deep-dive (more from liked artists)
- * 
+ *
  * Returns more diverse and relevant recommendations
  */
 export async function fetchEnhancedRecommendations(
@@ -304,21 +311,24 @@ export async function fetchEnhancedRecommendations(
   } = options;
 
   const recommendations: Track[] = [];
-  const seenTrackIds = new Set<number>([seedTrack.id, ...recentlyPlayedTrackIds]);
+  const seenTrackIds = new Set<number>([
+    seedTrack.id,
+    ...recentlyPlayedTrackIds,
+  ]);
   const seenArtistCount = new Map<number, number>();
 
   // Helper to add tracks while maintaining diversity
   const addTracks = (tracks: Track[], maxPerArtist = 3) => {
     for (const track of tracks) {
       if (seenTrackIds.has(track.id)) continue;
-      
+
       const artistCount = seenArtistCount.get(track.artist.id) ?? 0;
       if (artistCount >= maxPerArtist) continue;
-      
+
       recommendations.push(track);
       seenTrackIds.add(track.id);
       seenArtistCount.set(track.artist.id, artistCount + 1);
-      
+
       if (recommendations.length >= limit) break;
     }
   };
@@ -329,61 +339,82 @@ export async function fetchEnhancedRecommendations(
   try {
     // 1. CORE: Track Radio (most similar tracks)
     console.log(`[SmartQueue] Fetching track radio for ${seedTrack.title}...`);
-    const trackRadio = await fetchDeezerRecommendations(seedTrack.id, allocation.trackRadio);
+    const trackRadio = await fetchDeezerRecommendations(
+      seedTrack.id,
+      allocation.trackRadio,
+    );
     addTracks(trackRadio, 2);
-    console.log(`[SmartQueue] Track radio: ${trackRadio.length} tracks, added ${recommendations.length}`);
+    console.log(
+      `[SmartQueue] Track radio: ${trackRadio.length} tracks, added ${recommendations.length}`,
+    );
 
     // 2. ARTIST NETWORK: Related artists' top tracks
     if (recommendations.length < limit && allocation.relatedArtists > 0) {
       console.log(`[SmartQueue] Fetching related artists...`);
       const relatedArtists = await fetchRelatedArtists(seedTrack.artist.id, 5);
-      
+
       for (const artist of relatedArtists) {
         if (recommendations.length >= limit) break;
-        
+
         const artistTracks = await fetchArtistTopTracks(artist.id, 3);
         // Prefer tracks from artists user already likes
         const isLikedArtist = userFavoriteArtistIds.includes(artist.id);
         addTracks(artistTracks, isLikedArtist ? 3 : 2);
       }
-      console.log(`[SmartQueue] After related artists: ${recommendations.length} tracks`);
+      console.log(
+        `[SmartQueue] After related artists: ${recommendations.length} tracks`,
+      );
     }
 
     // 3. ARTIST DEEP-DIVE: More from the current artist (if user likes them)
-    if (recommendations.length < limit && userFavoriteArtistIds.includes(seedTrack.artist.id)) {
-      console.log(`[SmartQueue] User likes ${seedTrack.artist.name}, adding more tracks...`);
-      const artistTracks = await fetchArtistTopTracks(seedTrack.artist.id, allocation.sameArtist);
+    if (
+      recommendations.length < limit &&
+      userFavoriteArtistIds.includes(seedTrack.artist.id)
+    ) {
+      console.log(
+        `[SmartQueue] User likes ${seedTrack.artist.name}, adding more tracks...`,
+      );
+      const artistTracks = await fetchArtistTopTracks(
+        seedTrack.artist.id,
+        allocation.sameArtist,
+      );
       addTracks(artistTracks, 4); // Allow more from liked artist
-      console.log(`[SmartQueue] After artist deep-dive: ${recommendations.length} tracks`);
+      console.log(
+        `[SmartQueue] After artist deep-dive: ${recommendations.length} tracks`,
+      );
     }
 
     // 4. GENRE EXPLORATION: Tracks from the same genre
     if (recommendations.length < limit && allocation.genre > 0) {
       const trackDetails = await fetchTrackDetails(seedTrack.id);
       const genreId = trackDetails?.album?.genre_id;
-      
+
       if (genreId) {
         console.log(`[SmartQueue] Fetching genre ${genreId} tracks...`);
         const genreTracks = await fetchGenreChart(genreId, allocation.genre);
         // Filter to avoid very popular/overplayed tracks
         // In Deezer, lower rank = more popular (like chart position), so we want higher rank values
         // Exception: include tracks from artists the user already likes
-        const filteredGenreTracks = genreTracks.filter(t => 
-          t.rank > 500000 || userFavoriteArtistIds.includes(t.artist.id)
+        const filteredGenreTracks = genreTracks.filter(
+          (t) => t.rank > 500000 || userFavoriteArtistIds.includes(t.artist.id),
         );
         addTracks(filteredGenreTracks, 1); // Limit per artist for diversity
-        console.log(`[SmartQueue] After genre exploration: ${recommendations.length} tracks`);
+        console.log(
+          `[SmartQueue] After genre exploration: ${recommendations.length} tracks`,
+        );
       }
     }
 
     // 5. FALLBACK: Artist radio if still not enough
     if (recommendations.length < limit) {
       console.log(`[SmartQueue] Fallback: artist radio...`);
-      const artistRadio = await fetchArtistRecommendations(seedTrack.artist.id, limit);
+      const artistRadio = await fetchArtistRecommendations(
+        seedTrack.artist.id,
+        limit,
+      );
       addTracks(artistRadio, 2);
       console.log(`[SmartQueue] Final count: ${recommendations.length} tracks`);
     }
-
   } catch (error) {
     console.error("[SmartQueue] Error in enhanced recommendations:", error);
   }
@@ -398,7 +429,12 @@ export async function fetchEnhancedRecommendations(
 function getSimilarityAllocation(
   level: "strict" | "balanced" | "diverse",
   total: number,
-): { trackRadio: number; relatedArtists: number; sameArtist: number; genre: number } {
+): {
+  trackRadio: number;
+  relatedArtists: number;
+  sameArtist: number;
+  genre: number;
+} {
   switch (level) {
     case "strict":
       // 80% from track radio, 20% from same artist, no genre exploration
@@ -462,7 +498,7 @@ export interface MultiSeedRecommendationsResult {
 
 /**
  * Multi-seed recommendations
- * 
+ *
  * Uses multiple seed tracks for more diverse recommendations
  * Great for "smart mix" features
  */
@@ -474,37 +510,35 @@ export async function fetchMultiSeedRecommendations(
     diversityWeight?: number; // 0-1, higher = more diverse
   } = {},
 ): Promise<MultiSeedRecommendationsResult> {
-  const {
-    limit = 30,
-    diversityWeight = 0.5,
-  } = options;
+  const { limit = 30, diversityWeight = 0.5 } = options;
 
   // Store tracks with their sorting scores separately to preserve original rank values
   const scoredTracks: Array<{ track: Track; score: number }> = [];
-  const seenTrackIds = new Set<number>(seedTracks.map(t => t.id));
+  const seenTrackIds = new Set<number>(seedTracks.map((t) => t.id));
   const artistScores = new Map<number, number>();
 
   // Score artists based on seed tracks
   for (const track of seedTracks) {
     artistScores.set(
       track.artist.id,
-      (artistScores.get(track.artist.id) ?? 0) + 1
+      (artistScores.get(track.artist.id) ?? 0) + 1,
     );
   }
 
   // Get recommendations for each seed
   const perSeedLimit = Math.ceil((limit * 1.5) / seedTracks.length);
-  
+
   for (const seedTrack of seedTracks) {
     const recs = await fetchDeezerRecommendations(seedTrack.id, perSeedLimit);
-    
+
     for (const track of recs) {
       if (!seenTrackIds.has(track.id)) {
         // Calculate sorting score based on artist familiarity and diversity
         const artistFamiliarity = artistScores.get(track.artist.id) ?? 0;
         const diversityBonus = artistFamiliarity === 0 ? diversityWeight : 0;
-        const score = (track.rank ?? 0) + (artistFamiliarity * 10000) + (diversityBonus * 5000);
-        
+        const score =
+          (track.rank ?? 0) + artistFamiliarity * 10000 + diversityBonus * 5000;
+
         // Store track and score separately - don't modify the original Track object
         scoredTracks.push({ track, score });
         seenTrackIds.add(track.id);
@@ -635,7 +669,9 @@ export async function fetchAudioFeatureRecommendations(
   limit = 20,
 ): Promise<Track[]> {
   if (!ENABLE_AUDIO_FEATURES) {
-    console.log("Audio features not enabled, falling back to Deezer recommendations");
+    console.log(
+      "Audio features not enabled, falling back to Deezer recommendations",
+    );
     return fetchDeezerRecommendations(seedTrackId, limit);
   }
 

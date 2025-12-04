@@ -49,7 +49,8 @@ export default function PlaylistDetailPage() {
   const isOwner: boolean = !!session && !!privatePlaylist;
 
   const utils = api.useUtils();
-  const updateVisibilityMutation = api.music.updatePlaylistVisibility.useMutation();
+  const updateVisibilityMutation =
+    api.music.updatePlaylistVisibility.useMutation();
   const updateMetadataMutation = api.music.updatePlaylistMetadata.useMutation();
   const removeFromPlaylist = api.music.removeFromPlaylist.useMutation({
     onSuccess: async () => {
@@ -95,7 +96,9 @@ export default function PlaylistDetailPage() {
     if (!playlist?.tracks || playlist.tracks.length === 0) return;
 
     // Sort tracks by position to ensure correct order
-    const sortedTracks = [...playlist.tracks].sort((a, b) => a.position - b.position);
+    const sortedTracks = [...playlist.tracks].sort(
+      (a, b) => a.position - b.position,
+    );
     const [first, ...rest] = sortedTracks;
     if (first) {
       player.play(first.track);
@@ -112,7 +115,7 @@ export default function PlaylistDetailPage() {
   };
 
   const handleSharePlaylist = async (): Promise<void> => {
-    const canShare = (localVisibility ?? playlist?.isPublic) ?? false;
+    const canShare = localVisibility ?? playlist?.isPublic ?? false;
 
     if (!canShare) {
       alert("Only public playlists can be shared!");
@@ -157,9 +160,7 @@ export default function PlaylistDetailPage() {
         utils.music.getPlaylists.invalidate(),
       ]);
       showToast(
-        nextVisibility
-          ? "Playlist is now public"
-          : "Playlist is now private",
+        nextVisibility ? "Playlist is now public" : "Playlist is now private",
         "success",
       );
     } catch (error) {
@@ -209,19 +210,31 @@ export default function PlaylistDetailPage() {
     setDraggedIndex(index);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, _index: number): void => {
+  const handleDragOver = (
+    e: React.DragEvent<HTMLDivElement>,
+    _index: number,
+  ): void => {
     e.preventDefault();
   };
 
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, dropIndex: number): Promise<void> => {
+  const handleDrop = async (
+    e: React.DragEvent<HTMLDivElement>,
+    dropIndex: number,
+  ): Promise<void> => {
     e.preventDefault();
 
-    if (draggedIndex === null || draggedIndex === dropIndex || !playlist?.tracks) {
+    if (
+      draggedIndex === null ||
+      draggedIndex === dropIndex ||
+      !playlist?.tracks
+    ) {
       setDraggedIndex(null);
       return;
     }
 
-    const sortedTracks = [...playlist.tracks].sort((a, b) => a.position - b.position);
+    const sortedTracks = [...playlist.tracks].sort(
+      (a, b) => a.position - b.position,
+    );
     const draggedTrack = sortedTracks[draggedIndex];
 
     if (!draggedTrack) {
@@ -276,10 +289,10 @@ export default function PlaylistDetailPage() {
     );
   }
 
-  const effectiveIsPublic = (localVisibility ?? playlist.isPublic) ?? false;
+  const effectiveIsPublic = localVisibility ?? playlist.isPublic ?? false;
   const isDirty =
-    (draftTitle.trim() !== (playlist.name ?? "")) ||
-    (draftDescription.trim() !== (playlist.description ?? ""));
+    draftTitle.trim() !== (playlist.name ?? "") ||
+    draftDescription.trim() !== (playlist.description ?? "");
 
   return (
     <div className="flex min-h-screen flex-col pb-32">
@@ -340,9 +353,11 @@ export default function PlaylistDetailPage() {
                         placeholder="Add a description..."
                       />
                     ) : playlist.description ? (
-                      <p className="text-[var(--color-subtext)]">{playlist.description}</p>
+                      <p className="text-[var(--color-subtext)]">
+                        {playlist.description}
+                      </p>
                     ) : (
-                      <p className="italic text-[var(--color-muted)]">
+                      <p className="text-[var(--color-muted)] italic">
                         No description yet.
                       </p>
                     )}
@@ -360,13 +375,21 @@ export default function PlaylistDetailPage() {
                     {playlist.name}
                   </h1>
                   {playlist.description && (
-                    <p className="mb-4 text-[var(--color-subtext)]">{playlist.description}</p>
+                    <p className="mb-4 text-[var(--color-subtext)]">
+                      {playlist.description}
+                    </p>
                   )}
                 </>
               )}
               <div className="flex items-center gap-4 text-sm text-[var(--color-muted)]">
                 <span>{playlist.tracks.length} tracks</span>
-                <span className={effectiveIsPublic ? "text-[var(--color-accent)]" : "text-[var(--color-subtext)]"}>
+                <span
+                  className={
+                    effectiveIsPublic
+                      ? "text-[var(--color-accent)]"
+                      : "text-[var(--color-subtext)]"
+                  }
+                >
                   {effectiveIsPublic ? "Public" : "Private"}
                 </span>
                 <span>
@@ -398,13 +421,11 @@ export default function PlaylistDetailPage() {
                 className="btn-secondary flex items-center gap-2 text-sm"
                 disabled={updateVisibilityMutation.isPending}
               >
-                {updateVisibilityMutation.isPending ? (
-                  "Updating..."
-                ) : effectiveIsPublic ? (
-                  "Make Private"
-                ) : (
-                  "Make Public"
-                )}
+                {updateVisibilityMutation.isPending
+                  ? "Updating..."
+                  : effectiveIsPublic
+                    ? "Make Private"
+                    : "Make Public"}
               </button>
             )}
 
@@ -465,72 +486,76 @@ export default function PlaylistDetailPage() {
         {/* Tracks */}
         {playlist.tracks && playlist.tracks.length > 0 ? (
           <div className="grid gap-3">
-            {[...playlist.tracks].sort((a, b) => a.position - b.position).map((item, index) => (
-              <div
-                key={item.id}
-                draggable={isOwner}
-                onDragStart={isOwner ? () => handleDragStart(index) : undefined}
-                onDragOver={isOwner ? (e) => handleDragOver(e, index) : undefined}
-                onDrop={isOwner ? (e) => handleDrop(e, index) : undefined}
-                onDragEnd={isOwner ? handleDragEnd : undefined}
-                className={`relative transition-opacity ${
-                  isOwner ? "cursor-move" : ""
-                } ${
-                  draggedIndex === index ? "opacity-50" : "opacity-100"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {/* Drag handle or track number */}
-                  {isOwner ? (
-                    <div className="flex flex-col items-center text-[var(--color-muted)]">
-                      <svg
-                        className="h-5 w-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zm3 14a1 1 0 100-2 1 1 0 000 2zm0-4a1 1 0 100-2 1 1 0 000 2zm0-4a1 1 0 100-2 1 1 0 000 2z" />
-                      </svg>
-                      <span className="text-xs">{index + 1}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center text-[var(--color-muted)]">
-                      <span className="text-sm font-medium">{index + 1}</span>
-                    </div>
-                  )}
+            {[...playlist.tracks]
+              .sort((a, b) => a.position - b.position)
+              .map((item, index) => (
+                <div
+                  key={item.id}
+                  draggable={isOwner}
+                  onDragStart={
+                    isOwner ? () => handleDragStart(index) : undefined
+                  }
+                  onDragOver={
+                    isOwner ? (e) => handleDragOver(e, index) : undefined
+                  }
+                  onDrop={isOwner ? (e) => handleDrop(e, index) : undefined}
+                  onDragEnd={isOwner ? handleDragEnd : undefined}
+                  className={`relative transition-opacity ${
+                    isOwner ? "cursor-move" : ""
+                  } ${draggedIndex === index ? "opacity-50" : "opacity-100"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Drag handle or track number */}
+                    {isOwner ? (
+                      <div className="flex flex-col items-center text-[var(--color-muted)]">
+                        <svg
+                          className="h-5 w-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zm3 14a1 1 0 100-2 1 1 0 000 2zm0-4a1 1 0 100-2 1 1 0 000 2zm0-4a1 1 0 100-2 1 1 0 000 2z" />
+                        </svg>
+                        <span className="text-xs">{index + 1}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center text-[var(--color-muted)]">
+                        <span className="text-sm font-medium">{index + 1}</span>
+                      </div>
+                    )}
 
-                  {/* Track card */}
-                  <div className="flex-1">
-                    <EnhancedTrackCard
-                      track={item.track}
-                      onPlay={player.play}
-                      onAddToQueue={player.addToQueue}
-                      showActions={!isOwner}
-                    />
+                    {/* Track card */}
+                    <div className="flex-1">
+                      <EnhancedTrackCard
+                        track={item.track}
+                        onPlay={player.play}
+                        onAddToQueue={player.addToQueue}
+                        showActions={!isOwner}
+                      />
+                    </div>
+
+                    {/* Remove button (only for owners) */}
+                    {isOwner && (
+                      <button
+                        onClick={() => handleRemoveTrack(item.id)}
+                        className="rounded-full bg-[rgba(16,22,31,0.85)] p-2 text-[var(--color-subtext)] transition hover:text-[var(--color-danger)]"
+                        title="Remove from playlist"
+                      >
+                        <svg
+                          className="h-5 w-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    )}
                   </div>
-
-                  {/* Remove button (only for owners) */}
-                  {isOwner && (
-                    <button
-                      onClick={() => handleRemoveTrack(item.id)}
-                      className="rounded-full bg-[rgba(16,22,31,0.85)] p-2 text-[var(--color-subtext)] transition hover:text-[var(--color-danger)]"
-                      title="Remove from playlist"
-                    >
-                      <svg
-                        className="h-5 w-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  )}
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         ) : (
           <div className="py-12 text-center">
@@ -541,7 +566,9 @@ export default function PlaylistDetailPage() {
             >
               <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
             </svg>
-            <p className="mb-2 text-[var(--color-subtext)]">This playlist is empty</p>
+            <p className="mb-2 text-[var(--color-subtext)]">
+              This playlist is empty
+            </p>
             <Link href="/" className="text-accent hover:underline">
               Search for music to add tracks
             </Link>

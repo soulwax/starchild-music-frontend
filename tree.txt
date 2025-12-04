@@ -5,6 +5,7 @@ starchild-music-frontend
 ├───.gitignore
 ├───.markdownlint-cli2.jsonc
 ├───.pm2ignore
+├───CHANGELOG.md
 ├───drizzle.config.ts
 ├───drizzle.env.ts
 ├───ecosystem.config.cjs
@@ -23,19 +24,20 @@ starchild-music-frontend
 ├───tailwind.config.js
 ├───tree.txt
 ├───tsconfig.json
-├───tsconfig.tsbuildinfo
 ├───.claude/
 │   └───settings.local.json
 ├───.cursor/
 │   └───worktrees.json
 ├───.github/
-│   ├───copilot-instructions.md
+│   ├───CONTRIBUTING.md
 │   ├───assets/
 │   │   ├───AppIcons.zip
 │   │   └───emily-the-strange_vivid.png
 │   └───docs/
 │       ├───DATABASE_CONNECTION_FIX.md
 │       ├───DATABASE_MIGRATION_GUIDE.md
+│       ├───ELECTRON_IMPROVEMENTS.md
+│       ├───ELECTRON_PERSISTENCE.md
 │       ├───IMPLEMENTATION_GUIDE.md
 │       ├───IMPLEMENTATION_SUMMARY.md
 │       ├───MOBILE_ENHANCEMENTS.md
@@ -48,6 +50,7 @@ starchild-music-frontend
 │       ├───SMART_QUEUE_IMPROVEMENTS.md
 │       ├───SMART_QUEUE_QUICKSTART.md
 │       ├───SMART_QUEUE_ROADMAP.md
+│       ├───TROUBLESHOOTING_BLACK_SCREEN_ELECTRON.md
 │       └───UNAUTHORIZED_ERRORS_FIX.md
 ├───certs/
 │   └───ca.pem
@@ -81,18 +84,20 @@ starchild-music-frontend
 │       └───_journal.json
 ├───electron/
 │   ├───main.js
+│   ├───package.json
 │   ├───preload.js
-│   └───README.md
+│   ├───prepare-package.js
+│   ├───README.md
+│   ├───types.d.ts
+│   └───verify-build.js
 ├───logs/
 │   └───pm2/
-│       ├───.gitkeep
-│       ├───combined.log
-│       ├───error.log
-│       └───out.log
+│       └───.gitkeep
 ├───public/
-│   ├───fallback--Myq0giLLeocuJSFLu_Ct.js
 │   ├───fallback-urA3Ro15d6GNfWNSz80Y1.js
 │   ├───favicon.ico
+│   ├───icon.ico
+│   ├───icon.png
 │   ├───AppIcons/
 │   │   ├───appstore.png
 │   │   ├───playstore.png
@@ -190,6 +195,7 @@ starchild-music-frontend
     │   ├───AudioVisualizer.tsx
     │   ├───BottomSheet.tsx
     │   ├───Button.tsx
+    │   ├───ElectronStorageInit.tsx
     │   ├───EmptyState.tsx
     │   ├───EnhancedPlayer.tsx
     │   ├───EnhancedQueue.tsx
@@ -300,6 +306,7 @@ starchild-music-frontend
         ├───api.ts
         ├───audioAnalysis.ts
         ├───colorExtractor.ts
+        ├───electronStorage.ts
         ├───errorHandling.ts
         ├───haptics.ts
         ├───images.ts

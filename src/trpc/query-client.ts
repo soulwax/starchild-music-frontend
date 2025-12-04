@@ -16,7 +16,10 @@ export const createQueryClient = () =>
         // Don't retry on UNAUTHORIZED errors
         retry: (failureCount, error) => {
           // Don't retry if it's an authorization error
-          if (error instanceof Error && error.message.includes("UNAUTHORIZED")) {
+          if (
+            error instanceof Error &&
+            error.message.includes("UNAUTHORIZED")
+          ) {
             return false;
           }
           // Otherwise retry up to 3 times

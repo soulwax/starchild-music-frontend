@@ -55,7 +55,7 @@ export default function TrackCard({ track, onPlay }: TrackCardProps) {
         </div>
       </div>
       <div className="min-w-0 flex-1 overflow-hidden">
-        <h3 className="truncate text-base font-semibold leading-tight text-[var(--color-text)] transition-colors group-hover:text-[var(--color-accent-light)] md:text-lg">
+        <h3 className="truncate text-base leading-tight font-semibold text-[var(--color-text)] transition-colors group-hover:text-[var(--color-accent-light)] md:text-lg">
           {track.title}
         </h3>
         <p className="truncate text-sm text-[var(--color-subtext)] md:text-base">

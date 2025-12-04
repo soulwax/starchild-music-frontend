@@ -4,7 +4,13 @@
 
 import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { springPresets } from "@/utils/spring-animations";
-import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useTransform,
+  type PanInfo,
+} from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -36,11 +42,11 @@ export default function BottomSheet({
   const constraintsRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const currentSnapIndex = useRef(initialSnap);
-  
+
   // Motion values
   const sheetHeight = useMotionValue(snapPoints[initialSnap] ?? 50);
   const y = useMotionValue(0);
-  
+
   // Transform height to CSS value - must be called unconditionally
   const heightStyle = useTransform(sheetHeight, (h) => `${h}vh`);
 
@@ -59,18 +65,25 @@ export default function BottomSheet({
     };
   }, [isOpen, initialSnap, snapPoints, sheetHeight]);
 
-  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     const currentHeight = sheetHeight.get();
     const dragVelocity = info.velocity.y;
     const dragOffset = info.offset.y;
 
     // Convert drag offset to percentage change
-    const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 800;
+    const viewportHeight =
+      typeof window !== "undefined" ? window.innerHeight : 800;
     const percentageChange = (dragOffset / viewportHeight) * 100;
     const targetHeight = currentHeight - percentageChange;
 
     // Check for dismiss gesture (fast downward swipe)
-    if (dismissible && (dragVelocity > 500 || (dragOffset > 100 && targetHeight < 20))) {
+    if (
+      dismissible &&
+      (dragVelocity > 500 || (dragOffset > 100 && targetHeight < 20))
+    ) {
       hapticLight();
       onClose();
       return;
@@ -142,7 +155,7 @@ export default function BottomSheet({
           {/* Sheet Container */}
           <div
             ref={constraintsRef}
-            className="pointer-events-none fixed inset-x-0 bottom-0 top-0 z-[100]"
+            className="pointer-events-none fixed inset-x-0 top-0 bottom-0 z-[100]"
           >
             <motion.div
               ref={sheetRef}
@@ -154,16 +167,16 @@ export default function BottomSheet({
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={{ top: 0.05, bottom: 0.15 }}
               onDragEnd={handleDragEnd}
-              style={{ 
+              style={{
                 height: heightStyle,
                 y,
               }}
-              className={`pointer-events-auto absolute bottom-0 left-0 right-0 flex flex-col overflow-hidden rounded-t-3xl border-t border-[rgba(244,178,102,0.16)] bg-[rgba(13,19,28,0.98)] shadow-[0_-16px_48px_rgba(5,10,18,0.7)] backdrop-blur-xl ${className}`}
+              className={`pointer-events-auto absolute right-0 bottom-0 left-0 flex flex-col overflow-hidden rounded-t-3xl border-t border-[rgba(244,178,102,0.16)] bg-[rgba(13,19,28,0.98)] shadow-[0_-16px_48px_rgba(5,10,18,0.7)] backdrop-blur-xl ${className}`}
             >
               {/* Handle */}
               {showHandle && (
                 <div
-                  className="flex cursor-grab touch-none flex-col items-center pb-2 pt-4 active:cursor-grabbing"
+                  className="flex cursor-grab touch-none flex-col items-center pt-4 pb-2 active:cursor-grabbing"
                   onDoubleClick={handleExpandToMax}
                 >
                   <div className="h-1.5 w-12 rounded-full bg-[rgba(255,255,255,0.25)] transition-colors hover:bg-[rgba(255,255,255,0.4)]" />
@@ -172,9 +185,11 @@ export default function BottomSheet({
 
               {/* Header */}
               {showHeader && (
-                <div className="flex items-center justify-between border-b border-[rgba(244,178,102,0.1)] px-6 pb-4 pt-2">
+                <div className="flex items-center justify-between border-b border-[rgba(244,178,102,0.1)] px-6 pt-2 pb-4">
                   {title && (
-                    <h2 className="text-xl font-bold text-[var(--color-text)]">{title}</h2>
+                    <h2 className="text-xl font-bold text-[var(--color-text)]">
+                      {title}
+                    </h2>
                   )}
                   {showCloseButton && (
                     <motion.button
@@ -194,13 +209,13 @@ export default function BottomSheet({
               )}
 
               {/* Content */}
-              <div className="scrollbar-hide flex-1 overflow-y-auto overscroll-contain px-6 pb-safe">
+              <div className="scrollbar-hide pb-safe flex-1 overflow-y-auto overscroll-contain px-6">
                 {children}
               </div>
 
               {/* Snap Point Indicators */}
               {snapPoints.length > 1 && (
-                <div className="absolute right-4 top-1/2 flex -translate-y-1/2 flex-col gap-1">
+                <div className="absolute top-1/2 right-4 flex -translate-y-1/2 flex-col gap-1">
                   {snapPoints.map((snap, index) => (
                     <motion.button
                       key={snap}

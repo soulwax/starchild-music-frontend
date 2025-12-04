@@ -32,9 +32,9 @@ async function checkUsers() {
     result.rows.forEach((row, index) => {
       console.log(`${index + 1}. ${row.name} (${row.email})`);
       console.log(`   ID: ${row.id}`);
-      console.log(`   userHash: ${row.userHash ?? 'NULL'}`);
+      console.log(`   userHash: ${row.userHash ?? "NULL"}`);
       console.log(`   profilePublic: ${row.profilePublic}`);
-      console.log('');
+      console.log("");
     });
 
     await pool.end();

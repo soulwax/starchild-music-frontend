@@ -10,7 +10,7 @@ export interface Artist {
   picture_big: string;
   picture_xl: string;
   tracklist: string;
-  type: 'artist';
+  type: "artist";
 }
 
 export interface Album {
@@ -23,7 +23,7 @@ export interface Album {
   cover_xl: string;
   md5_image: string;
   tracklist: string;
-  type: 'album';
+  type: "album";
 }
 
 export interface Track {
@@ -42,7 +42,7 @@ export interface Track {
   md5_image: string;
   artist: Artist;
   album: Album;
-  type: 'track';
+  type: "track";
 }
 
 // API Response types
@@ -66,7 +66,7 @@ export interface ApiError {
 
 // Player state types
 
-export type PlayerState = 'idle' | 'loading' | 'playing' | 'paused' | 'error';
+export type PlayerState = "idle" | "loading" | "playing" | "paused" | "error";
 
 export interface PlayerTrack {
   track: Track;
@@ -102,11 +102,10 @@ export type ReorderPayload = {
   order: { trackId: string; position: number }[];
 };
 
-
 // Smart Queue & Recommendations types
 
 export interface RecommendationContext {
-  source: 'deezer' | 'custom' | 'ml' | 'audio-features';
+  source: "deezer" | "custom" | "ml" | "audio-features";
   seedTrackId: number;
   reason?: string; // Why this track was recommended
   similarity?: number; // 0-1 similarity score (if available)
@@ -121,7 +120,7 @@ export interface SmartQueueSettings {
   autoQueueThreshold: number; // Add tracks when queue has <= N tracks
   autoQueueCount: number; // Number of tracks to add
   smartMixEnabled: boolean;
-  similarityPreference: 'strict' | 'balanced' | 'diverse';
+  similarityPreference: "strict" | "balanced" | "diverse";
 }
 
 export interface AudioFeatures {
@@ -138,7 +137,7 @@ export interface AudioFeatures {
   loudness?: number;
   spectralCentroid?: number;
   analyzedAt: Date;
-  source: 'essentia' | 'spotify' | 'manual';
+  source: "essentia" | "spotify" | "manual";
 }
 
 export interface RecommendationCacheEntry {
@@ -146,20 +145,20 @@ export interface RecommendationCacheEntry {
   seedTrackId: number;
   recommendedTrackIds: number[];
   recommendedTracksData: Track[];
-  source: 'deezer' | 'custom' | 'ml';
+  source: "deezer" | "custom" | "ml";
   createdAt: Date;
   expiresAt: Date;
 }
 
 export type SimilarityMethod =
-  | 'same-artist'
-  | 'same-album'
-  | 'genre-match'
-  | 'bpm-match'
-  | 'key-match'
-  | 'energy-match'
-  | 'collaborative-filtering'
-  | 'audio-similarity';
+  | "same-artist"
+  | "same-album"
+  | "genre-match"
+  | "bpm-match"
+  | "key-match"
+  | "energy-match"
+  | "collaborative-filtering"
+  | "audio-similarity";
 
 export interface SimilarTrackOptions {
   limit?: number;
@@ -168,7 +167,17 @@ export interface SimilarTrackOptions {
   useAudioFeatures?: boolean;
 }
 
-export type EqualizerType = "Flat" | "Rock" | "Pop" | "Jazz" | "Classical" | "Bass Boost" | "Treble Boost" | "Vocal" | "Electronic" | "Custom";
+export type EqualizerType =
+  | "Flat"
+  | "Rock"
+  | "Pop"
+  | "Jazz"
+  | "Classical"
+  | "Bass Boost"
+  | "Treble Boost"
+  | "Vocal"
+  | "Electronic"
+  | "Custom";
 
 export interface EqualizerSettings {
   preset: string;
@@ -185,26 +194,26 @@ export interface EQPreferences {
 // Utility type guards
 export function isTrack(obj: unknown): obj is Track {
   return (
-    typeof obj === 'object' &&
+    typeof obj === "object" &&
     obj !== null &&
-    'id' in obj &&
-    'title' in obj &&
-    'artist' in obj &&
-    'album' in obj
+    "id" in obj &&
+    "title" in obj &&
+    "artist" in obj &&
+    "album" in obj
   );
 }
 
 export function isSearchResponse(obj: unknown): obj is SearchResponse {
   return (
-    typeof obj === 'object' &&
+    typeof obj === "object" &&
     obj !== null &&
-    'data' in obj &&
+    "data" in obj &&
     Array.isArray((obj as SearchResponse).data)
   );
 }
 
 export function isRecommendedTrack(obj: unknown): obj is RecommendedTrack {
-  return isTrack(obj) && 'recommendationContext' in obj;
+  return isTrack(obj) && "recommendationContext" in obj;
 }
 
 // tRPC API Response Types

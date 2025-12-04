@@ -21,10 +21,10 @@ export class FrequencyBandParticlesRenderer {
 
   // Color mapping for each frequency band
   private readonly bandColors = [
-    { name: "bass", hue: 0, saturation: 80, lightness: 50 },      // Red/Orange
-    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 },  // Yellow
-    { name: "mid", hue: 120, saturation: 70, lightness: 50 },     // Green
-    { name: "highMid", hue: 180, saturation: 80, lightness: 55 },  // Cyan
+    { name: "bass", hue: 0, saturation: 80, lightness: 50 }, // Red/Orange
+    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 }, // Yellow
+    { name: "mid", hue: 120, saturation: 70, lightness: 50 }, // Green
+    { name: "highMid", hue: 180, saturation: 80, lightness: 55 }, // Cyan
     { name: "treble", hue: 240, saturation: 85, lightness: 50 }, // Blue/Purple
   ];
 
@@ -32,7 +32,13 @@ export class FrequencyBandParticlesRenderer {
     // Particles will be initialized on first render with canvas dimensions
   }
 
-  private createParticle(bandIndex: number, x: number, y: number, canvasWidth: number, canvasHeight: number): Particle {
+  private createParticle(
+    bandIndex: number,
+    x: number,
+    y: number,
+    canvasWidth: number,
+    canvasHeight: number,
+  ): Particle {
     const index = Math.floor(bandIndex);
     const color = this.bandColors[index]!;
     return {
@@ -52,14 +58,18 @@ export class FrequencyBandParticlesRenderer {
     ctx: CanvasRenderingContext2D,
     data: Uint8Array,
     canvas: HTMLCanvasElement,
-    audioAnalysis?: AudioAnalysis | null
+    audioAnalysis?: AudioAnalysis | null,
   ): void {
     if (audioAnalysis) {
       this.time += 0.02;
 
       // Vibrant gradient background
       // Frequency bands are already normalized to 0-1 range
-      const avgIntensity = (audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble) / 3;
+      const avgIntensity =
+        (audioAnalysis.frequencyBands.bass +
+          audioAnalysis.frequencyBands.mid +
+          audioAnalysis.frequencyBands.treble) /
+        3;
       const hueShift = Math.min(60, avgIntensity * 50); // Clamp to max 60 degrees
       const bgGradient = ctx.createRadialGradient(
         canvas.width / 2,
@@ -67,7 +77,7 @@ export class FrequencyBandParticlesRenderer {
         0,
         canvas.width / 2,
         canvas.height / 2,
-        Math.max(canvas.width, canvas.height) / 2
+        Math.max(canvas.width, canvas.height) / 2,
       );
       bgGradient.addColorStop(0, `hsla(${280 + hueShift}, 75%, 20%, 0.92)`);
       bgGradient.addColorStop(0.5, `hsla(${270 + hueShift}, 70%, 16%, 0.95)`);
@@ -86,7 +96,15 @@ export class FrequencyBandParticlesRenderer {
       // Initialize particles on first render if needed
       if (this.particles.length === 0) {
         for (let i = 0; i < 50; i++) {
-          this.particles.push(this.createParticle(Math.random() * 5, 0, 0, canvas.width, canvas.height));
+          this.particles.push(
+            this.createParticle(
+              Math.random() * 5,
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            ),
+          );
         }
       }
 
@@ -94,9 +112,19 @@ export class FrequencyBandParticlesRenderer {
       bands.forEach((bandValue, bandIndex) => {
         const spawnRate = bandValue * 0.3;
         if (Math.random() < spawnRate) {
-          const spawnX = (bandIndex / 5) * canvas.width + Math.random() * (canvas.width / 5);
-          const spawnY = canvas.height / 2 + (Math.random() - 0.5) * canvas.height * 0.3;
-          this.particles.push(this.createParticle(bandIndex, spawnX, spawnY, canvas.width, canvas.height));
+          const spawnX =
+            (bandIndex / 5) * canvas.width + Math.random() * (canvas.width / 5);
+          const spawnY =
+            canvas.height / 2 + (Math.random() - 0.5) * canvas.height * 0.3;
+          this.particles.push(
+            this.createParticle(
+              bandIndex,
+              spawnX,
+              spawnY,
+              canvas.width,
+              canvas.height,
+            ),
+          );
         }
       });
 
@@ -108,7 +136,8 @@ export class FrequencyBandParticlesRenderer {
 
         // Apply band-based forces
         const bandValue = bands[particle.bandIndex] ?? 0;
-        const centerX = (particle.bandIndex / 5) * canvas.width + canvas.width / 10;
+        const centerX =
+          (particle.bandIndex / 5) * canvas.width + canvas.width / 10;
         const centerY = canvas.height / 2;
 
         // Attraction to band center
@@ -184,10 +213,16 @@ export class FrequencyBandParticlesRenderer {
           0,
           particle.x,
           particle.y,
-          particleSize
+          particleSize,
         );
-        particleGradient.addColorStop(0, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, ${particle.life * 0.9})`);
-        particleGradient.addColorStop(1, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, ${particle.life * 0.5})`);
+        particleGradient.addColorStop(
+          0,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, ${particle.life * 0.9})`,
+        );
+        particleGradient.addColorStop(
+          1,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, ${particle.life * 0.5})`,
+        );
 
         ctx.fillStyle = particleGradient;
         ctx.shadowBlur = 15 + bandValue * 20;

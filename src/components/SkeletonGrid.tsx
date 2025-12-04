@@ -26,7 +26,7 @@ export default function SkeletonGrid({
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className={`${itemHeight} animate-pulse rounded-lg skeleton`}
+          className={`${itemHeight} skeleton animate-pulse rounded-lg`}
         />
       ))}
     </div>

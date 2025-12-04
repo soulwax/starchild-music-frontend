@@ -9,10 +9,10 @@ export class FrequencyBandBarsRenderer {
 
   // Color mapping for each frequency band
   private readonly bandColors = [
-    { name: "bass", hue: 0, saturation: 80, lightness: 50 },      // Red/Orange
-    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 },  // Yellow
-    { name: "mid", hue: 120, saturation: 70, lightness: 50 },     // Green
-    { name: "highMid", hue: 180, saturation: 80, lightness: 55 },  // Cyan
+    { name: "bass", hue: 0, saturation: 80, lightness: 50 }, // Red/Orange
+    { name: "lowMid", hue: 45, saturation: 90, lightness: 55 }, // Yellow
+    { name: "mid", hue: 120, saturation: 70, lightness: 50 }, // Green
+    { name: "highMid", hue: 180, saturation: 80, lightness: 55 }, // Cyan
     { name: "treble", hue: 240, saturation: 85, lightness: 50 }, // Blue/Purple
   ];
 
@@ -25,14 +25,18 @@ export class FrequencyBandBarsRenderer {
     ctx: CanvasRenderingContext2D,
     data: Uint8Array,
     canvas: HTMLCanvasElement,
-    audioAnalysis?: AudioAnalysis | null
+    audioAnalysis?: AudioAnalysis | null,
   ): void {
     if (audioAnalysis) {
       this.time += 0.02;
 
       // Vibrant gradient background
       // Frequency bands are already normalized to 0-1 range
-      const avgIntensity = (audioAnalysis.frequencyBands.bass + audioAnalysis.frequencyBands.mid + audioAnalysis.frequencyBands.treble) / 3;
+      const avgIntensity =
+        (audioAnalysis.frequencyBands.bass +
+          audioAnalysis.frequencyBands.mid +
+          audioAnalysis.frequencyBands.treble) /
+        3;
       const hueShift = Math.min(60, avgIntensity * 40); // Clamp to max 60 degrees
       const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
       bgGradient.addColorStop(0, `hsla(${260 + hueShift}, 75%, 22%, 0.92)`);
@@ -75,10 +79,24 @@ export class FrequencyBandBarsRenderer {
         const lightness = color.lightness + bandValue * 30;
 
         // Create gradient for bar
-        const barGradient = ctx.createLinearGradient(x, y, x, canvas.height - padding);
-        barGradient.addColorStop(0, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, 1)`);
-        barGradient.addColorStop(0.5, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, 0.9)`);
-        barGradient.addColorStop(1, `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness - 15}%, 0.7)`);
+        const barGradient = ctx.createLinearGradient(
+          x,
+          y,
+          x,
+          canvas.height - padding,
+        );
+        barGradient.addColorStop(
+          0,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness + 20}%, 1)`,
+        );
+        barGradient.addColorStop(
+          0.5,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness}%, 0.9)`,
+        );
+        barGradient.addColorStop(
+          1,
+          `hsla(${color.hue + hueShift}, ${saturation}%, ${lightness - 15}%, 0.7)`,
+        );
 
         // Glow effect
         ctx.shadowBlur = 20 + bandValue * 30;
@@ -106,7 +124,7 @@ export class FrequencyBandBarsRenderer {
         ctx.fillText(
           color.name.toUpperCase(),
           x + width / 2,
-          canvas.height - 5
+          canvas.height - 5,
         );
       });
 

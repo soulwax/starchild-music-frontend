@@ -5,7 +5,7 @@
  * Replaces console.log to prevent performance overhead in production
  */
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === "development";
 
 export const logger = {
   /**

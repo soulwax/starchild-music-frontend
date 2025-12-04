@@ -14,7 +14,10 @@ export class PerlinNoise {
     const random = this.seededRandom(seed);
     for (let i = 255; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));
-      [this.permutation[i], this.permutation[j]] = [this.permutation[j]!, this.permutation[i]!];
+      [this.permutation[i], this.permutation[j]] = [
+        this.permutation[j]!,
+        this.permutation[i]!,
+      ];
     }
 
     // Duplicate permutation table
@@ -25,7 +28,7 @@ export class PerlinNoise {
 
   private seededRandom(seed: number) {
     let s = seed;
-    return function() {
+    return function () {
       s = Math.sin(s) * 10000;
       return s - Math.floor(s);
     };
@@ -66,26 +69,52 @@ export class PerlinNoise {
     const BA = this.p[B]! + Z;
     const BB = this.p[B + 1]! + Z;
 
-    return this.lerp(w,
-      this.lerp(v,
-        this.lerp(u, this.grad(this.p[AA]!, x, y, z), this.grad(this.p[BA]!, x - 1, y, z)),
-        this.lerp(u, this.grad(this.p[AB]!, x, y - 1, z), this.grad(this.p[BB]!, x - 1, y - 1, z))
+    return this.lerp(
+      w,
+      this.lerp(
+        v,
+        this.lerp(
+          u,
+          this.grad(this.p[AA]!, x, y, z),
+          this.grad(this.p[BA]!, x - 1, y, z),
+        ),
+        this.lerp(
+          u,
+          this.grad(this.p[AB]!, x, y - 1, z),
+          this.grad(this.p[BB]!, x - 1, y - 1, z),
+        ),
       ),
-      this.lerp(v,
-        this.lerp(u, this.grad(this.p[AA + 1]!, x, y, z - 1), this.grad(this.p[BA + 1]!, x - 1, y, z - 1)),
-        this.lerp(u, this.grad(this.p[AB + 1]!, x, y - 1, z - 1), this.grad(this.p[BB + 1]!, x - 1, y - 1, z - 1))
-      )
+      this.lerp(
+        v,
+        this.lerp(
+          u,
+          this.grad(this.p[AA + 1]!, x, y, z - 1),
+          this.grad(this.p[BA + 1]!, x - 1, y, z - 1),
+        ),
+        this.lerp(
+          u,
+          this.grad(this.p[AB + 1]!, x, y - 1, z - 1),
+          this.grad(this.p[BB + 1]!, x - 1, y - 1, z - 1),
+        ),
+      ),
     );
   }
 
-  public octaveNoise(x: number, y: number, z: number, octaves: number, persistence: number): number {
+  public octaveNoise(
+    x: number,
+    y: number,
+    z: number,
+    octaves: number,
+    persistence: number,
+  ): number {
     let total = 0;
     let frequency = 1;
     let amplitude = 1;
     let maxValue = 0;
 
     for (let i = 0; i < octaves; i++) {
-      total += this.noise(x * frequency, y * frequency, z * frequency) * amplitude;
+      total +=
+        this.noise(x * frequency, y * frequency, z * frequency) * amplitude;
       maxValue += amplitude;
       amplitude *= persistence;
       frequency *= 2;

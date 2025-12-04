@@ -11,7 +11,9 @@ interface MobileContentWrapperProps {
   children: ReactNode;
 }
 
-export default function MobileContentWrapper({ children }: MobileContentWrapperProps) {
+export default function MobileContentWrapper({
+  children,
+}: MobileContentWrapperProps) {
   const isMobile = useIsMobile();
   const player = useGlobalPlayer();
 
@@ -43,7 +45,11 @@ export default function MobileContentWrapper({ children }: MobileContentWrapperP
   };
 
   if (isMobile) {
-    return <MobileSwipeablePanes playerProps={playerProps}>{children}</MobileSwipeablePanes>;
+    return (
+      <MobileSwipeablePanes playerProps={playerProps}>
+        {children}
+      </MobileSwipeablePanes>
+    );
   }
 
   return <>{children}</>;

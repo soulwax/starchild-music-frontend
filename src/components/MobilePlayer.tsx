@@ -6,7 +6,10 @@ import { PLAYBACK_RATES } from "@/config/player";
 import { useGlobalPlayer } from "@/contexts/AudioPlayerContext";
 import { useAudioReactiveBackground } from "@/hooks/useAudioReactiveBackground";
 import type { Track } from "@/types";
-import { extractColorsFromImage, type ColorPalette } from "@/utils/colorExtractor";
+import {
+  extractColorsFromImage,
+  type ColorPalette,
+} from "@/utils/colorExtractor";
 import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { getCoverImage } from "@/utils/images";
 import { STORAGE_KEYS } from "@/config/storage";
@@ -14,7 +17,13 @@ import { useSession } from "next-auth/react";
 import { api } from "@/trpc/react";
 import { springPresets } from "@/utils/spring-animations";
 import { formatTime } from "@/utils/time";
-import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useTransform,
+  type PanInfo,
+} from "framer-motion";
 import {
   Activity,
   ChevronDown,
@@ -101,27 +110,35 @@ export default function MobilePlayer(props: MobilePlayerProps) {
   // Get session and preferences for visualizer state
   const { data: session } = useSession();
   const isAuthenticated = !!session?.user;
-  const { data: preferences } = api.music.getUserPreferences.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
+  const { data: preferences } = api.music.getUserPreferences.useQuery(
+    undefined,
+    {
+      enabled: isAuthenticated,
+    },
+  );
 
   const [isExpanded, setIsExpanded] = useState(forceExpanded);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [showVisualizer, setShowVisualizer] = useState(false);
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
-  const [albumColorPalette, setAlbumColorPalette] = useState<ColorPalette | null>(null);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [albumColorPalette, setAlbumColorPalette] =
+    useState<ColorPalette | null>(null);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
+    null,
+  );
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekTime, setSeekTime] = useState(0);
-  const [seekDirection, setSeekDirection] = useState<"forward" | "backward" | null>(null);
+  const [seekDirection, setSeekDirection] = useState<
+    "forward" | "backward" | null
+  >(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const artworkRef = useRef<HTMLDivElement>(null);
-  
+
   // Motion values for smooth drag interactions
   const dragY = useMotionValue(0);
   const opacity = useTransform(dragY, [0, 100], [1, 0.7]);
   const artworkScale = useTransform(dragY, [0, 100], [1, 0.9]);
-  
+
   // Gesture seeking motion values
   const seekX = useMotionValue(0);
 
@@ -129,7 +146,9 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     if (!(target instanceof HTMLElement)) return false;
     if (target.closest("[data-drag-exempt='true']")) return true;
     return Boolean(
-      target.closest("button") ?? target.closest("input") ?? target.closest("select")
+      target.closest("button") ??
+        target.closest("input") ??
+        target.closest("select"),
     );
   };
 
@@ -209,7 +228,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
   useEffect(() => {
     if (isAuthenticated) return; // Skip if authenticated (preferences come from DB)
     if (typeof window === "undefined") return;
-    
+
     const stored = window.localStorage.getItem(STORAGE_KEYS.VISUALIZER_ENABLED);
     if (stored !== null) {
       try {
@@ -221,7 +240,6 @@ export default function MobilePlayer(props: MobilePlayerProps) {
       }
     }
   }, [isAuthenticated]);
-
 
   // Audio-reactive background effects (respects visualizer preference)
   useAudioReactiveBackground(audioElement, isPlaying, visualizerEnabled);
@@ -263,13 +281,16 @@ export default function MobilePlayer(props: MobilePlayerProps) {
       const offset = info.offset.x;
       if (Math.abs(offset) > 30) {
         const seekAmount = (offset / artworkRef.current!.offsetWidth) * 30; // Max 30 seconds
-        const newTime = Math.max(0, Math.min(duration, currentTime + seekAmount));
+        const newTime = Math.max(
+          0,
+          Math.min(duration, currentTime + seekAmount),
+        );
         setSeekTime(newTime);
         setIsSeeking(true);
         setSeekDirection(offset > 0 ? "forward" : "backward");
       }
     },
-    [currentTime, duration]
+    [currentTime, duration],
   );
 
   const handleArtworkDragEnd = useCallback(
@@ -287,10 +308,13 @@ export default function MobilePlayer(props: MobilePlayerProps) {
       setSeekDirection(null);
       seekX.set(0);
     },
-    [isSeeking, seekTime, onSeek, seekX]
+    [isSeeking, seekTime, onSeek, seekX],
   );
 
-  const handleExpandedDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleExpandedDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
     if (forceExpanded) return;
     const offset = info.offset.y;
     const velocity = info.velocity.y;
@@ -311,11 +335,15 @@ export default function MobilePlayer(props: MobilePlayerProps) {
 
   if (!currentTrack) return null;
 
-  const coverArt = currentTrack.album.cover_xl ?? currentTrack.album.cover_big ?? currentTrack.album.cover_medium ?? currentTrack.album.cover;
+  const coverArt =
+    currentTrack.album.cover_xl ??
+    currentTrack.album.cover_big ??
+    currentTrack.album.cover_medium ??
+    currentTrack.album.cover;
 
   // Dynamic gradient based on album colors
   const dynamicGradient = albumColorPalette
-    ? `linear-gradient(165deg, ${albumColorPalette.primary.replace('0.8)', '0.22)')}, rgba(8,13,20,0.95) 50%)`
+    ? `linear-gradient(165deg, ${albumColorPalette.primary.replace("0.8)", "0.22)")}, rgba(8,13,20,0.95) 50%)`
     : "linear-gradient(165deg, rgba(13,20,29,0.98), rgba(8,13,20,0.92))";
 
   return (
@@ -328,7 +356,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
             animate={{ y: 0 }}
             exit={{ y: 100 }}
             transition={springPresets.gentle}
-            className="safe-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-[rgba(244,178,102,0.14)] bg-[rgba(10,16,24,0.94)] backdrop-blur-xl shadow-[0_-12px_32px_rgba(5,10,18,0.6)]"
+            className="safe-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-[rgba(244,178,102,0.14)] bg-[rgba(10,16,24,0.94)] shadow-[0_-12px_32px_rgba(5,10,18,0.6)] backdrop-blur-xl"
           >
             {/* Progress Bar */}
             <div
@@ -347,7 +375,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
 
             {/* Mini Player Content */}
             <motion.div
-              className="flex items-center gap-3 px-4 py-3 cursor-pointer"
+              className="flex cursor-pointer items-center gap-3 px-4 py-3"
               onTap={handleMiniTap}
               whileTap={{ scale: 0.99 }}
               transition={springPresets.snappy}
@@ -476,7 +504,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
               className="safe-bottom fixed inset-0 z-[99] flex flex-col overflow-hidden"
             >
               {/* Dynamic Background */}
-              <div 
+              <div
                 className="absolute inset-0 transition-all duration-1000"
                 style={{ background: dynamicGradient }}
               />
@@ -498,7 +526,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     >
                       <ChevronDown className="h-6 w-6" />
                     </motion.button>
-                    <span className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)]">
+                    <span className="text-xs font-semibold tracking-widest text-[var(--color-muted)] uppercase">
                       Now Playing
                     </span>
                     <motion.button
@@ -530,7 +558,11 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     {!showVisualizer && coverArt ? (
                       <motion.div
                         animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
-                        transition={isPlaying ? { duration: 20, repeat: Infinity, ease: "linear" } : {}}
+                        transition={
+                          isPlaying
+                            ? { duration: 20, repeat: Infinity, ease: "linear" }
+                            : {}
+                        }
                         className="relative"
                       >
                         <Image
@@ -579,10 +611,12 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                           className="absolute inset-0 flex items-center justify-center rounded-3xl bg-black/60 backdrop-blur-md"
                         >
                           <div className="flex flex-col items-center gap-2">
-                            <span className="text-4xl font-bold tabular-nums text-[var(--color-text)]">
+                            <span className="text-4xl font-bold text-[var(--color-text)] tabular-nums">
                               {formatTime(seekTime)}
                             </span>
-                            <span className={`text-sm ${seekDirection === "forward" ? "text-[var(--color-accent-strong)]" : "text-[var(--color-accent)]"}`}>
+                            <span
+                              className={`text-sm ${seekDirection === "forward" ? "text-[var(--color-accent-strong)]" : "text-[var(--color-accent)]"}`}
+                            >
                               {seekDirection === "forward" ? "+" : "-"}
                               {Math.abs(Math.round(seekTime - currentTime))}s
                             </span>
@@ -598,7 +632,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                         setShowVisualizer(!showVisualizer);
                       }}
                       whileTap={{ scale: 0.9 }}
-                      className={`absolute right-3 top-3 touch-target rounded-full p-3 backdrop-blur-md transition-all ${
+                      className={`touch-target absolute top-3 right-3 rounded-full p-3 backdrop-blur-md transition-all ${
                         showVisualizer
                           ? "bg-[rgba(244,178,102,0.3)] text-[var(--color-accent)]"
                           : "bg-black/40 text-[var(--color-subtext)]"
@@ -612,7 +646,11 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                       <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-black/60">
                         <motion.div
                           animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
                           className="h-12 w-12 rounded-full border-4 border-[var(--color-accent)] border-t-transparent"
                         />
                       </div>
@@ -656,11 +694,13 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                   >
                     <motion.div
                       className="h-full rounded-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-strong)]"
-                      style={{ width: `${isSeeking ? (seekTime / duration) * 100 : progress}%` }}
+                      style={{
+                        width: `${isSeeking ? (seekTime / duration) * 100 : progress}%`,
+                      }}
                     />
                     <motion.div
                       className="absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow-lg"
-                      style={{ 
+                      style={{
                         left: `${isSeeking ? (seekTime / duration) * 100 : progress}%`,
                         x: "-50%",
                       }}
@@ -668,9 +708,11 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                       whileTap={{ scale: 0.9 }}
                     />
                   </div>
-                  <div className="mt-2 flex justify-between text-sm tabular-nums text-[var(--color-subtext)]">
+                  <div className="mt-2 flex justify-between text-sm text-[var(--color-subtext)] tabular-nums">
                     <span>{formatTime(displayTime)}</span>
-                    <span>-{formatTime(Math.max(0, duration - displayTime))}</span>
+                    <span>
+                      -{formatTime(Math.max(0, duration - displayTime))}
+                    </span>
                   </div>
                 </div>
 
@@ -810,7 +852,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     >
                       <ListMusic className="h-5 w-5" />
                       {queue.length > 0 && (
-                        <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-[#0f141d]">
+                        <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-[#0f141d]">
                           {queue.length > 9 ? "9+" : queue.length}
                         </span>
                       )}

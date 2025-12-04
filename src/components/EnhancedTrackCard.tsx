@@ -64,8 +64,9 @@ export default function EnhancedTrackCard({
     onSuccess: async (_, variables) => {
       await utils.music.getPlaylists.invalidate();
       const playlistName =
-        playlists?.find((p: PlaylistWithTracks) => p.id === variables.playlistId)?.name ??
-        "playlist";
+        playlists?.find(
+          (p: PlaylistWithTracks) => p.id === variables.playlistId,
+        )?.name ?? "playlist";
       showToast(`Added "${track.title}" to ${playlistName}`, "success");
       setShowMenu(false);
     },
@@ -161,15 +162,15 @@ export default function EnhancedTrackCard({
 
       <div className="min-w-0 flex-1 space-y-1.5">
         <h3
-          className="no-select cursor-pointer text-lg font-semibold leading-tight text-[var(--color-text)] transition-colors hover:text-[var(--color-accent-light)] hover:underline md:text-xl line-clamp-2"
+          className="no-select line-clamp-2 cursor-pointer text-lg leading-tight font-semibold text-[var(--color-text)] transition-colors hover:text-[var(--color-accent-light)] hover:underline md:text-xl"
           onClick={handlePlay}
         >
           {track.title}
         </h3>
-        <p className="text-base text-[var(--color-subtext)] line-clamp-1">
+        <p className="line-clamp-1 text-base text-[var(--color-subtext)]">
           {track.artist.name}
         </p>
-        <p className="text-sm text-[var(--color-muted)] line-clamp-1">
+        <p className="line-clamp-1 text-sm text-[var(--color-muted)]">
           {track.album.title}
         </p>
       </div>
@@ -272,7 +273,11 @@ export default function EnhancedTrackCard({
               }}
               className="touch-target touch-active rounded-full text-[var(--color-subtext)] transition-all hover:scale-110 hover:text-white"
             >
-              <svg className="h-6 w-6 md:h-5 md:w-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="h-6 w-6 md:h-5 md:w-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
               </svg>
             </button>
@@ -284,7 +289,7 @@ export default function EnhancedTrackCard({
                   onClick={() => setShowMenu(false)}
                 />
                 <div className="card absolute right-0 z-20 mt-2 w-56 border border-[var(--color-border)] py-2 shadow-xl backdrop-blur-sm md:w-48">
-                  <div className="px-4 py-3 text-xs font-semibold uppercase text-[var(--color-subtext)] md:py-2">
+                  <div className="px-4 py-3 text-xs font-semibold text-[var(--color-subtext)] uppercase md:py-2">
                     Add to Playlist
                   </div>
                   {playlists && playlists.length > 0 ? (
