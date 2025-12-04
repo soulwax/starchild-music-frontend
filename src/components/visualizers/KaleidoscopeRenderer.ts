@@ -177,7 +177,7 @@ export class KaleidoscopeRenderer {
     this.drawParticles(ctx, audioIntensity, trebleIntensity);
 
     // Draw geometric patterns
-    this.drawGeometricPatterns(ctx, audioIntensity, midIntensity, trebleIntensity);
+    this.drawGeometricPatterns(ctx, audioIntensity, bassIntensity, midIntensity, trebleIntensity);
 
     ctx.restore();
   }
@@ -269,6 +269,7 @@ export class KaleidoscopeRenderer {
   private drawGeometricPatterns(
     ctx: CanvasRenderingContext2D,
     audioIntensity: number,
+    bassIntensity: number,
     midIntensity: number,
     trebleIntensity: number
   ): void {
