@@ -257,16 +257,16 @@ export class FlowFieldRenderer {
 
   private renderRays(audioIntensity: number, bassIntensity: number, trebleIntensity: number): void {
     const ctx = this.ctx;
-    const rayCount = 24 + Math.floor(bassIntensity * 24);
+    const rayCount = 24 + Math.floor(bassIntensity * 32); // More reactive
     const angleStep = (Math.PI * 2) / rayCount;
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
     for (let i = 0; i < rayCount; i++) {
-      const angle = angleStep * i + this.time * 0.005;
-      const rayLength = Math.min(this.width, this.height) * (0.6 + audioIntensity * 0.4);
-      const rayWidth = 2 + trebleIntensity * 8;
+      const angle = angleStep * i + this.time * 0.008 + bassIntensity * 0.1; // Faster rotation, reactive to bass
+      const rayLength = Math.min(this.width, this.height) * (0.6 + audioIntensity * 0.6); // More reactive length
+      const rayWidth = 2 + trebleIntensity * 12; // More reactive width
 
       const endX = this.centerX + Math.cos(angle) * rayLength;
       const endY = this.centerY + Math.sin(angle) * rayLength;
@@ -281,8 +281,9 @@ export class FlowFieldRenderer {
           endX + offset * 3, endY + offset * 3
         );
 
-        gradient.addColorStop(0, `hsla(${hue}, 100%, 70%, ${alpha})`);
-        gradient.addColorStop(0.5, `hsla(${hue}, 90%, 60%, ${alpha * 0.6})`);
+        const reactiveAlpha = alpha * (1 + audioIntensity * 0.5); // More reactive alpha
+        gradient.addColorStop(0, `hsla(${hue}, 100%, 70%, ${reactiveAlpha})`);
+        gradient.addColorStop(0.5, `hsla(${hue}, 90%, 60%, ${reactiveAlpha * 0.6})`);
         gradient.addColorStop(1, `hsla(${hue}, 80%, 50%, 0)`);
 
         ctx.strokeStyle = gradient;
@@ -313,15 +314,15 @@ export class FlowFieldRenderer {
 
     for (let r = 0; r < rings; r++) {
       const depth = r / rings;
-      const z = depth + this.time * 0.003 + bassIntensity * 0.1;
+      const z = depth + this.time * 0.005 + bassIntensity * 0.2; // Faster, more reactive
       const zMod = z % 1;
       const scale = 1 / (zMod + 0.1);
       const radius = scale * 50;
 
       if (radius > Math.max(this.width, this.height) * 2) continue;
 
-      const alpha = (1 - zMod) * (0.2 + audioIntensity * 0.3);
-      const rotation = z * Math.PI * 2 + midIntensity * Math.PI;
+      const alpha = (1 - zMod) * (0.2 + audioIntensity * 0.5); // More reactive
+      const rotation = z * Math.PI * 2 + midIntensity * Math.PI * 1.5; // Faster rotation
 
       ctx.beginPath();
 
@@ -367,8 +368,8 @@ export class FlowFieldRenderer {
   private renderBubbles(audioIntensity: number, bassIntensity: number, trebleIntensity: number): void {
     const ctx = this.ctx;
 
-    // Create new bubbles on bass hits
-    if (bassIntensity > 0.5 && Math.random() > 0.8) {
+    // Create new bubbles on bass hits - more reactive
+    if (bassIntensity > 0.3 && Math.random() > 0.7) { // Lower threshold, higher chance
       this.bubbles.push(this.createBubble());
     }
 
@@ -378,8 +379,8 @@ export class FlowFieldRenderer {
       if (!bubble) continue;
 
       if (bubble.popping) {
-        // Pop animation
-        bubble.popProgress += 0.1 + trebleIntensity * 0.1;
+        // Pop animation - faster and more reactive
+        bubble.popProgress += 0.15 + trebleIntensity * 0.2;
 
         if (bubble.popProgress >= 1) {
           this.bubbles.splice(i, 1);
@@ -409,12 +410,13 @@ export class FlowFieldRenderer {
       } else {
         // Normal bubble physics
         bubble.age++;
-        bubble.vy -= 0.01; // Buoyancy
-        bubble.vx += (Math.random() - 0.5) * 0.1; // Brownian motion
-        bubble.vx *= 0.99; // Drag
-        bubble.vy *= 0.99;
+        const reactiveSpeed = 1 + audioIntensity * 0.5; // More reactive to audio
+        bubble.vy -= 0.01 * reactiveSpeed; // Buoyancy
+        bubble.vx += (Math.random() - 0.5) * 0.15 * reactiveSpeed; // Brownian motion
+        bubble.vx *= 0.98; // Less drag for more movement
+        bubble.vy *= 0.98;
 
-        bubble.x += bubble.vx + Math.sin(this.time * 0.02 + bubble.y * 0.01) * 0.5;
+        bubble.x += bubble.vx + Math.sin(this.time * 0.03 + bubble.y * 0.01) * 0.8 * reactiveSpeed; // Faster movement
         bubble.y += bubble.vy;
 
         // Pop conditions
@@ -490,17 +492,17 @@ export class FlowFieldRenderer {
     const imageData = ctx.createImageData(this.width, this.height);
     const data = imageData.data;
 
-    // Animate seeds
+    // Animate seeds - more reactive
     for (let i = 0; i < this.voronoiSeeds.length; i++) {
       const seed = this.voronoiSeeds[i];
       if (!seed) continue;
 
-      const angle = this.time * 0.001 + i;
-      const radius = 50 + Math.sin(this.time * 0.002 + i) * 30;
+      const angle = this.time * 0.002 + i; // Faster rotation
+      const radius = 50 + Math.sin(this.time * 0.004 + i) * 40 * (1 + bassIntensity); // More reactive radius
 
-      seed.x = this.centerX + Math.cos(angle) * radius * (1 + bassIntensity);
-      seed.y = this.centerY + Math.sin(angle * 1.3) * radius * (1 + bassIntensity);
-      seed.hue = (seed.hue + 0.5 + midIntensity) % 360;
+      seed.x = this.centerX + Math.cos(angle) * radius * (1 + bassIntensity * 1.5); // More reactive movement
+      seed.y = this.centerY + Math.sin(angle * 1.3) * radius * (1 + bassIntensity * 1.5);
+      seed.hue = (seed.hue + 1 + midIntensity * 2) % 360; // Faster color change
     }
 
     // Render Voronoi diagram
@@ -569,21 +571,21 @@ export class FlowFieldRenderer {
   private renderWaves(audioIntensity: number, bassIntensity: number, trebleIntensity: number): void {
     const ctx = this.ctx;
     const waveCount = 5;
-    const amplitude = 50 + audioIntensity * 100;
-    const frequency = 0.02 + trebleIntensity * 0.03;
+    const amplitude = 50 + audioIntensity * 150; // More reactive amplitude
+    const frequency = 0.02 + trebleIntensity * 0.05; // More reactive frequency
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
-    // Concentric waves
+    // Concentric waves - more reactive
     for (let w = 0; w < waveCount; w++) {
-      const phase = this.time * 0.02 + w * Math.PI / waveCount;
+      const phase = this.time * 0.03 + w * Math.PI / waveCount; // Faster phase
       const baseRadius = 50 + w * 60;
 
       ctx.beginPath();
 
       for (let angle = 0; angle <= Math.PI * 2; angle += 0.05) {
-        const wave = Math.sin(angle * 8 + phase) * amplitude * bassIntensity;
+        const wave = Math.sin(angle * 8 + phase) * amplitude * bassIntensity * 1.3; // More reactive wave
         const r = baseRadius + wave;
         const x = this.centerX + Math.cos(angle) * r;
         const y = this.centerY + Math.sin(angle) * r;
@@ -598,10 +600,10 @@ export class FlowFieldRenderer {
       ctx.closePath();
 
       const hue = (this.hueBase + w * 72) % 360;
-      const alpha = 0.3 + audioIntensity * 0.3;
+      const alpha = 0.3 + audioIntensity * 0.5; // More reactive alpha
 
       ctx.strokeStyle = `hsla(${hue}, 90%, 65%, ${alpha})`;
-      ctx.lineWidth = 2 + audioIntensity * 4;
+      ctx.lineWidth = 2 + audioIntensity * 6; // More reactive line width
       ctx.stroke();
 
       // Fill with gradient
@@ -626,7 +628,7 @@ export class FlowFieldRenderer {
         const dx = x - this.centerX;
         const dy = y - this.centerY;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const wave = Math.sin(dist * frequency - this.time * 0.05) * 10 * trebleIntensity;
+        const wave = Math.sin(dist * frequency - this.time * 0.08) * 15 * trebleIntensity; // Faster, more reactive
 
         const hue = (this.hueBase + dist * 0.5) % 360;
         const size = 2 + wave;
@@ -696,18 +698,18 @@ export class FlowFieldRenderer {
         separateY *= 0.05;
       }
 
-      // Attraction to center with audio
+      // Attraction to center with audio - more reactive
       const dx = this.centerX - particle.x;
       const dy = this.centerY - particle.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const centerForce = 0.001 * (1 + bassIntensity * 2);
+      const centerForce = 0.001 * (1 + bassIntensity * 3); // More reactive force
 
       // Apply forces
       particle.vx += alignX * 0.02 + cohereX + separateX + (dx / dist) * centerForce;
       particle.vy += alignY * 0.02 + cohereY + separateY + (dy / dist) * centerForce;
 
-      // Velocity limits
-      const maxSpeed = 2 + trebleIntensity * 3;
+      // Velocity limits - more reactive
+      const maxSpeed = 2 + trebleIntensity * 5; // Faster max speed
       const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
       if (speed > maxSpeed) {
         particle.vx = (particle.vx / speed) * maxSpeed;
@@ -799,9 +801,9 @@ export class FlowFieldRenderer {
     ctx.translate(this.centerX, this.centerY);
 
     for (let layer = 0; layer < layers; layer++) {
-      const radius = 50 + layer * 60 + bassIntensity * 40;
+      const radius = 50 + layer * 60 + bassIntensity * 60; // More reactive radius
       const petals = 6 + layer * 2;
-      const rotation = this.time * 0.001 * (layer % 2 === 0 ? 1 : -1) + midIntensity * Math.PI;
+      const rotation = this.time * 0.002 * (layer % 2 === 0 ? 1 : -1) + midIntensity * Math.PI * 1.5; // Faster rotation
 
       for (let sym = 0; sym < symmetry; sym++) {
         ctx.save();
@@ -840,14 +842,14 @@ export class FlowFieldRenderer {
     const ctx = this.ctx;
     const helixCount = 2;
     const segments = 100;
-    const amplitude = 150 + bassIntensity * 100;
+    const amplitude = 150 + bassIntensity * 150; // More reactive amplitude
     const wavelength = this.height / 3;
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
     for (let h = 0; h < helixCount; h++) {
-      const phase = h * Math.PI + this.time * 0.02;
+      const phase = h * Math.PI + this.time * 0.03; // Faster phase
 
       ctx.beginPath();
 
@@ -895,8 +897,8 @@ export class FlowFieldRenderer {
       }
 
       const hue = (this.hueBase + h * 180) % 360;
-      ctx.strokeStyle = `hsla(${hue}, 85%, 65%, ${0.4 + audioIntensity * 0.3})`;
-      ctx.lineWidth = 3 + audioIntensity * 4;
+      ctx.strokeStyle = `hsla(${hue}, 85%, 65%, ${0.4 + audioIntensity * 0.5})`; // More reactive alpha
+      ctx.lineWidth = 3 + audioIntensity * 6; // More reactive line width
       ctx.stroke();
     }
 
@@ -912,8 +914,8 @@ export class FlowFieldRenderer {
     const imageData = ctx.createImageData(this.width, this.height);
     const data = imageData.data;
 
-    const time = this.time * 0.05;
-    const scale = 0.01 + audioIntensity * 0.005;
+    const time = this.time * 0.08; // Faster time
+    const scale = 0.01 + audioIntensity * 0.008; // More reactive scale
 
     for (let y = 0; y < this.height; y += 2) {
       for (let x = 0; x < this.width; x += 2) {
@@ -925,10 +927,10 @@ export class FlowFieldRenderer {
 
         const plasma = (v1 + v2 + v3 + v4) / 4;
 
-        // Map to colors
-        const hue = (this.hueBase + plasma * 180 + bassIntensity * 60) % 360;
-        const saturation = 70 + midIntensity * 30;
-        const lightness = 40 + plasma * 30 + audioIntensity * 20;
+        // Map to colors - more reactive
+        const hue = (this.hueBase + plasma * 180 + bassIntensity * 90) % 360; // More reactive hue
+        const saturation = 70 + midIntensity * 40; // More reactive saturation
+        const lightness = 40 + plasma * 30 + audioIntensity * 30; // More reactive lightness
 
         const rgb = this.hslToRgb(hue / 360, saturation / 100, lightness / 100);
 
