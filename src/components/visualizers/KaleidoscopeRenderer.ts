@@ -384,7 +384,7 @@ export class KaleidoscopeRenderer {
     bassIntensity: number,
     midIntensity: number,
     trebleIntensity: number,
-    segmentAngle: number
+    _segmentAngle: number
   ): void {
     // More kaleidoscopic: Add additional nested patterns for depth
     const layerCount = (3 * this.qualityScale) | 0;

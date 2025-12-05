@@ -7,7 +7,7 @@ module.exports = {
       // ============================================
       // PRODUCTION CONFIGURATION
       // ============================================
-      name: 'starchild-music-frontend-prod',
+      name: 'starchild-next',
       script: 'node_modules/next/dist/bin/next',
       args: 'start --port 3222 --update-env',
 
@@ -29,8 +29,8 @@ module.exports = {
       autorestart: true, // Auto-restart on crash
       max_restarts: 10, // Max restarts within restart_delay window
       restart_delay: 4000, // Wait 4s before restart
-      kill_timeout: 5000, // Grace period before force kill (5s)
-      listen_timeout: 3000, // Wait 3s for app to be ready
+      kill_timeout: 10000, // Grace period before force kill (10s)
+      listen_timeout: 10000, // Wait 10s for app to be ready (increased for DB connection)
 
       // Exponential backoff for restarts (prevents crash loops)
       exp_backoff_restart_delay: 100,

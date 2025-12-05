@@ -59,9 +59,9 @@ export class FlowFieldRenderer {
   private currentPattern: Pattern = 'rays';
   private nextPattern: Pattern = 'fractal';
   private patternTimer = 0;
-  private patternDuration = 600; // Frames before transition (10 seconds at 60fps)
+  private patternDuration = 300; // Frames before transition (5 seconds at 60fps) - faster transitions
   private transitionProgress = 0;
-  private transitionSpeed = 0.02;
+  private transitionSpeed = 0.04; // Faster transition speed
   private isTransitioning = false;
   private patternSequence: Pattern[] = [
     'rays', 'fractal', 'tunnel', 'bubbles', 'voronoi',
@@ -168,13 +168,13 @@ export class FlowFieldRenderer {
   // ═══════════════════════════════════════════════════════════════════════════
 
   private updatePatternTransition(audioIntensity: number): void {
-    // Faster transitions with high audio intensity
-    const dynamicDuration = Math.max(300, this.patternDuration - audioIntensity * 200);
+    // Much faster transitions with high audio intensity - more reactive
+    const dynamicDuration = Math.max(150, this.patternDuration - audioIntensity * 250);
 
     this.patternTimer++;
 
     if (this.isTransitioning) {
-      this.transitionProgress += this.transitionSpeed * (1 + audioIntensity * 0.5);
+      this.transitionProgress += this.transitionSpeed * (1 + audioIntensity * 1.5); // More reactive to audio
 
       if (this.transitionProgress >= 1) {
         this.transitionProgress = 0;
@@ -294,17 +294,7 @@ export class FlowFieldRenderer {
       }
     }
 
-    // Central glow
-    const glowGradient = ctx.createRadialGradient(
-      this.centerX, this.centerY, 0,
-      this.centerX, this.centerY, 100 + bassIntensity * 100
-    );
-    glowGradient.addColorStop(0, `hsla(${this.hueBase}, 100%, 80%, ${0.4 + audioIntensity * 0.3})`);
-    glowGradient.addColorStop(0.5, `hsla(${this.hueBase}, 90%, 60%, ${0.2 + audioIntensity * 0.2})`);
-    glowGradient.addColorStop(1, `hsla(${this.hueBase}, 80%, 40%, 0)`);
-
-    ctx.fillStyle = glowGradient;
-    ctx.fillRect(0, 0, this.width, this.height);
+    // Central glow removed - keeping only rays
 
     ctx.restore();
   }
@@ -965,23 +955,23 @@ export class FlowFieldRenderer {
   render(dataArray: Uint8Array, bufferLength: number): void {
     const ctx = this.ctx;
 
-    // Calculate audio metrics
+    // Calculate audio metrics - more reactive
     const avgFrequency = dataArray.reduce((sum, val) => sum + val, 0) / bufferLength;
-    const audioIntensity = Math.min(1, avgFrequency / 128); // More reactive
+    const audioIntensity = Math.min(1, avgFrequency / 100); // More sensitive
     const bassIntensity = this.getFrequencyBandIntensity(dataArray, bufferLength, 0, 0.15);
     const midIntensity = this.getFrequencyBandIntensity(dataArray, bufferLength, 0.15, 0.5);
     const trebleIntensity = this.getFrequencyBandIntensity(dataArray, bufferLength, 0.5, 1.0);
 
-    // Update globals
+    // Update globals - faster hue rotation, more reactive
     this.time += 1;
-    this.hueBase = (this.hueBase + 0.3 + bassIntensity * 1.5) % 360;
+    this.hueBase = (this.hueBase + 0.5 + bassIntensity * 2.5) % 360; // Faster color changes
 
     // Update pattern transitions
     this.updatePatternTransition(audioIntensity);
 
-    // Clear with fade
+    // Clear with fade - more reactive to audio
     const fadeAmount = this.currentPattern === 'swarm' ? 0.15 : 0.08;
-    ctx.fillStyle = `rgba(0, 0, 0, ${fadeAmount + audioIntensity * 0.05})`;
+    ctx.fillStyle = `rgba(0, 0, 0, ${fadeAmount + audioIntensity * 0.1})`; // More responsive fade
     ctx.fillRect(0, 0, this.width, this.height);
 
     // Render current pattern
@@ -1058,7 +1048,7 @@ export class FlowFieldRenderer {
     for (let i = startIndex; i < endIndex; i++) {
       sum += dataArray[i] ?? 0;
     }
-    return Math.min(1, sum / (endIndex - startIndex) / 128); // More reactive
+    return Math.min(1, sum / (endIndex - startIndex) / 100); // More reactive - lower threshold
   }
 
   private hslToRgb(h: number, s: number, l: number): [number, number, number] {

@@ -33,4 +33,7 @@ const handler = (req: NextRequest) =>
         : undefined,
   });
 
+// Mark as dynamic to prevent Next.js from trying to analyze during build
+export const dynamic = "force-dynamic";
+
 export { handler as GET, handler as POST };

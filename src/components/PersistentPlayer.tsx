@@ -54,9 +54,6 @@ export default function PersistentPlayer() {
   const [showQueue, setShowQueue] = useState(false);
   const [showEqualizer, setShowEqualizer] = useState(false);
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
-  const [visualizerEnsureToken, setVisualizerEnsureToken] = useState(0);
-  const [heroVisible, setHeroVisible] = useState(true);
-  const [hasInteracted, setHasInteracted] = useState(false);
 
   // Sync state with database preferences when they load
   useEffect(() => {
