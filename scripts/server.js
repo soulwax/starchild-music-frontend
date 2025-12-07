@@ -36,49 +36,111 @@ dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 // ============================================
 const isDev = nodeEnv === 'development';
 const port = process.env.PORT || (isDev ? 3412 : 3222);
-const hostname = process.env.HOSTNAME || 'localhost';
+const hostname = process.env.NEXTAUTH_URL || `locahost:${port}`;
 
 // ============================================
-// CENTRALIZED LOGGING
+// CENTRALIZED LOGGING WITH CHALK
 // ============================================
-const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  dim: '\x1b[2m',
-  cyan: '\x1b[36m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  red: '\x1b[31m',
+const logger = {
+  info: (message) => {
+    const timestamp = chalk.gray(`[${new Date().toISOString()}]`);
+    console.log(`${timestamp} ${chalk.cyan('ℹ')} ${message}`);
+  },
+
+  success: (message) => {
+    const timestamp = chalk.gray(`[${new Date().toISOString()}]`);
+    console.log(`${timestamp} ${chalk.green('✓')} ${message}`);
+  },
+
+  warn: (message) => {
+    const timestamp = chalk.gray(`[${new Date().toISOString()}]`);
+    console.log(`${timestamp} ${chalk.yellow('⚠')} ${message}`);
+  },
+
+  error: (message) => {
+    const timestamp = chalk.gray(`[${new Date().toISOString()}]`);
+    console.error(`${timestamp} ${chalk.red('✗')} ${message}`);
+  },
+
+  debug: (message) => {
+    const timestamp = chalk.gray(`[${new Date().toISOString()}]`);
+    console.log(`${timestamp} ${chalk.magenta('⚙')} ${chalk.dim(message)}`);
+  },
+
+  section: (title, icon = '🎵') => {
+    const line = chalk.cyan.bold('═'.repeat(70));
+    console.log(`\n${line}`);
+    console.log(chalk.cyan.bold(`  ${icon} ${title}`));
+    console.log(`${line}\n`);
+  },
 };
 
-function log(message, color = colors.cyan) {
-  const timestamp = new Date().toISOString();
-  console.log(`${colors.dim}[${timestamp}]${colors.reset} ${color}${message}${colors.reset}`);
-}
+// ============================================
+// SYSTEM INFO
+// ============================================
+function getSystemInfo() {
+  const cpus = os.cpus();
+  const totalMemory = (os.totalmem() / 1024 / 1024 / 1024).toFixed(2);
+  const freeMemory = (os.freemem() / 1024 / 1024 / 1024).toFixed(2);
 
-function logSection(title) {
-  console.log(`\n${colors.bright}${colors.cyan}${'='.repeat(60)}${colors.reset}`);
-  console.log(`${colors.bright}${colors.cyan}  ${title}${colors.reset}`);
-  console.log(`${colors.bright}${colors.cyan}${'='.repeat(60)}${colors.reset}\n`);
+  return {
+    platform: os.platform(),
+    arch: os.arch(),
+    cpuModel: cpus[0]?.model || 'Unknown',
+    cpuCores: cpus.length,
+    totalMemory: `${totalMemory} GB`,
+    freeMemory: `${freeMemory} GB`,
+    nodeVersion: process.version,
+  };
 }
 
 // ============================================
 // STARTUP BANNER
 // ============================================
 function printStartupBanner() {
-  logSection('🎵 Starchild Music Frontend Server');
+  console.clear();
 
-  log(`Environment:     ${colors.bright}${nodeEnv}${colors.reset}`, colors.green);
-  log(`Port:            ${colors.bright}${port}${colors.reset}`, colors.green);
-  log(`Hostname:        ${colors.bright}${hostname}${colors.reset}`, colors.green);
-  log(`Mode:            ${colors.bright}${isDev ? 'Development (Turbo)' : 'Production'}${colors.reset}`, colors.green);
-  log(`Process ID:      ${colors.bright}${process.pid}${colors.reset}`, colors.green);
-  log(`Node Version:    ${colors.bright}${process.version}${colors.reset}`, colors.green);
+  logger.section('Starchild Music Frontend Server', '🎵');
+
+  // Environment Configuration
+  console.log(chalk.bold('  Environment Configuration:'));
+  console.log(`    ${chalk.gray('•')} Environment:     ${chalk.bold.cyan(nodeEnv.toUpperCase())}`);
+  console.log(`    ${chalk.gray('•')} Port:            ${chalk.bold.green(port)}`);
+  console.log(`    ${chalk.gray('•')} Hostname:        ${chalk.bold.blue(hostname)}`);
+  console.log(`    ${chalk.gray('•')} Mode:            ${chalk.bold.yellow(isDev ? 'Development (Turbo)' : 'Production')}`);
+  console.log(`    ${chalk.gray('•')} Process ID:      ${chalk.bold.magenta(process.pid)}\n`);
+
+  // System Information
+  const sysInfo = getSystemInfo();
+  console.log(chalk.bold('  System Information:'));
+  console.log(`    ${chalk.gray('•')} Platform:        ${chalk.white(sysInfo.platform)} (${sysInfo.arch})`);
+  console.log(`    ${chalk.gray('•')} Node Version:    ${chalk.white(sysInfo.nodeVersion)}`);
+  console.log(`    ${chalk.gray('•')} CPU:             ${chalk.white(sysInfo.cpuCores + 'x ' + sysInfo.cpuModel)}`);
+  console.log(`    ${chalk.gray('•')} Memory:          ${chalk.white(sysInfo.freeMemory)} free of ${chalk.white(sysInfo.totalMemory)}\n`);
+
+  // Database Configuration
+  if (process.env.DB_HOST) {
+    console.log(chalk.bold('  Database Configuration:'));
+    console.log(`    ${chalk.gray('•')} Host:            ${chalk.white(process.env.DB_HOST)}`);
+    console.log(`    ${chalk.gray('•')} Port:            ${chalk.white(process.env.DB_PORT)}`);
+    console.log(`    ${chalk.gray('•')} Database:        ${chalk.white(process.env.DB_NAME)}`);
+    console.log(`    ${chalk.gray('•')} User:            ${chalk.white(process.env.DB_ADMIN_USER)}\n`);
+  }
+
+  // API Configuration
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    console.log(chalk.bold('  API Configuration:'));
+    console.log(`    ${chalk.gray('•')} API URL:         ${chalk.white(process.env.NEXT_PUBLIC_API_URL)}`);
+    if (process.env.SONGBIRD_PUBLIC_API_URL) {
+      console.log(`    ${chalk.gray('•')} Songbird API:    ${chalk.white(process.env.SONGBIRD_PUBLIC_API_URL)}`);
+    }
+    console.log('');
+  }
 
   if (isDev) {
-    log(`\n${colors.yellow}⚡ Running in development mode with Turbopack${colors.reset}`);
+    logger.warn('Running in development mode with hot reload enabled');
+  } else {
+    logger.info('Running in production mode');
   }
 
   console.log('');
@@ -99,13 +161,14 @@ function startServer() {
     '--hostname', hostname,
   ];
 
-  // Add turbo flag only in development
+  // Add turbo flag only in development and expose to all interfaces
   if (isDev) {
-    args.push('--turbo');
+    args.push('--turbo', '--hostname', '0.0.0.0');
   }
 
-  log(`Starting Next.js server...`, colors.blue);
-  log(`Command: node ${args.join(' ')}`, colors.dim);
+  logger.info(`Starting Next.js ${isDev ? 'development' : 'production'} server...`);
+  logger.debug(`Command: node ${args.join(' ')}`);
+  console.log('');
 
   const serverProcess = spawn('node', args, {
     env: {
@@ -113,24 +176,22 @@ function startServer() {
       NODE_ENV: nodeEnv,
       PORT: port.toString(),
       HOSTNAME: hostname,
+      NEXT_TELEMETRY_DISABLED: '1', // Disable telemetry for cleaner logs
     },
     stdio: 'inherit',
   });
 
   serverProcess.on('error', (error) => {
-    console.error(`\n${colors.red}❌ Server Error:${colors.reset}`, error);
+    logger.error(`Server Error: ${error.message}`);
     process.exit(1);
   });
 
   serverProcess.on('exit', (code, signal) => {
     if (code !== 0) {
-      console.error(`\n${colors.red}❌ Server exited with code ${code}${colors.reset}`);
-      if (signal) {
-        console.error(`${colors.red}   Signal: ${signal}${colors.reset}`);
-      }
+      logger.error(`Server exited with code ${code}${signal ? ` (Signal: ${signal})` : ''}`);
       process.exit(code || 1);
     } else {
-      log(`Server stopped gracefully`, colors.green);
+      logger.success('Server stopped gracefully');
       process.exit(0);
     }
   });
@@ -139,24 +200,65 @@ function startServer() {
   const signals = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
   signals.forEach((signal) => {
     process.on(signal, () => {
-      log(`\nReceived ${signal}, shutting down gracefully...`, colors.yellow);
-      const singalInt = parseInt(signal === 'SIGINT' ? '2' : signal === 'SIGTERM' ? '15' : '12', 10);
-      serverProcess.kill(singalInt);
+      logger.warn(`Received ${signal}, shutting down gracefully...`);
+      serverProcess.kill(signal);
     });
   });
 
-  // Log when server is ready (capture Next.js output)
-  // Note: Next.js will still print its own messages
+  // Log when server is ready
   setTimeout(() => {
-    logSection('🚀 Server Ready');
-    log(`Local:           ${colors.bright}${colors.green}http://${hostname}:${port}${colors.reset}`, colors.green);
-    log(`Network:         ${colors.bright}Use --hostname 0.0.0.0 to expose${colors.reset}`, colors.dim);
+    logger.section('Server Ready', '🚀');
+
+    const localUrl = `http://${hostname}:${port}`;
+    console.log(`    ${chalk.bold('Local:')}     ${chalk.green.bold.underline(localUrl)}`);
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      // Try to get network interfaces
+      const interfaces = os.networkInterfaces();
+      const networkAddresses = [];
+
+      for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name]) {
+          if (iface.family === 'IPv4' && !iface.internal) {
+            networkAddresses.push(iface.address);
+          }
+        }
+      }
+
+      if (networkAddresses.length > 0) {
+        console.log(`    ${chalk.bold('Network:')}   ${chalk.cyan(`http://${networkAddresses[0]}:${port}`)}`);
+      } else {
+        console.log(`    ${chalk.bold('Network:')}   ${chalk.dim('Use --hostname 0.0.0.0 to expose')}`);
+      }
+    }
+
+    console.log('');
 
     if (isDev) {
-      log(`\n${colors.cyan}Ready for changes. Press Ctrl+C to stop.${colors.reset}`);
+      logger.info(chalk.cyan('Ready for changes. Press Ctrl+C to stop.'));
+    } else {
+      logger.info(chalk.green('Production server is running'));
     }
+
     console.log('');
   }, 2000);
+}
+
+// ============================================
+// PERFORMANCE MONITORING
+// ============================================
+if (isDev) {
+  // Monitor memory usage in development
+  setInterval(() => {
+    const memUsage = process.memoryUsage();
+    const heapUsed = (memUsage.heapUsed / 1024 / 1024).toFixed(2);
+    const heapTotal = (memUsage.heapTotal / 1024 / 1024).toFixed(2);
+
+    // Only log if memory usage is high (>1GB)
+    if (memUsage.heapUsed > 1024 * 1024 * 1024) {
+      logger.warn(`Memory usage: ${heapUsed} MB / ${heapTotal} MB`);
+    }
+  }, 60000); // Check every minute
 }
 
 // ============================================
@@ -165,6 +267,7 @@ function startServer() {
 try {
   startServer();
 } catch (error) {
-  console.error(`\n${colors.red}❌ Failed to start server:${colors.reset}`, error);
+  logger.error(`Failed to start server: ${error.message}`);
+  console.error(error);
   process.exit(1);
 }
