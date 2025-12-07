@@ -70,7 +70,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
       />
 
       {/* Compact Floating Panel */}
-      <div className="animate-in slide-in-from-right fixed top-4 right-4 z-50 max-h-[calc(100vh-180px)] w-full max-w-sm duration-300 sm:top-20 sm:right-6">
+      <div className="animate-in slide-in-from-right fixed top-4 right-4 z-50 max-h-[calc(100vh-180px)] w-full max-w-md duration-300 sm:top-20 sm:right-6 sm:max-w-lg">
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[rgba(244,178,102,0.16)] bg-[rgba(10,16,24,0.95)] shadow-[0_28px_60px_rgba(5,10,18,0.65)] backdrop-blur-xl">
           {/* Magical glow effect when enabled */}
           {equalizer.isEnabled && (
@@ -169,8 +169,8 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                   </div>
 
                   {/* Compact Frequency Bands */}
-                  <div className="relative p-6">
-                    <div className="flex items-end justify-between gap-3">
+                  <div className="relative p-4 sm:p-6">
+                    <div className="flex items-end justify-between gap-1.5 sm:gap-2 md:gap-3">
                       {equalizer.bands.map((band, index) => {
                         const percentage = ((band.gain + 12) / 24) * 100;
                         const isHovered = hoveredBand === index;
@@ -186,7 +186,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                             {/* Gain value with glow */}
                             <div className="relative">
                               <span
-                                className={`text-xs font-bold transition-all duration-200 ${
+                                className={`text-[10px] font-bold transition-all duration-200 sm:text-xs ${
                                   equalizer.isEnabled && band.gain !== 0
                                     ? "text-[var(--color-text)]"
                                     : "text-[var(--color-muted)]"
@@ -196,7 +196,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                                 {band.gain.toFixed(1)}
                               </span>
                               {equalizer.isEnabled && band.gain !== 0 && (
-                                <span className="absolute inset-0 animate-pulse text-xs font-bold text-[var(--color-accent)] opacity-50 blur-sm">
+                                <span className="absolute inset-0 animate-pulse text-[10px] font-bold text-[var(--color-accent)] opacity-50 blur-sm sm:text-xs">
                                   {band.gain > 0 ? "+" : ""}
                                   {band.gain.toFixed(1)}
                                 </span>
@@ -204,7 +204,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                             </div>
 
                             {/* Compact Slider - reduced height */}
-                            <div className="relative h-32 w-8">
+                            <div className="relative h-32 w-6 sm:w-7 md:w-8">
                               <input
                                 type="range"
                                 min={-12}
