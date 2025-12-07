@@ -226,14 +226,10 @@ export class FlowFieldRenderer {
     const starCount = 20 + Math.floor(Math.random() * 15);
 
     for (let i = 0; i < starCount; i++) {
-      const connections: number[] = [];
-      // Connect to 2-4 nearby stars
-      const connectionCount = 2 + Math.floor(Math.random() * 3);
-
       this.constellationStars.push({
         x: Math.random() * this.width,
         y: Math.random() * this.height,
-        connections,
+        connections: [],
       });
     }
 
@@ -1165,15 +1161,14 @@ export class FlowFieldRenderer {
     if ((bassIntensity > 0.6 && Math.random() > 0.85) || this.lightningBolts.length < 2) {
       const startX = Math.random() * this.width;
       const startY = 0;
-      const endX = Math.random() * this.width;
-      const endY = this.height;
+      const targetY = this.height;
 
       const segments: { x: number; y: number }[] = [{ x: startX, y: startY }];
       let currentX = startX;
       let currentY = startY;
 
       // Generate jagged lightning path
-      while (currentY < endY) {
+      while (currentY < targetY) {
         currentY += 20 + Math.random() * 40;
         currentX += (Math.random() - 0.5) * 60 * (1 + trebleIntensity);
         segments.push({ x: currentX, y: currentY });
@@ -1687,8 +1682,7 @@ export class FlowFieldRenderer {
     }
 
     // Draw connections
-    for (let i = 0; i < this.constellationStars.length; i++) {
-      const star = this.constellationStars[i];
+    for (const star of this.constellationStars) {
       if (!star) continue;
 
       for (const connIdx of star.connections) {
