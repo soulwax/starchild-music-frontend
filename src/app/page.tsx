@@ -1,7 +1,6 @@
 // File: src/app/page.tsx
+"use client";
 
-import { env } from "@/env";
-import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export async function generateMetadata(props: {
