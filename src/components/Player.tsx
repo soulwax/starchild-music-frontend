@@ -5,10 +5,12 @@
 import { PLAYBACK_RATES } from "@/config/player";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import type { Track } from "@/types";
-import { hapticLight, hapticMedium } from "@/utils/haptics";
+import { hapticLight, hapticMedium, hapticSuccess } from "@/utils/haptics";
 import { formatTime } from "@/utils/time";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { Heart } from "lucide-react";
+import { api } from "@/trpc/react";
 
 interface PlayerProps {
   currentTrack: Track | null;
@@ -69,7 +71,48 @@ export default function MaturePlayer({
 }: PlayerProps) {
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
+
+  const utils = api.useUtils();
+
+  // Favorite queries and mutations
+  const { data: favoriteData } = api.music.isFavorite.useQuery(
+    { trackId: currentTrack?.id ?? 0 },
+    { enabled: !!currentTrack },
+  );
+
+  const addFavorite = api.music.addFavorite.useMutation({
+    onSuccess: async () => {
+      if (currentTrack) {
+        await utils.music.isFavorite.invalidate({ trackId: currentTrack.id });
+        await utils.music.getFavorites.invalidate();
+      }
+    },
+  });
+
+  const removeFavorite = api.music.removeFavorite.useMutation({
+    onSuccess: async () => {
+      if (currentTrack) {
+        await utils.music.isFavorite.invalidate({ trackId: currentTrack.id });
+        await utils.music.getFavorites.invalidate();
+      }
+    },
+  });
+
+  const toggleFavorite = () => {
+    if (!currentTrack) return;
+
+    if (favoriteData?.isFavorite) {
+      hapticLight();
+      removeFavorite.mutate({ trackId: currentTrack.id });
+    } else {
+      hapticSuccess();
+      addFavorite.mutate({ track: currentTrack });
+    }
+    setIsHeartAnimating(true);
+    setTimeout(() => setIsHeartAnimating(false), 600);
+  };
 
   // Wrapper functions with haptic feedback
   const handlePlayPause = () => {
@@ -191,6 +234,24 @@ export default function MaturePlayer({
               {currentTrack.artist.name}
             </p>
           </div>
+
+          {/* Favorite Button */}
+          <button
+            onClick={toggleFavorite}
+            disabled={addFavorite.isPending || removeFavorite.isPending}
+            className={`rounded-full p-2 transition-all ${
+              favoriteData?.isFavorite
+                ? "text-red-500 hover:text-red-400"
+                : "text-[var(--color-subtext)] hover:text-[var(--color-text)]"
+            } ${addFavorite.isPending || removeFavorite.isPending ? "opacity-50" : ""}`}
+            title={favoriteData?.isFavorite ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Heart
+              className={`h-5 w-5 transition-transform ${
+                favoriteData?.isFavorite ? "fill-current" : ""
+              } ${isHeartAnimating ? "scale-125" : ""}`}
+            />
+          </button>
         </div>
 
         {/* Main Controls */}
