@@ -5,6 +5,44 @@ All notable changes to Starchild Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-12-08
+
+### Added
+
+#### Visual Enhancements
+
+- **23 New Mystical Visualizer Patterns**: Added arcane and mystical patterns to the flow field visualizer
+  - Sacred Geometry: Pentagram, Flower of Life, Sri Yantra, Metatron's Cube, Vesica Piscis
+  - Mystical Symbols: Runes, Sigils, Ouroboros, Chakras, Alchemy symbols
+  - Celestial: Celestial bodies, Portal effects, Astrolabe, Moon Phases, Tarot cards
+  - Spiritual: Dreamcatcher, Phoenix, Serpent, Crystal Grid, Kabbalah Tree of Life
+  - Sacred Patterns: Merkaba, Torus Field, Cosmic Egg
+- **Pattern Randomization**: Implemented Fisher-Yates shuffle algorithm for randomized pattern transitions
+- **Auto Re-shuffle**: Patterns automatically re-shuffle when completing a full cycle for continuous variety
+
+### Changed
+
+- **Visualizer Pattern Duration**: Halved pattern transition duration from 600 to 300 frames for more dynamic visual experience
+- **Dynamic Duration Range**: Adjusted minimum dynamic duration from 300 to 150 frames based on audio intensity
+- **Total Pattern Count**: Increased from 22 to 45 unique visualizer patterns
+
+### Fixed
+
+- **TypeScript Compilation**: Fixed implicit 'any' type errors in custom server script
+- **PM2 Startup**: Resolved PM2 process manager startup issues
+  - Fixed hostname configuration to use HOSTNAME env variable instead of NEXTAUTH_URL
+  - Added explicit Node.js interpreter configuration for both production and development modes
+- **Server Configuration**: Fixed DNS resolution errors caused by protocol prefix in hostname
+- **Network Interface Handling**: Added proper null checks for network interface iteration
+- **Error Type Safety**: Improved error handling in catch blocks with proper type guards
+
+### Technical Improvements
+
+- **JSDoc Annotations**: Added comprehensive JSDoc type annotations to server utility functions
+- **Build System**: Improved TypeScript strict mode compliance across build scripts
+- **Pattern Architecture**: Implemented scalable pattern management system with type-safe pattern definitions
+- **Audio Reactivity**: All new patterns feature full audio reactivity with bass, mid, and treble frequency responses
+
 ## [0.3.0] - 2025-12-04
 
 ### Added - Electron Desktop Application
