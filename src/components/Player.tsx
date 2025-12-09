@@ -8,7 +8,7 @@ import type { Track } from "@/types";
 import { hapticLight, hapticMedium, hapticSuccess } from "@/utils/haptics";
 import { formatTime } from "@/utils/time";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { api } from "@/trpc/react";
 
