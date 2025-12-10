@@ -103,6 +103,86 @@ module.exports = {
       health_check_fatal_exceptions: true, // Treat health check failures as fatal (restart the app)
       health_check_url: `http://localhost:${process.env.PORT}/api/health`, // Health check endpoint - uses PORT from .env
     },
+    {
+      // ============================================
+      // DEVELOPMENT CONFIGURATION
+      // ============================================
+      name: "starchild-music-frontend-dev",
+      script: "scripts/server.js",
+      args: "",
+      interpreter: "node",
+      instances: 1,
+      exec_mode: "fork",
+
+      // ============================================
+      // MEMORY MANAGEMENT
+      // ============================================
+      max_memory_restart: "2G",
+      min_uptime: "30s",
+
+      // ============================================
+      // AUTO-RESTART & ERROR HANDLING
+      // ============================================
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 5000,
+      kill_timeout: 5000,
+      listen_timeout: 10000,
+      wait_ready: true,
+
+      // Exponential backoff for restarts
+      exp_backoff_restart_delay: 100,
+
+      // No pre-start hook for dev (no build needed)
+
+      // ============================================
+      // ENVIRONMENT & VARIABLES
+      // ============================================
+      env: {
+        NODE_ENV: "development",
+        PORT: process.env.DEV_PORT,
+      },
+      env_development: {
+        NODE_ENV: "development",
+        PORT: process.env.DEV_PORT,
+      },
+
+      // ============================================
+      // LOGGING
+      // ============================================
+      combine_logs: true,
+      merge_logs: true,
+
+      // Separate log files for dev
+      error_file: "./logs/pm2/dev-error.log",
+      out_file: "./logs/pm2/dev-out.log",
+      log_file: "./logs/pm2/dev-combined.log",
+
+      // Log formatting
+      time: true,
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+
+      // ============================================
+      // PROCESS MONITORING
+      // ============================================
+      // Watch mode enabled for development
+      watch: true,
+      ignore_watch: ["node_modules", "logs", ".next", "dist", "drizzle"],
+
+      // ============================================
+      // ADVANCED OPTIONS
+      // ============================================
+      shutdown_with_message: true,
+      source_map_support: true,
+      instance_var: "INSTANCE_ID",
+
+      // ============================================
+      // HEALTH CHECKS & MONITORING
+      // ============================================
+      health_check_grace_period: 5000,
+      health_check_fatal_exceptions: true,
+      health_check_url: `http://localhost:${process.env.DEV_PORT}/api/health`, // Health check endpoint - uses DEV_PORT from .env
+    },
   ],
 
   // ============================================
