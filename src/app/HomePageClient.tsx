@@ -478,7 +478,7 @@ export default function HomePageClient() {
                   <Music2 className="h-10 w-10 text-[var(--color-accent)] md:h-12 md:w-12" />
                 </motion.div>
                 <h3 className="mb-2 text-lg font-bold text-[var(--color-text)] md:text-xl">
-                  Explore Starchild Music
+                  Explore the isobelnet.de audio library
                 </h3>
                 <p className="max-w-md px-4 text-sm text-[var(--color-subtext)] md:text-base">
                   Search for songs, artists, albums - anything you want to
