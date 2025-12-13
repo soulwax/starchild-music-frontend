@@ -55,11 +55,11 @@ export async function generateMetadata({
 
   // Default metadata
   const defaultMetadata: Metadata = {
-    title: "Starchild Music Stream",
+    title: "Isobelnet.de",
     description:
       "Modern music streaming and discovery platform with smart recommendations",
     openGraph: {
-      title: "Starchild Music Stream",
+      title: "Isobelnet.de",
       description:
         "Modern music streaming and discovery platform with smart recommendations",
       type: "website",
@@ -76,7 +76,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: "Starchild Music Stream",
+      title: "Isobelnet.de",
       description:
         "Modern music streaming and discovery platform with smart recommendations",
     },

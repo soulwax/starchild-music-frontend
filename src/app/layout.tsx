@@ -29,13 +29,13 @@ const geist = Geist({
 const baseUrl = getBaseUrl();
 
 export const metadata: Metadata = {
-  title: "Starchild Music Stream",
+  title: "Isobelnet.de",
   description:
     "Modern music streaming and discovery platform with smart recommendations",
   applicationName: "Starchild Music",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   openGraph: {
-    title: "Starchild Music Stream",
+    title: "Isobelnet.de",
     description:
       "Modern music streaming and discovery platform with smart recommendations",
     type: "website",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Starchild Music Stream",
+    title: "Isobelnet.de",
     description:
       "Modern music streaming and discovery platform with smart recommendations",
   },
