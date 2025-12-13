@@ -18,15 +18,15 @@ import SuppressExtensionErrors from "@/components/SuppressExtensionErrors";
 import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
 import { MobilePanesProvider } from "@/contexts/MobilePanesContext";
 import { ToastProvider } from "@/contexts/ToastContext";
-import { env } from "@/env";
 import { TRPCReactProvider } from "@/trpc/react";
+import { getBaseUrl } from "@/utils/getBaseUrl";
 
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
 });
 
-const baseUrl = env.NEXT_PUBLIC_NEXTAUTH_URL || "https://play.isobelnet.de";
+const baseUrl = getBaseUrl();
 
 export const metadata: Metadata = {
   title: "Starchild Music Stream",

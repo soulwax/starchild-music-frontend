@@ -1,12 +1,13 @@
 // File: src/app/page.tsx
 
-import { Suspense } from "react";
-import HomePageClient from "./HomePageClient";
-import { type Metadata } from "next";
 import { env } from "@/env";
 import type { SearchResponse, Track } from "@/types";
+import { getBaseUrl } from "@/utils/getBaseUrl";
+import { type Metadata } from "next";
+import { Suspense } from "react";
+import HomePageClient from "./HomePageClient";
 
-const baseUrl = env.NEXT_PUBLIC_NEXTAUTH_URL || "https://play.isobelnet.de";
+const baseUrl = getBaseUrl();
 
 async function getFirstTrackFromSearch(query: string): Promise<Track | null> {
   try {
