@@ -379,6 +379,16 @@ function startServer() {
       logger.info(chalk.green("Production server is running"));
     }
 
+    // Notify PM2 that the app is ready when using wait_ready: true
+    if (typeof process.send === "function") {
+      try {
+        // PM2 convention: send 'ready' to signal successful startup
+        process.send("ready");
+      } catch {
+        // Ignore if not running under PM2 or IPC channel is unavailable
+      }
+    }
+
     console.log("");
   }, 2000);
 }
