@@ -5,13 +5,25 @@ All notable changes to darkfloor.art will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [0.6.5] - 2025-12-23
+
+### Changed
+
+- **FlowFieldRenderer performance reworks (drastic)**:
+  - **Quantum Entanglement**: heavy rewrite using aggressive LOD, temporal subsampling, quadratic curves, reduced glow, and `fillRect` particles to avoid browser FPS collapse.
+  - **Void Whisper**: reduced fidelity (fewer layers/particles), removed most per-frame gradients, simplified tendrils, and reduced core layering.
+  - **Spectral Echo**: reduced layers/segments, added temporal subsampling, removed particle/beam gradients and trails, and simplified the core.
+  - **Twilight Zone**: removed per-zone gradients; replaced with cheap ring strokes + sparse sparkles and fewer wisps/core layers.
+  - **Demonic Gate**: reduced particle/entity/tendril/sigil counts, removed tendril gradients, simplified sigils, and reduced shadow costs.
+  - **Shadow Dance**: removed trail/beam gradients, reduced dancer complexity, simplified trails/wisps, and reduced center layers.
 
 ### Changed
 
 - **FlowFieldRenderer Hyper-Optimization**: Replaced remaining `Math.sin`, `Math.cos`, and `Math.sqrt` hot paths with fast trig/fast sqrt helpers across all mystical visual patterns (including ShadowRealm, QuantumEntanglement, NecromanticSigil, DimensionalRift, ChaosVortex, EtherealMist, BloodMoon, DarkMatter, SoulFragment, ForbiddenRitual, TwilightZone, SpectralEcho, VoidWhisper, DemonicGate, CursedRunes, ShadowDance, NightmareFuel).
 - **Performance & Visual Fidelity**: Pre-calculated common constants, angle steps, and hue offsets; reduced per-frame allocations; enhanced gradients and glow layers for deeper, more responsive visuals without extra CPU cost.
 - **Pattern Infrastructure**: Tightened use of cached HSLA color strings, fast modulo for hues, and object pooling in the visualizer pipeline to keep frame times stable even under heavy audio-reactive scenes.
+
 
 ## [0.6.4] - 2025-12-21
 

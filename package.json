@@ -1,6 +1,6 @@
 {
   "name": "darkfloor-art",
-  "version": "0.6.6",
+  "version": "0.6.5",
   "description": "A modern music streaming and discovery platform with intelligent recommendations, advanced audio features, and a beautiful user interface",
   "private": true,
   "type": "module",
@@ -67,7 +67,7 @@
     "typecheck": "tsc --noEmit",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3412 && electron .\"",
     "electron:prod": "node scripts/load-env-build.js \"cross-env ELECTRON_BUILD=true ELECTRON_PROD=true next build && npm run electron:prepare && electron .\"",
-    "electron:prod:win": "npm run electron:build:win && \".\\dist\\darkfloor Setup 0.6.6.exe\"",
+    "electron:prod:win": "npm run electron:build:win && \".\\dist\\darkfloor Setup 0.6.7.exe\"",
     "electron:prepare": "node scripts/load-env-build.js \"node electron/prepare-package.js\"",
     "electron:clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
     "electron:build": "npm run electron:clean && node scripts/load-env-build.js \"cross-env ELECTRON_BUILD=true next build\" && npm run electron:prepare && electron-builder",
