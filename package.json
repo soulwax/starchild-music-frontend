@@ -35,6 +35,7 @@
     }
   ],
   "scripts": {
+    "prebuild": "npm run db:generate && npm run db:migrate & npm run db:push",
     "clean": "rm -rf .next node_modules .turbo dist",
     "clean:win": "rmdir /s /q .next && rmdir /s /q node_modules && rmdir /s /q .turbo && rmdir /s /q dist",
     "build:analyzer": "cross-env ANALYZE=true next build",

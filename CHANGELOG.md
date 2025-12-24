@@ -36,6 +36,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Device Test Matrix**: Cross-platform testing requirements
   - **Resources & References**: Learning materials and technical documentation
 
+### Changed
+
+#### Electron Build Environment Configuration
+
+- **Unified Environment Configuration**: Electron builds now EXCLUSIVELY use `.env.local`
+  - Removed loading of `.env`, `.env.development`, and `.env.production` files
+  - Simplified environment configuration to single source of truth
+  - Prevents conflicts between multiple environment files
+  - **Modified Files**:
+    - `scripts/load-env-build.js`: Now only loads `.env.local` (removed all other env file loading)
+    - `electron/main.cjs`: Only loads `.env.local` from project root or standalone directory
+    - `electron/prepare-package.js`: Automatically copies `.env.local` to standalone directory for packaged builds
+  - **Developer Impact**: All environment variables must be in `.env.local` only
+  - **Security**: `.env.local` already in `.gitignore` via `.env*.local` pattern
+
+#### Package Metadata Updates
+
+- **License**: Changed from MIT to GPLv3
+- **Product Name**: Changed from "darkfloor" to "Starchild" for Electron builds
+- **Executable Name**: Changed from "darkfloor" to "Starchild"
+- **Author**: Updated author information
+
 ### Technical Planning
 
 - **Migration Strategy**: Gradual, feature-flagged migration approach

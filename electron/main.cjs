@@ -1,29 +1,32 @@
 // File: electron/main.cjs
-// Load environment variables from .env.local first
+// Load environment variables from .env.local ONLY
 
 const path = require("path");
 const fs = require("fs");
 
-// Load dotenv if available (may not be present in packaged app)
+// ONLY load .env.local - no other env files
+// For dev: uses .env.local from project root
+// For packaged: uses .env.local copied to standalone directory
 try {
   const dotenv = require("dotenv");
+  
+  // Try project root first (development)
   const envLocalPath = path.resolve(__dirname, "../.env.local");
-  const envPath = path.resolve(__dirname, "../.env");
-  const standaloneEnvPath = path.resolve(__dirname, "../.next/standalone/.env");
+  // Try standalone directory (packaged build)
+  const standaloneEnvLocalPath = path.resolve(__dirname, "../.next/standalone/.env.local");
 
   if (fs.existsSync(envLocalPath)) {
     dotenv.config({ path: envLocalPath });
-  }
-  if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
-  }
-  // Also check for .env in standalone directory (for packaged builds)
-  if (fs.existsSync(standaloneEnvPath)) {
-    dotenv.config({ path: standaloneEnvPath });
+    console.log("[Electron] Loaded .env.local from project root");
+  } else if (fs.existsSync(standaloneEnvLocalPath)) {
+    dotenv.config({ path: standaloneEnvLocalPath });
+    console.log("[Electron] Loaded .env.local from standalone directory");
+  } else {
+    console.log("[Electron] No .env.local found - using system environment variables");
   }
 } catch (err) {
-  // dotenv not available or .env files don't exist - this is OK in production
-  console.log("[Electron] dotenv not available or .env files not found (this is normal in packaged apps)");
+  // dotenv not available - this is OK in production with system env vars
+  console.log("[Electron] dotenv not available (using system environment variables)");
 }
 
 // Log critical environment variables for debugging (mask sensitive values)
