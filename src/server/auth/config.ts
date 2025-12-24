@@ -21,6 +21,11 @@ declare module "next-auth" {
     } & DefaultSession["user"];
   }
 }
+// Debug logging for environment variables
+console.log("[NextAuth Config] ELECTRON_BUILD:", process.env.ELECTRON_BUILD);
+console.log("[NextAuth Config] NODE_ENV:", process.env.NODE_ENV);
+console.log("[NextAuth Config] DATABASE_URL:", process.env.DATABASE_URL ? "✓ Set" : "✗ Missing");
+
 export const authConfig = {
   trustHost: true, // Allow NextAuth to trust the host from request headers
   // Explicitly set the base URL from environment, with fallback for backward compatibility

@@ -23,21 +23,24 @@ const __dirname = path.dirname(__filename);
 // Store PM2-provided PORT before loading .env files (PM2 env vars should take precedence)
 const pm2Port = process.env.PORT;
 
-// Load .env first (base config)
-// Use override: false to preserve PM2-provided env vars
-dotenv.config({ path: path.resolve(__dirname, "../.env"), override: false });
+// Load environment files in priority order (with override: false, FIRST loaded wins)
+// Priority: PM2 vars > .env.local > .env.development (dev only) > .env
+// With override: false, we load highest priority FIRST
 
-// ============================================
-// CONFIGURATION
-// ============================================
+// Determine environment before loading env-specific files
 const nodeEnv = process.env.NODE_ENV || "production";
 const isDev = nodeEnv === "development";
 
-// In development mode, load .env.development (overrides .env)
-// Use override: false to preserve PM2-provided env vars
+// Load .env.local FIRST (highest priority - critical for Electron builds)
+dotenv.config({ path: path.resolve(__dirname, "../.env.local"), override: false });
+
+// In development mode, load .env.development
 if (isDev) {
   dotenv.config({ path: path.resolve(__dirname, "../.env.development"), override: false });
 }
+
+// Load .env last (lowest priority - base config)
+dotenv.config({ path: path.resolve(__dirname, "../.env"), override: false });
 
 // Restore PM2-provided PORT if it was set (PM2 env vars take precedence over .env files)
 if (pm2Port) {
