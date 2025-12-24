@@ -73,11 +73,26 @@ try {
   copyDir(certsSource, certsDest);
   console.log("[Prepare] ✓ Certificate files copied");
 
-  // Create .env file with build flags for packaged app
+  // Copy .env.local to standalone directory for packaged builds
+  const envLocalSource = path.join(rootDir, ".env.local");
+  const envLocalDest = path.join(standaloneDir, ".env.local");
+  
+  if (fs.existsSync(envLocalSource)) {
+    console.log("[Prepare] Copying .env.local...");
+    fs.copyFileSync(envLocalSource, envLocalDest);
+    console.log("[Prepare] ✓ Environment configuration copied");
+  } else {
+    console.warn("[Prepare] ⚠️  Warning: .env.local not found - packaged app will use system environment variables");
+  }
+
+  // Add dev tools flag if requested (append to .env.local in standalone)
   if (process.env.ELECTRON_DEV_TOOLS === "true") {
-    console.log("[Prepare] Creating .env file with dev tools enabled...");
-    const envPath = path.join(standaloneDir, ".env");
-    fs.writeFileSync(envPath, "ELECTRON_DEV_TOOLS=true\n");
+    console.log("[Prepare] Adding dev tools flag to .env.local...");
+    if (fs.existsSync(envLocalDest)) {
+      fs.appendFileSync(envLocalDest, "\nELECTRON_DEV_TOOLS=true\n");
+    } else {
+      fs.writeFileSync(envLocalDest, "ELECTRON_DEV_TOOLS=true\n");
+    }
     console.log("[Prepare] ✓ Dev tools configuration saved");
   }
 
