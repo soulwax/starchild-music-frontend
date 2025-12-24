@@ -21,4 +21,3 @@ export function UIWrapper({ children }: UIWrapperProps) {
 
   return <>{children}</>;
 }
-

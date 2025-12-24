@@ -1,4 +1,4 @@
-starchild-music-frontend
+darkfloor-player
 ├───.env.development
 ├───.env.example
 ├───.env.local
@@ -22,6 +22,7 @@ starchild-music-frontend
 ├───postcss.config.js
 ├───prettier.config.js
 ├───README.md
+├───ROADMAP.md
 ├───setup-database.sh
 ├───start-database.sh
 ├───tailwind.config.js
@@ -46,11 +47,9 @@ starchild-music-frontend
 │       ├───security-scan.md
 │       └───test-setup.md
 ├───.github/
-│   ├───copilot-instructions.md
-│   ├───assets/
-│   │   ├───AppIcons.zip
-│   │   └───emily-the-strange_vivid.png
-│   └───docs/
+│   └───assets/
+│       ├───AppIcons.zip
+│       └───emily-the-strange_vivid.png
 ├───certs/
 │   └───ca.pem
 ├───drizzle/
@@ -105,7 +104,7 @@ starchild-music-frontend
 │       ├───error.log
 │       └───out.log
 ├───public/
-│   ├───fallback--Myq0giLLeocuJSFLu_Ct.js
+│   ├───emily-the-strange.png
 │   ├───fallback-urA3Ro15d6GNfWNSz80Y1.js
 │   ├───favicon.ico
 │   ├───icon.ico
@@ -164,8 +163,11 @@ starchild-music-frontend
 │   │           ├───88.png
 │   │           ├───92.png
 │   │           └───Contents.json
-│   └───images/
-│       └───placeholder-cover.svg
+│   ├───images/
+│   │   └───placeholder-cover.svg
+│   └───legacy/
+│       ├───icon.ico
+│       └───icon.png
 ├───scripts/
 │   ├───check-users.ts
 │   ├───ensure-build.js
@@ -181,7 +183,6 @@ starchild-music-frontend
     │   ├───layout.tsx
     │   ├───not-found.tsx
     │   ├───page.tsx
-    │   ├───(home)/
     │   ├───[userhash]/
     │   │   └───page.tsx
     │   ├───_components/
@@ -197,6 +198,11 @@ starchild-music-frontend
     │   │   │       └───route.ts
     │   │   ├───health/
     │   │   │   └───route.ts
+    │   │   ├───music/
+    │   │   │   └───search/
+    │   │   │       └───route.ts
+    │   │   ├───og/
+    │   │   │   └───route.tsx
     │   │   ├───stream/
     │   │   │   └───route.ts
     │   │   └───trpc/
@@ -252,10 +258,18 @@ starchild-music-frontend
     │   ├───SwipeableTrackItem.tsx
     │   ├───Toast.tsx
     │   ├───TrackCard.tsx
+    │   ├───UIWrapper.tsx
     │   ├───WelcomeHero.tsx
     │   └───visualizers/
     │       ├───FlowFieldRenderer.ts
-    │       └───KaleidoscopeRenderer.ts
+    │       ├───KaleidoscopeRenderer.ts
+    │       ├───flowfieldPatterns/
+    │       │   ├───patternIds.ts
+    │       │   ├───renderHexGrid.ts
+    │       │   ├───renderKaleidoscope.ts
+    │       │   ├───renderRays.ts
+    │       │   └───types.ts
+    │       └───visuals/
     ├───config/
     │   ├───audioDefaults.ts
     │   ├───constants.ts

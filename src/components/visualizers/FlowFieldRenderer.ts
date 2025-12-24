@@ -1,7 +1,9 @@
-import { renderRays } from "./flowfieldPatterns/renderRays";
+// File: src/components/visualizers/FlowFieldRenderer.ts
+
+import type { Pattern } from "./flowfieldPatterns/patternIds";
 import { renderHexGrid } from "./flowfieldPatterns/renderHexGrid";
 import { renderKaleidoscope } from "./flowfieldPatterns/renderKaleidoscope";
-import type { Pattern } from "./flowfieldPatterns/patternIds";
+import { renderRays } from "./flowfieldPatterns/renderRays";
 import type { FlowFieldPatternContext } from "./flowfieldPatterns/types";
 
 interface Particle {
@@ -45,10 +47,8 @@ export class FlowFieldRenderer {
   private centerY = 0;
   private hueBase = 0;
 
-  private currentPattern: Pattern = "rays";
-  private nextPattern: Pattern = "fractal";
   private patternTimer = 0;
-  private patternDuration = 10;
+  private patternDuration = 500;
   private transitionProgress = 0;
   private transitionSpeed = 0.015;
   private isTransitioning = false;
@@ -138,6 +138,9 @@ export class FlowFieldRenderer {
     "infernalFlame",
     "kaleidoscope",
   ];
+
+  private currentPattern: Pattern = "kaleidoscope";
+  private nextPattern: Pattern = this.allPatterns[Math.floor(Math.random() * this.allPatterns.length)] ?? "kaleidoscope";
   private patternSequence: Pattern[] = [];
   private patternIndex = 0;
 
@@ -246,6 +249,7 @@ export class FlowFieldRenderer {
   private static readonly TWO_PI = Math.PI * 2;
   private static readonly INV_TWO_PI = 1 / (Math.PI * 2);
   private static readonly SQRT3 = 1.7320508075688772;
+  static allPatterns: any;
 
   private static initSinTable(): Float32Array {
     const table = new Float32Array(this.SIN_TABLE_SIZE);

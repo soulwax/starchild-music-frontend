@@ -1,3 +1,5 @@
+// File: src/components/visualizers/flowfieldPatterns/patternIds.ts
+
 export type Pattern =
   | "fractal"
   | "rays"
@@ -82,5 +84,4 @@ export type Pattern =
   | "phantomPulse"
   | "infernalFlame"
   | "kaleidoscope";
-
 

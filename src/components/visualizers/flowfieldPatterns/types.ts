@@ -1,3 +1,5 @@
+// File: src/components/visualizers/flowfieldPatterns/types.ts
+
 export interface FlowFieldPatternContext {
   ctx: CanvasRenderingContext2D;
   width: number;
@@ -24,5 +26,4 @@ export interface FlowFieldPatternContext {
   kaleidoscopeParticleDensity?: number;
   kaleidoscopeColorShift?: number;
 }
-
 

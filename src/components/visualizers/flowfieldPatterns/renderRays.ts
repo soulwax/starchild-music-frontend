@@ -1,3 +1,5 @@
+// File: src/components/visualizers/flowfieldPatterns/renderRays.ts
+
 import type { FlowFieldPatternContext } from "./types";
 
 export function renderRays(
@@ -94,5 +96,4 @@ export function renderRays(
 
   ctx.restore();
 }
-
 

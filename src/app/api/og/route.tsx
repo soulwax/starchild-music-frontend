@@ -1,3 +1,5 @@
+// File: src/app/api/og/route.tsx
+
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
