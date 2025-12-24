@@ -1,3 +1,5 @@
+// File: src/components/visualizers/flowfieldPatterns/renderHexGrid.ts
+
 import type { FlowFieldPatternContext } from "./types";
 
 export function renderHexGrid(
@@ -97,5 +99,4 @@ export function renderHexGrid(
 
   ctx.restore();
 }
-
 
