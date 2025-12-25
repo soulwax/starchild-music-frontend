@@ -172,7 +172,7 @@
       "target": [
         "nsis"
       ],
-      "executableName": "Starchild",
+      "executableName": "${productName}",
       "icon": "public/icon.ico",
       "sign": false
     },
@@ -189,7 +189,8 @@
         "deb"
       ],
       "icon": "public/icon.png",
-      "category": "Audio"
+      "artifactName": "${productName}.${ext}",
+      "category": "AudioVideo,Audio"
     },
     "nsis": {
       "oneClick": false,
