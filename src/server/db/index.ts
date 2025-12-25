@@ -31,7 +31,9 @@ function getSslConfig() {
     if (existsSync(certPath)) {
       console.log(`[DB] Cloud database detected. Using SSL certificate: ${certPath}`);
       return {
-        rejectUnauthorized: true,
+        // Use false in development to accept self-signed certificates
+        // In production, this should be true for security
+        rejectUnauthorized: process.env.NODE_ENV === "production",
         ca: readFileSync(certPath).toString(),
       };
     }
