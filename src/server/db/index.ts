@@ -2,34 +2,11 @@
 
 import { env } from "@/env";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { existsSync, readFileSync } from "fs";
-import path from "path";
 import { Pool } from "pg";
 import * as schema from "./schema";
 
-// Determine certificate path based on environment
-function getCertPath(): string | null {
-  // Try multiple possible locations
-  const possiblePaths = [
-    path.join(process.cwd(), "certs/ca.pem"), // Development
-    path.join(__dirname, "../../certs/ca.pem"), // Relative to build output
-    path.join(__dirname, "../../../certs/ca.pem"), // Another build variant
-  ];
-
-  for (const certPath of possiblePaths) {
-    if (existsSync(certPath)) {
-      console.log(`[DB] Using certificate from: ${certPath}`);
-      return certPath;
-    }
-  }
-
-  return null;
-}
-
-// Determine SSL configuration based on certificate availability
+// Determine SSL configuration based on DATABASE_URL
 function getSslConfig() {
-  const certPath = getCertPath();
-
   // Check if SSL is required from DATABASE_URL
   const requiresSsl = env.DATABASE_URL.includes("sslmode=require");
 
@@ -39,18 +16,9 @@ function getSslConfig() {
     return undefined;
   }
 
-  if (certPath) {
-    // Certificate found - use it with strict validation
-    console.log("[DB] Using SSL with certificate validation");
-    return {
-      rejectUnauthorized: true,
-      ca: readFileSync(certPath).toString(),
-    };
-  }
-
-  // SSL required but no certificate - use lenient SSL
-  // This works with cloud providers that have valid public certificates (like Aiven)
-  console.log("[DB] SSL required. Using SSL with system certificates (no custom CA)");
+  // SSL required - use lenient SSL that accepts self-signed certificates
+  // Works with cloud providers like Aiven that use self-signed or custom CAs
+  console.log("[DB] SSL required. Accepting self-signed certificates");
   return {
     rejectUnauthorized: false,
   };

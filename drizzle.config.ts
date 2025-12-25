@@ -1,7 +1,5 @@
 // File: drizzle.config.ts
 
-import { readFileSync } from "fs";
-import path from "path";
 import drizzleEnv from "./drizzle.env";
 
 const config = {
@@ -15,8 +13,7 @@ const config = {
     password: drizzleEnv.DB_ADMIN_PASSWORD,
     database: drizzleEnv.DB_NAME ?? "postgres",
     ssl: {
-      rejectUnauthorized: true,
-      ca: readFileSync(path.join(process.cwd(), "certs/ca.pem")).toString(),
+      rejectUnauthorized: false, // Accept self-signed certificates
     },
   },
 };
