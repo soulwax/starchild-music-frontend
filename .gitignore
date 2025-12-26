@@ -76,3 +76,4 @@ public/**/*.js
 
 nul
 resources/
+electron/azure-vault.json

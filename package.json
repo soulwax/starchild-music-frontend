@@ -191,12 +191,14 @@
           "arch": "x64"
         }
       ],
-      "executableName": "${productName}.exe",
+      "executableName": "Starchild",
       "icon": "public/icon.ico",
-      "sign": "./electron/sign.js",
-      "signingHashAlgorithms": [
-        "sha256"
-      ]
+      "signtoolOptions": {
+        "signingHashAlgorithms": [
+          "sha256"
+        ],
+        "sign": "./electron/sign.js"
+      }
     },
     "mac": {
       "target": [
@@ -224,7 +226,7 @@
     "nsis": {
       "artifactName": "${productName}_setup.${ext}",
       "oneClick": false,
-      "license": "LICENSE.txt",
+      "license": "LICENSE.md",
       "allowToChangeInstallationDirectory": true,
       "uninstallDisplayName": "${productName}",
       "deleteAppDataOnUninstall": true
