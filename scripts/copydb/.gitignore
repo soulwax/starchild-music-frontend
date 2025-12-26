@@ -1,0 +1,39 @@
+# File: .gitignore
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.js
+*.js.map
+!jest.config.js
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+drizzle/
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log

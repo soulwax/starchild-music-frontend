@@ -6,6 +6,255 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.6.9] - 2025-12-25
+
+**Release Focus: Database Workflow & Electron Build Improvements**
+
+This release significantly improves the developer experience around database migrations and Electron builds. The main highlights:
+
+- **Simplified Database Workflows**: New helper commands (`npm run db:dev`, `npm run db:prod`) replace error-prone multi-command chains
+- **Idempotent Migrations**: All database migrations now safe to re-run, eliminating "already exists" errors
+- **Unified Electron Environment**: Single `.env.local` file replaces confusing multi-file configuration
+- **Enhanced Debugging**: Comprehensive logging in Electron builds shows exactly what's loaded and what's missing
+- **Complete Documentation**: Three-tier documentation (quick start, integrated, detailed) for both database and Electron workflows
+
+**Key Benefits:**
+- ✅ Fewer build failures and deployment errors
+- ✅ Faster development workflow with clearer commands
+- ✅ Easier troubleshooting with better logging
+- ✅ Reduced onboarding time with comprehensive guides
+
+### Added
+
+#### Database Workflow Improvements
+
+- **Database Helper Script**: Created `scripts/db-helper.js` for simplified database operations
+  - `npm run db:dev` - Development workflow (generate + push, no migration tracking)
+  - `npm run db:prod` - Production workflow (apply tracked migrations)
+  - Interactive help menu showing available commands and tips
+  - Comprehensive error handling and logging
+
+#### Documentation
+
+- **DATABASE_QUICK_START.md**: Quick reference guide for database workflows
+  - TL;DR section for immediate solutions
+  - Common commands reference table
+  - Workflow migration guide (old vs new)
+  - Error prevention guidelines
+  - Emergency fix commands
+
+- **docs/DATABASE_MIGRATIONS.md**: Complete database migration documentation
+  - Best practices and workflow guide
+  - Environment-specific strategies (dev/staging/prod)
+  - Common issues with detailed solutions
+  - Migration file structure examples
+  - Troubleshooting procedures
+  - Emergency recovery procedures
+
+- **README.md Updates**: Enhanced database workflow documentation
+  - Database setup section with migration commands
+  - Complete "Database Workflow" section in Development chapter
+  - Workflow migration summary (old problematic vs new correct)
+  - Added troubleshooting for migration errors
+  - SSL certificate error solutions
+
+- **docs/ELECTRON_ENV_CONFIG.md**: Comprehensive Electron environment configuration guide
+  - Single source of truth explanation (`.env.local` only)
+  - Development vs production mode configuration
+  - Required environment variables reference
+  - File changes documentation with before/after comparisons
+  - Troubleshooting section for common environment issues
+  - Migration guide from multiple env files to single `.env.local`
+  - System environment variables fallback documentation
+
+#### Electron Build & Debugging Improvements
+
+- **Unified Environment Configuration**: Electron builds now exclusively use `.env.local`
+  - Single source of truth for all environment variables
+  - Eliminates conflicts between multiple environment files
+  - Consistent configuration across development and production builds
+
+- **Enhanced Build Process**: Improved `electron/prepare-package.js`
+  - Automatically copies `.env.local` to standalone directory for packaged builds
+  - Copies SSL certificates (`certs/` directory) to standalone build
+  - Better warning messages for missing files
+  - TypeScript JSDoc annotations for type safety
+
+- **Improved Environment Loading**: Enhanced `scripts/load-env-build.js`
+  - Simplified to load only `.env.local` (removed `.env`, `.env.development`, `.env.production`)
+  - Clear console output showing which env file is loaded
+  - Better error handling and exit codes
+
+- **Better Debugging**: Enhanced `electron/main.cjs`
+  - Detailed environment variable logging at startup (with masked sensitive values)
+  - Shows which `.env.local` location was loaded (project root vs standalone)
+  - Logs critical variables: NODE_ENV, PORT, AUTH_SECRET, DATABASE_URL, etc.
+  - Clear checkmarks (✓/✗) for required vs missing variables
+  - Development/production mode detection logging
+  - DevTools enablement status logging
+
+### Changed
+
+#### Database Configuration
+
+- **SSL Certificate Handling**: Simplified PostgreSQL SSL configuration in `drizzle.config.ts`
+  - Removed requirement for `ca.pem` certificate files
+  - Set `rejectUnauthorized: false` to accept self-signed certificates
+  - Removed unused `readFileSync` and `path` imports
+  - Eliminates "self-signed certificate in chain" errors
+
+#### Migration Files (Made Idempotent)
+
+- **0005_shocking_korath.sql**: Added `IF NOT EXISTS` checks for constraints
+  - `favorite_user_track_unique` constraint
+  - `playlist_track_unique` constraint
+  - Safe to run multiple times without errors
+
+- **0006_good_zaran.sql**: Added existence checks for columns and constraints
+  - `userHash`, `profilePublic`, and `bio` columns
+  - `hexmusic-stream_user_userHash_unique` constraint
+  - Prevents "column already exists" errors
+
+- **0010_nostalgic_human_cannonball.sql**: Added column existence checks
+  - `equalizerPanelOpen` and `queuePanelOpen` columns
+  - Prevents duplicate column errors
+
+- **0011_useful_the_enforcers.sql**: Made table and index creation idempotent
+  - `CREATE TABLE IF NOT EXISTS` for recommendation_log table
+  - `CREATE INDEX IF NOT EXISTS` for all indexes
+  - Constraint creation wrapped in existence checks
+
+#### Build Configuration
+
+- **prebuild Script**: Fixed conflicting database commands
+  - Changed from: `db:generate && db:migrate & db:push` (caused errors)
+  - Changed to: `db:generate && db:migrate` (correct)
+  - Eliminates "relation already exists" errors during builds
+
+#### Package Scripts
+
+- Added `db:dev` - Wrapper for `db-helper.js dev-sync`
+- Added `db:prod` - Wrapper for `db-helper.js prod-migrate`
+- Improved script organization for database operations
+
+### Fixed
+
+#### Database Migration Issues
+
+- **"relation already exists" Errors**: Fixed by making migrations idempotent
+  - All CREATE statements now use `IF NOT EXISTS`
+  - All ALTER TABLE ADD COLUMN wrapped in existence checks
+  - Migrations can be safely run multiple times
+
+- **"column already exists" Errors**: Fixed through column existence validation
+  - Added PostgreSQL information_schema checks before column additions
+  - Prevents errors when re-running migrations on existing databases
+
+- **SSL Certificate Errors**: Resolved PostgreSQL connection issues
+  - Removed dependency on external certificate files
+  - Accepts self-signed certificates automatically
+  - No more "self-signed certificate in chain" errors
+
+- **Duplicate Migration Files**: Removed conflicting migration
+  - Deleted untracked `0011_populate_user_hash.sql` file
+  - Eliminated migration journal conflicts
+
+- **Migration State Sync Issues**: Resolved database/migration tracking conflicts
+  - Clarified when to use `db:migrate` vs `db:push`
+  - Separated development (untracked) from production (tracked) workflows
+  - Prevented mixing of incompatible migration strategies
+
+### Technical Improvements
+
+#### Database
+
+- **Migration Strategy**: Clear separation of concerns
+  - Development: Use `db:push` for fast iteration (bypasses migration history)
+  - Production: Use `db:migrate` for tracked, auditable changes
+  - Emergency: Use `db:push` to force-sync schema when state is corrupted
+
+- **Idempotent Migrations**: All migrations now safe to re-run
+  - Prevents production deployment failures
+  - Enables reliable rollback and retry mechanisms
+  - Reduces operational risk during deployments
+
+- **Documentation Coverage**: Comprehensive documentation at three levels
+  - Quick start for immediate solutions
+  - README integration for discoverability  
+  - Detailed guide for complete reference
+
+#### Electron
+
+- **Build Reliability**: Simplified environment configuration reduces build failures
+  - No more conflicts from multiple `.env` files
+  - Predictable behavior across development and production
+  - Packaged apps include their own environment configuration
+
+- **Debugging Experience**: Enhanced logging makes troubleshooting easier
+  - Environment variables visible at startup (sensitive values masked)
+  - Clear indicators for missing required variables
+  - Mode detection (dev/prod, packaged/unpacked) logged
+  - File locations for loaded configuration shown
+
+- **Type Safety**: Added JSDoc annotations throughout Electron scripts
+  - Better IDE autocomplete and error detection
+  - Prevents common JavaScript errors during development
+  - Improved maintainability
+
+### Developer Experience
+
+#### Database Workflows
+
+- **Simplified Workflow**: Reduced complexity in daily development
+  - Old: `npm run db:generate && npm run db:migrate && npm run db:push` (error-prone)
+  - New: `npm run db:dev` (single command, correct behavior)
+
+- **Clear Error Messages**: Helper script provides actionable guidance
+  - Explains what each command does
+  - Shows best practices and tips
+  - Guides users to correct commands for their environment
+
+- **Prevents Common Mistakes**: Documentation and tooling prevent typical errors
+  - Warns against mixing `db:migrate` and `db:push`
+  - Provides environment-specific commands
+  - Clear examples of correct vs incorrect usage
+
+#### Electron Development
+
+- **Simplified Configuration**: Single `.env.local` file for all environments
+  - No need to maintain multiple `.env.*` files
+  - Clear mental model: one file, one source of truth
+  - Reduced cognitive load during development
+
+- **Better Error Diagnosis**: Enhanced logging shows exactly what's loaded
+  - Missing variables immediately visible at startup
+  - No guessing which env file is being used
+  - Clear indicators for dev vs production mode
+
+- **Portable Builds**: Packaged apps include configuration
+  - No need to set system environment variables
+  - Consistent behavior across different machines
+  - Easy to share builds with QA or users
+
+### Benefits Summary
+
+**For End Users:**
+- More reliable database migrations during updates
+- Fewer "application won't start" errors in Electron builds
+- Better support experience (clearer error messages)
+
+**For Developers:**
+- Faster development workflow (single command for database changes)
+- Easier troubleshooting (detailed logging, clear documentation)
+- Fewer build failures (simplified configuration)
+- Better onboarding (comprehensive guides at multiple levels)
+
+**For DevOps:**
+- Safer deployments (idempotent migrations)
+- Easier debugging (extensive logging)
+- Clearer configuration management (single env file)
+- Reduced operational risk
+
 ## [0.6.8] - 2024-12-24
 
 ### Added

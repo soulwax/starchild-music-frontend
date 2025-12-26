@@ -110,6 +110,27 @@ The application provides:
     export default config;
     ```
 
+    **Database Migrations:**
+
+    ```bash
+    # Development (fast, no migration history)
+    npm run db:dev
+    
+    # Production (tracked migrations)
+    npm run db:generate    # Generate migration files
+    npm run db:migrate     # Apply migrations
+    
+    # Force sync schema (development only)
+    npm run db:push
+    
+    # Open database GUI
+    npm run db:studio
+    ```
+
+    **⚠️ Important:** Never run `db:migrate` AND `db:push` together - use `db:dev` for development, `db:migrate` for production.
+
+    See [DATABASE_QUICK_START.md](./DATABASE_QUICK_START.md) for detailed workflow.
+
 4. **Run Development Server**
 
   ```bash
@@ -265,6 +286,62 @@ npm run type-check
 # Linting (if configured)
 npm run lint
 ```
+
+### Database Workflow
+
+#### Development (Daily Work)
+```bash
+# After changing schema in src/server/db/schema.ts:
+npm run db:dev
+```
+This command generates migration files and syncs your schema directly (no migration tracking).
+
+#### Production Deployment
+```bash
+# 1. Generate migration files
+npm run db:generate
+
+# 2. Review generated SQL in drizzle/ directory
+
+# 3. Apply migrations
+npm run db:migrate
+```
+
+#### Other Database Commands
+```bash
+npm run db:push      # Force sync schema (bypasses migrations)
+npm run db:studio    # Open Drizzle Studio GUI
+npm run db:prod      # Helper script for production migrations
+```
+
+**⚠️ Critical Rule:** Never run `db:migrate` and `db:push` together - this causes "relation already exists" errors.
+
+| Environment | Use | Command |
+|-------------|-----|---------|
+| **Development** | Fast iteration | `npm run db:dev` |
+| **Production** | Tracked changes | `npm run db:migrate` |
+| **Emergency Sync** | Fix state issues | `npm run db:push` |
+
+**Detailed Guide:** See [DATABASE_QUICK_START.md](./DATABASE_QUICK_START.md) for complete workflow documentation.
+
+#### Workflow Migration Summary
+
+**Old (Problematic):**
+```bash
+npm run db:generate && npm run db:migrate && npm run db:push  # ❌ Causes errors
+```
+
+**New (Correct):**
+```bash
+# Development
+npm run db:dev  # ✅ Generate + push (no tracking)
+
+# Production
+npm run db:generate  # ✅ Generate only
+npm run db:migrate   # ✅ Apply with tracking
+```
+
+**Key Change:** Separate development (untracked, fast) from production (tracked, safe) workflows.
 
 ## 🚀 Production Deployment & Server Management
 
@@ -574,6 +651,27 @@ This project uses **TailwindCSS v4** with pure CSS Variables (no `@apply` direct
 1. Verify DATABASE_URL format includes `?sslmode=require`
 2. Check PostgreSQL is running and accessible
 3. Confirm database exists and credentials are correct
+
+### Issue: "relation already exists" or "column already exists" migration errors
+
+**Solution**:
+
+```bash
+# Quick fix (development)
+npm run db:push
+
+# Root cause: Running db:migrate AND db:push together
+# Use ONLY ONE: db:dev for development, db:migrate for production
+```
+
+**Prevention**:
+- ✅ Use `npm run db:dev` in development
+- ✅ Use `npm run db:migrate` in production
+- ❌ Never run both `db:migrate` and `db:push` in the same command
+
+### Issue: SSL certificate errors with PostgreSQL
+
+**Solution**: Already configured - `drizzle.config.ts` accepts self-signed certificates with `rejectUnauthorized: false`
 
 ### Issue: 502 Bad Gateway / Process crash loop
 

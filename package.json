@@ -1,6 +1,6 @@
 {
   "name": "darkfloor-art",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "description": "A modern music streaming and discovery platform with intelligent recommendations, advanced audio features, and a beautiful user interface",
   "private": true,
   "type": "module",
@@ -10,10 +10,10 @@
   "homepage": "https://darkfloor.art",
   "repository": {
     "type": "git",
-    "url": "https://github.com/soulwax/starchild-music-frontend"
+    "url": "https://github.com/soulwax/darkfloor-art-frontend"
   },
   "bugs": {
-    "url": "https://github.com/soulwax/starchild-music-frontend/issues"
+    "url": "https://github.com/soulwax/darkfloor-art-frontend/issues"
   },
   "keywords": [
     "darkfloor",
@@ -35,7 +35,7 @@
     }
   ],
   "scripts": {
-    "prebuild": "npm run db:generate && npm run db:migrate & npm run db:push",
+    "prebuild": "npm run db:generate && npm run db:migrate",
     "clean": "rm -rf .next node_modules .turbo dist",
     "clean:win": "rmdir /s /q .next && rmdir /s /q node_modules && rmdir /s /q .turbo && rmdir /s /q dist",
     "build:analyzer": "cross-env ANALYZE=true next build",
@@ -45,6 +45,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "db:dev": "node scripts/db-helper.js dev-sync",
+    "db:prod": "node scripts/db-helper.js prod-migrate",
     "dev": "cross-env NODE_ENV=development node scripts/server.js",
     "dev:next": "next dev --turbo --port 3222",
     "dev:win": "cross-env NODE_ENV=development node scripts/server.js",

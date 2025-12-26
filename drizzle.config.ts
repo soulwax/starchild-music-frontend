@@ -7,7 +7,7 @@ import drizzleEnv from "./drizzle.env";
 // Determine SSL configuration based on certificate availability
 function getSslConfig() {
   const certPath = path.join(process.cwd(), "certs/ca.pem");
-  
+
   if (existsSync(certPath)) {
     console.log(`[Drizzle] Using SSL certificate: ${certPath}`);
     return {
@@ -15,10 +15,14 @@ function getSslConfig() {
       ca: readFileSync(certPath).toString(),
     };
   }
-  
+
   // Certificate not found - use lenient SSL with warning
-  console.warn("[Drizzle] ⚠️  WARNING: No CA certificate found at certs/ca.pem");
-  console.warn("[Drizzle] ⚠️  Using rejectUnauthorized: false - vulnerable to MITM attacks");
+  console.warn(
+    "[Drizzle] ⚠️  WARNING: No CA certificate found at certs/ca.pem",
+  );
+  console.warn(
+    "[Drizzle] ⚠️  Using rejectUnauthorized: false - vulnerable to MITM attacks",
+  );
   return {
     rejectUnauthorized: false,
   };
