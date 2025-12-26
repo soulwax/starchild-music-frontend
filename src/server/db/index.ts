@@ -10,7 +10,7 @@ import * as schema from "./schema";
 // Determine SSL configuration based on DATABASE_URL and certificate availability
 function getSslConfig() {
   // Check if it's a cloud database (Aiven, AWS RDS, etc.) that requires SSL
-  const isCloudDb = env.DATABASE_URL.includes("aivencloud.com") || 
+  const isCloudDb = env.DATABASE_URL.includes("aivencloud.com") ||
                     env.DATABASE_URL.includes("rds.amazonaws.com") ||
                     env.DATABASE_URL.includes("sslmode=");
 
@@ -20,39 +20,49 @@ function getSslConfig() {
     return undefined;
   }
 
-  // Cloud database or SSL requested - try to find CA certificate
-  const possibleCertPaths = [
-    path.join(process.cwd(), "certs/ca.pem"), // Development
-    path.join(__dirname, "../../certs/ca.pem"), // Relative to build output
-    path.join(__dirname, "../../../certs/ca.pem"), // Another build variant
-  ];
+  // Detect Vercel environment
+  const isVercel = process.env.VERCEL === "1" || process.env.VERCEL_ENV !== undefined;
 
-  // Try to read certificate from file first
-  for (const certPath of possibleCertPaths) {
-    if (existsSync(certPath)) {
-      console.log(`[DB] Cloud database detected. Using SSL certificate: ${certPath}`);
-      return {
-        // Use false in development to accept self-signed certificates
-        // In production, this should be true for security
-        rejectUnauthorized: process.env.NODE_ENV === "production",
-        ca: readFileSync(certPath).toString(),
-      };
-    }
-  }
-
-  // Fallback: Use DB_SSL_CA environment variable if set
+  // PRIORITY 1: On Vercel or if DB_SSL_CA is set, use environment variable
+  // This avoids filesystem issues in serverless environments
   if (process.env.DB_SSL_CA) {
-    console.log("[DB] Cloud database detected. Using SSL certificate from DB_SSL_CA environment variable");
+    console.log(
+      `[DB] Cloud database detected. Using SSL certificate from DB_SSL_CA environment variable${isVercel ? " (Vercel serverless)" : ""}`
+    );
     return {
       rejectUnauthorized: process.env.NODE_ENV === "production",
-      ca: process.env.DB_SSL_CA,
+      ca: process.env.DB_SSL_CA.replace(/\\n/g, "\n"), // Handle escaped newlines
     };
+  }
+
+  // PRIORITY 2: Try to read certificate from file (local/traditional server only)
+  // Skip file reading on Vercel to avoid filesystem issues
+  if (!isVercel) {
+    const possibleCertPaths = [
+      path.join(process.cwd(), "certs/ca.pem"), // Development
+      path.join(__dirname, "../../certs/ca.pem"), // Relative to build output
+      path.join(__dirname, "../../../certs/ca.pem"), // Another build variant
+    ];
+
+    for (const certPath of possibleCertPaths) {
+      if (existsSync(certPath)) {
+        console.log(`[DB] Cloud database detected. Using SSL certificate from file: ${certPath}`);
+        return {
+          rejectUnauthorized: process.env.NODE_ENV === "production",
+          ca: readFileSync(certPath).toString(),
+        };
+      }
+    }
   }
 
   // Certificate not found - use lenient SSL with warning
   console.warn("[DB] ⚠️  WARNING: Cloud database detected but no CA certificate found!");
   console.warn("[DB] ⚠️  Using rejectUnauthorized: false - vulnerable to MITM attacks");
-  console.warn("[DB] ⚠️  Set DB_SSL_CA environment variable or place your CA certificate at: certs/ca.pem");
+  console.warn(
+    isVercel
+      ? "[DB] ⚠️  Set DB_SSL_CA environment variable in Vercel dashboard"
+      : "[DB] ⚠️  Set DB_SSL_CA environment variable or place certificate at: certs/ca.pem"
+  );
   return {
     rejectUnauthorized: false,
   };

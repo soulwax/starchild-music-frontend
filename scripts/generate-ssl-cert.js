@@ -26,6 +26,24 @@ if (isDev) {
 }
 
 async function generateSSLCert() {
+  // Detect Vercel environment
+  const isVercel = process.env.VERCEL === "1" || process.env.VERCEL_ENV !== undefined;
+
+  // Skip file generation on Vercel - use environment variable directly
+  if (isVercel) {
+    console.log("🔐 Vercel environment detected - skipping certificate file generation");
+    console.log("   PostgreSQL will use DB_SSL_CA environment variable directly");
+
+    if (!process.env.DB_SSL_CA) {
+      console.error("❌ DB_SSL_CA environment variable not set!");
+      console.error("   Add it in Vercel dashboard: Settings → Environment Variables");
+      process.exit(1);
+    }
+
+    console.log("✅ DB_SSL_CA environment variable detected");
+    return;
+  }
+
   const certContent = process.env.DB_SSL_CA;
 
   if (!certContent) {
@@ -34,7 +52,7 @@ async function generateSSLCert() {
     return;
   }
 
-  console.log("🔐 Generating PostgreSQL SSL certificate...");
+  console.log("🔐 Generating PostgreSQL SSL certificate file...");
 
   const certsDir = path.resolve(projectRoot, "certs");
   const certPath = path.resolve(certsDir, "ca.pem");
