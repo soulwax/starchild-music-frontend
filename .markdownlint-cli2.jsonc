@@ -5,6 +5,8 @@
     ".github/docs/*.md",
     "LICENSE.md",
     ".cursor/commands/*.md",
-    "ROADMAP.md"
+    "ROADMAP.md",
+    "CHANGELOG.md",
+    "public/CHANGELOG.md"
   ]
 }
