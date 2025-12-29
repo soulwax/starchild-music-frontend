@@ -10967,7 +10967,7 @@ export class FlowFieldRenderer {
   }
 
   public setPatternDuration(value: number): void {
-    this.patternDuration = Math.max(50, Math.min(1000, value));
+    this.patternDuration = Math.max(10, Math.min(10000, value));
   }
 
   public getTransitionSpeed(): number {

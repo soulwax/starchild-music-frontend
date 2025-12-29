@@ -306,8 +306,8 @@ export default function PatternControls({
             <SliderControl
               label="Pattern Duration"
               value={patternState.patternDuration}
-              min={50}
-              max={1000}
+              min={10}
+              max={10000}
               step={10}
               decimals={0}
               onChange={(value) => {
