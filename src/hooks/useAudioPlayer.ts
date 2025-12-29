@@ -319,7 +319,19 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleTimeUpdate = () => {
+      const newTime = audio.currentTime;
+      // Log every 5 seconds to help diagnose if time is progressing
+      if (Math.floor(newTime) % 5 === 0 && Math.floor(newTime) !== Math.floor(currentTime)) {
+        console.log("[useAudioPlayer] Time update:", {
+          currentTime: newTime,
+          paused: audio.paused,
+          readyState: audio.readyState,
+          src: audio.src.substring(0, 50) + "...",
+        });
+      }
+      setCurrentTime(newTime);
+    };
     const handleLoadedMetadata = () => setDuration(audio.duration);
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
@@ -625,7 +637,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         currentTime: audioRef.current.currentTime,
         readyState: audioRef.current.readyState,
       });
-      
+
       // Double-check connection chain after play
       if (connection) {
         console.log("[useAudioPlayer] Verifying connection chain after play...");
@@ -639,7 +651,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           console.log("[useAudioPlayer] Connection chain verified");
         }
       }
-      
+
       setIsPlaying(true);
     } catch (err) {
       console.error("[useAudioPlayer] Playback failed:", err);

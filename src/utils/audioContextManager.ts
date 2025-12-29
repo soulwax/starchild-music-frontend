@@ -15,10 +15,7 @@ interface AudioConnection {
 }
 
 // Global WeakMap to track connected audio elements
-const connectedAudioElements = new WeakMap<
-  HTMLAudioElement,
-  AudioConnection
->();
+const connectedAudioElements = new WeakMap<HTMLAudioElement, AudioConnection>();
 
 /**
  * Get or create an audio connection for an audio element.
@@ -32,10 +29,7 @@ export function getOrCreateAudioConnection(
   const existing = connectedAudioElements.get(audioElement);
   if (existing) {
     // Verify connection is still valid
-    if (
-      existing.audioContext.state !== "closed" &&
-      existing.sourceNode
-    ) {
+    if (existing.audioContext.state !== "closed" && existing.sourceNode) {
       // Increment ref count
       existing.refCount++;
       return existing;
@@ -66,18 +60,18 @@ export function getOrCreateAudioConnection(
     };
 
     connectedAudioElements.set(audioElement, connection);
-    
+
     // Resume audio context if suspended (required for playback)
     if (audioContext.state === "suspended") {
       void audioContext.resume();
     }
-    
+
     // CRITICAL: When an audio element is connected to a MediaElementSourceNode,
     // it MUST be connected to the audio context destination, otherwise audio won't play.
     // Connect sourceNode directly to destination as a fallback.
     // Components will disconnect and reconnect to add their processing nodes.
     sourceNode.connect(audioContext.destination);
-    
+
     return connection;
   } catch (error) {
     // If the error is InvalidStateError, the audio element is already connected
@@ -92,16 +86,13 @@ export function getOrCreateAudioConnection(
     // This can happen if old code or another library connected it
     // In this case, we can't create a new connection, so we return null
     // The caller should handle this gracefully (e.g., by not using audio features)
-    if (
-      error instanceof DOMException &&
-      error.name === "InvalidStateError"
-    ) {
+    if (error instanceof DOMException && error.name === "InvalidStateError") {
       // Silently handle - the audio element is already connected elsewhere
       // We can't access that connection, so we return null
       // This is expected behavior when the element is connected outside our manager
       return null;
     }
-    
+
     // For other errors, log them
     console.error("Failed to create audio connection:", error);
     return null;
@@ -112,9 +103,7 @@ export function getOrCreateAudioConnection(
  * Release a reference to an audio connection.
  * When refCount reaches 0, the connection is cleaned up.
  */
-export function releaseAudioConnection(
-  audioElement: HTMLAudioElement,
-): void {
+export function releaseAudioConnection(audioElement: HTMLAudioElement): void {
   const connection = connectedAudioElements.get(audioElement);
   if (!connection) return;
 
@@ -163,35 +152,34 @@ export function verifyConnectionChain(connection: AudioConnection): boolean {
     // Check if sourceNode is connected
     // Note: We can't directly check connections, but we can verify the chain structure
     if (!connection.sourceNode) return false;
-    
+
     // If we have filters, verify they're chained
     if (connection.filters && connection.filters.length > 0) {
       // Can't directly verify connections, but structure looks correct
       // The actual verification happens when we rebuild the chain
     }
-    
+
     // If we have analyser, it should be connected to destination
     if (connection.analyser) {
       // Can't directly verify, but structure looks correct
     }
-    
+
     // Check audio context state
     if (connection.audioContext.state === "closed") {
       console.warn("[audioContextManager] Audio context is closed");
       return false;
     }
-    
+
     return true;
   } catch (error) {
-    console.error("[audioContextManager] Error verifying connection chain:", error);
+    console.error(
+      "[audioContextManager] Error verifying connection chain:",
+      error,
+    );
     return false;
   }
 }
 
-/**
- * Ensure the audio connection chain is complete (always ends at destination).
- * This is critical - if the chain is broken, audio won't play.
- */
 export function ensureConnectionChain(connection: AudioConnection): void {
   try {
     console.log("[audioContextManager] Ensuring connection chain", {
@@ -200,13 +188,14 @@ export function ensureConnectionChain(connection: AudioConnection): void {
       contextState: connection.audioContext.state,
     });
 
-    // CRITICAL: We need to disconnect ALL connections from sourceNode first
-    // because a node can only have one output connection at a time (unless using multiple outputs)
     try {
       connection.sourceNode.disconnect();
     } catch (e) {
       // Already disconnected or error, continue
-      console.debug("[audioContextManager] SourceNode disconnect (expected):", e);
+      console.debug(
+        "[audioContextManager] SourceNode disconnect (expected):",
+        e,
+      );
     }
 
     // Disconnect analyser if it exists
@@ -215,7 +204,10 @@ export function ensureConnectionChain(connection: AudioConnection): void {
         connection.analyser.disconnect();
       } catch (e) {
         // Already disconnected, ignore
-        console.debug("[audioContextManager] Analyser disconnect (expected):", e);
+        console.debug(
+          "[audioContextManager] Analyser disconnect (expected):",
+          e,
+        );
       }
     }
 
@@ -226,7 +218,10 @@ export function ensureConnectionChain(connection: AudioConnection): void {
           filter.disconnect();
         } catch (e) {
           // Already disconnected, ignore
-          console.debug("[audioContextManager] Filter disconnect (expected):", e);
+          console.debug(
+            "[audioContextManager] Filter disconnect (expected):",
+            e,
+          );
         }
       });
     }
@@ -241,51 +236,87 @@ export function ensureConnectionChain(connection: AudioConnection): void {
       // Connect source to first filter
       connection.sourceNode.connect(connection.filters[0]!);
       const lastFilter = connection.filters[connection.filters.length - 1]!;
-      
+
       if (connection.analyser) {
         // Chain: source -> filters -> analyser -> destination
         lastFilter.connect(connection.analyser);
         connection.analyser.connect(connection.audioContext.destination);
-        console.log("[audioContextManager] ✅ Chain: source -> filters -> analyser -> destination");
+        console.log(
+          "[audioContextManager] ✅ Chain: source -> filters -> analyser -> destination",
+          {
+            filterCount: connection.filters.length,
+            analyserExists: !!connection.analyser,
+            destinationExists: !!connection.audioContext.destination,
+          },
+        );
       } else {
         // Chain: source -> filters -> destination
         lastFilter.connect(connection.audioContext.destination);
-        console.log("[audioContextManager] ✅ Chain: source -> filters -> destination");
+        console.log(
+          "[audioContextManager] ✅ Chain: source -> filters -> destination",
+          {
+            filterCount: connection.filters.length,
+          },
+        );
       }
     } else if (connection.analyser) {
       // Chain: source -> analyser -> destination
       connection.sourceNode.connect(connection.analyser);
       connection.analyser.connect(connection.audioContext.destination);
-      console.log("[audioContextManager] ✅ Chain: source -> analyser -> destination");
+      console.log(
+        "[audioContextManager] ✅ Chain: source -> analyser -> destination",
+        {
+          analyserExists: !!connection.analyser,
+          destinationExists: !!connection.audioContext.destination,
+          sourceNodeExists: !!connection.sourceNode,
+        },
+      );
     } else {
       // Direct: source -> destination (fallback - ensures audio always plays)
       connection.sourceNode.connect(connection.audioContext.destination);
-      console.log("[audioContextManager] ✅ Chain: source -> destination (fallback)");
+      console.log(
+        "[audioContextManager] ✅ Chain: source -> destination (fallback)",
+      );
     }
 
     // Resume audio context if suspended (required for playback)
     if (connection.audioContext.state === "suspended") {
-      console.log("[audioContextManager] ⚠️ Audio context suspended, resuming...");
-      void connection.audioContext.resume().then(() => {
-        console.log("[audioContextManager] ✅ Audio context resumed");
-      }).catch((err) => {
-        console.error("[audioContextManager] ❌ Failed to resume audio context:", err);
-      });
+      console.log(
+        "[audioContextManager] ⚠️ Audio context suspended, resuming...",
+      );
+      void connection.audioContext
+        .resume()
+        .then(() => {
+          console.log("[audioContextManager] ✅ Audio context resumed");
+        })
+        .catch((err) => {
+          console.error(
+            "[audioContextManager] ❌ Failed to resume audio context:",
+            err,
+          );
+        });
     }
-    
+
     console.log("[audioContextManager] ✅ Connection chain verified", {
       contextState: connection.audioContext.state,
     });
   } catch (error) {
-    console.error("[audioContextManager] ❌ Error ensuring connection chain:", error);
+    console.error(
+      "[audioContextManager] ❌ Error ensuring connection chain:",
+      error,
+    );
     // Fallback: ensure at least source -> destination (critical for audio playback)
     try {
       connection.sourceNode.disconnect();
       connection.sourceNode.connect(connection.audioContext.destination);
-      console.log("[audioContextManager] ✅ Fallback chain: source -> destination");
+      console.log(
+        "[audioContextManager] ✅ Fallback chain: source -> destination",
+      );
     } catch (fallbackError) {
-      console.error("[audioContextManager] ❌ Fallback chain failed:", fallbackError);
+      console.error(
+        "[audioContextManager] ❌ Fallback chain failed:",
+        fallbackError,
+      );
     }
   }
 }
-
