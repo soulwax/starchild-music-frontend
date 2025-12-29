@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
 
   // Default: Show Emily the Strange
   if (!title || !artist) {
+    const emilyImageUrl = `https://darkfloor.art/emily-the-strange.png`;
+
     return new ImageResponse(
       (
         <div
@@ -38,13 +40,24 @@ export async function GET(request: NextRequest) {
               justifyContent: "center",
             }}
           >
-            {/* Emily the Strange placeholder - we'll show logo/text instead since we can't easily load the image in edge runtime */}
+            {/* Emily the Strange image */}
+            <img
+              src={emilyImageUrl}
+              width={400}
+              height={400}
+              style={{
+                borderRadius: 20,
+                marginBottom: 40,
+                boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
+              }}
+              alt="Emily the Strange"
+            />
             <div
               style={{
                 fontSize: 120,
                 fontWeight: 700,
                 color: "#f5f1e8",
-                marginBottom: 40,
+                marginBottom: 20,
                 textAlign: "center",
                 letterSpacing: "-0.05em",
               }}
@@ -56,12 +69,11 @@ export async function GET(request: NextRequest) {
                 fontSize: 32,
                 color: "#a5afbf",
                 textAlign: "center",
-                maxWidth: 800,
+                maxWidth: 900,
                 lineHeight: 1.4,
               }}
             >
-              Modern music streaming and discovery platform with smart
-              recommendations
+              Modern music streaming and discovery platform with advanced audio features and visual patterns
             </div>
           </div>
         </div>
@@ -178,6 +190,7 @@ export async function GET(request: NextRequest) {
               style={{
                 fontSize: 32,
                 color: "#6b7688",
+                marginBottom: 24,
                 lineHeight: 1.2,
                 display: "-webkit-box",
                 WebkitLineClamp: 1,
@@ -189,16 +202,38 @@ export async function GET(request: NextRequest) {
             </div>
           )}
 
-          {/* Branding */}
+          {/* Listen Now CTA */}
           <div
             style={{
-              fontSize: 24,
-              color: "#f4b266",
-              marginTop: 40,
-              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              marginTop: 32,
             }}
           >
-            darkfloor.art
+            <div
+              style={{
+                fontSize: 36,
+                fontWeight: 700,
+                color: "#f5f1e8",
+                background: "linear-gradient(135deg, #f4b266 0%, #58c6b1 100%)",
+                padding: "16px 32px",
+                borderRadius: 12,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              ▶ Listen Now
+            </div>
+            <div
+              style={{
+                fontSize: 24,
+                color: "#f4b266",
+                fontWeight: 600,
+              }}
+            >
+              on darkfloor.art
+            </div>
           </div>
         </div>
       </div>

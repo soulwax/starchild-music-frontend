@@ -33,13 +33,13 @@ const baseUrl = getBaseUrl();
 export const metadata: Metadata = {
   title: "darkfloor.art",
   description:
-    "Modern music streaming and discovery platform with smart recommendations",
+    "Modern music streaming and discovery platform with advanced audio features and visual patterns",
   applicationName: "darkfloor.art",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   openGraph: {
     title: "darkfloor.art",
     description:
-      "Modern music streaming and discovery platform with smart recommendations",
+      "Modern music streaming and discovery platform with advanced audio features and visual patterns",
     type: "website",
     url: baseUrl,
     siteName: "darkfloor.art",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "darkfloor.art",
     description:
-      "Modern music streaming and discovery platform with smart recommendations",
+      "Modern music streaming and discovery platform with advanced audio features and visual patterns",
     images: [`${baseUrl}/api/og`],
   },
   other: {

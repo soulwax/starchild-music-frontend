@@ -3,7 +3,7 @@
 
 set -e  # Exit on error
 
-echo "🌟 darkfloor.art PM2 Setup Script"
+echo "🎵 Songbird Frontend PM2 Setup Script"
 echo "============================"
 echo ""
 
@@ -103,7 +103,7 @@ fi
 
 # Ask which mode to start
 echo "Which mode do you want to start?"
-echo "1) Production (cluster mode, 4 instances)"
+echo "1) Production (optimized fork mode with zero-downtime reload)"
 echo "2) Development (single instance with watch)"
 echo "3) Skip starting (manual start later)"
 read -p "Choose [1-3]: " -n 1 -r
@@ -112,14 +112,14 @@ echo ""
 
 case $REPLY in
     1)
-        echo "🚀 Starting in PRODUCTION mode..."
-        pm2 start ecosystem.config.cjs --env production
+        echo "🚀 Starting in PRODUCTION mode (fork)..."
+        pm2 start ecosystem.config.cjs --only songbird-frontend-prod --env production
         pm2 save
-        echo -e "${GREEN}✓ Started in production mode${NC}"
+        echo -e "${GREEN}✓ Started in production mode (fork)${NC}"
         ;;
     2)
         echo "🚀 Starting in DEVELOPMENT mode..."
-        pm2 start ecosystem.config.cjs --only hexmusic-dev
+        pm2 start ecosystem.config.cjs --only songbird-frontend-dev --env development
         pm2 save
         echo -e "${GREEN}✓ Started in development mode${NC}"
         ;;

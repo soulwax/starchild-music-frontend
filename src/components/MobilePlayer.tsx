@@ -29,6 +29,7 @@ import {
   ChevronDown,
   Heart,
   ListMusic,
+  ListPlus,
   MoreHorizontal,
   Pause,
   Play,
@@ -121,6 +122,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
 
   const [isExpanded, setIsExpanded] = useState(forceExpanded);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [showPlaylistSelector, setShowPlaylistSelector] = useState(false);
   const [hideAlbumCover, setHideAlbumCover] = useState(false);
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
   const [albumColorPalette, setAlbumColorPalette] =
@@ -135,6 +137,25 @@ export default function MobilePlayer(props: MobilePlayerProps) {
   >(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const artworkRef = useRef<HTMLDivElement>(null);
+
+  // Get user's playlists
+  const { data: playlists, refetch: refetchPlaylists } =
+    api.music.getPlaylists.useQuery(undefined, {
+      enabled: isAuthenticated,
+    });
+
+  // Add to playlist mutation
+  const addToPlaylist = api.music.addToPlaylist.useMutation({
+    onSuccess: () => {
+      hapticMedium();
+      setShowPlaylistSelector(false);
+      void refetchPlaylists();
+    },
+    onError: (error) => {
+      console.error("Failed to add to playlist:", error);
+      hapticMedium();
+    },
+  });
 
   // Motion values for smooth drag interactions
   const dragY = useMotionValue(0);
@@ -877,6 +898,96 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                       <Sliders className="h-5 w-5" />
                     </motion.button>
                   )}
+
+                  {/* Add to Playlist */}
+                  <div className="relative">
+                    <motion.button
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          hapticMedium();
+                          return;
+                        }
+                        hapticLight();
+                        setShowPlaylistSelector(!showPlaylistSelector);
+                      }}
+                      whileTap={{ scale: 0.9 }}
+                      className={`touch-target ${!isAuthenticated ? "opacity-50" : ""} ${showPlaylistSelector ? "text-[var(--color-accent)]" : "text-[var(--color-subtext)]"}`}
+                      title={
+                        isAuthenticated
+                          ? "Add to playlist"
+                          : "Sign in to add to playlists"
+                      }
+                    >
+                      <ListPlus className="h-5 w-5" />
+                    </motion.button>
+
+                    {/* Playlist Selector Dropdown */}
+                    <AnimatePresence>
+                      {showPlaylistSelector && isAuthenticated && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setShowPlaylistSelector(false)}
+                          />
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={springPresets.snappy}
+                            className="absolute bottom-full right-0 z-20 mb-2 w-64 max-h-72 overflow-y-auto rounded-xl border border-[rgba(244,178,102,0.18)] bg-[rgba(12,18,27,0.98)] shadow-xl backdrop-blur-xl"
+                          >
+                            <div className="p-3 border-b border-[rgba(255,255,255,0.08)]">
+                              <h3 className="text-sm font-semibold text-[var(--color-text)]">
+                                Add to Playlist
+                              </h3>
+                            </div>
+                            <div className="py-2">
+                              {playlists && playlists.length > 0 ? (
+                                playlists.map((playlist) => (
+                                  <button
+                                    key={playlist.id}
+                                    onClick={() => {
+                                      if (currentTrack) {
+                                        addToPlaylist.mutate({
+                                          playlistId: playlist.id,
+                                          track: currentTrack,
+                                        });
+                                      }
+                                    }}
+                                    disabled={addToPlaylist.isPending}
+                                    className="w-full px-4 py-3 text-left text-sm transition-colors hover:bg-[rgba(244,178,102,0.1)] disabled:opacity-50"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="min-w-0 flex-1">
+                                        <p className="truncate font-medium text-[var(--color-text)]">
+                                          {playlist.name}
+                                        </p>
+                                        <p className="text-xs text-[var(--color-subtext)]">
+                                          {playlist.trackCount ?? 0}{" "}
+                                          {playlist.trackCount === 1
+                                            ? "track"
+                                            : "tracks"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </button>
+                                ))
+                              ) : (
+                                <div className="px-4 py-6 text-center">
+                                  <p className="text-sm text-[var(--color-subtext)]">
+                                    No playlists yet
+                                  </p>
+                                  <p className="mt-1 text-xs text-[var(--color-muted)]">
+                                    Create one from the Playlists page
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
                   {/* Favorite */}
                   <motion.button

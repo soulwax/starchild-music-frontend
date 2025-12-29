@@ -9,7 +9,7 @@ import { api } from "@/trpc/react";
 import type { Track } from "@/types";
 import { hapticLight, hapticMedium, hapticSuccess } from "@/utils/haptics";
 import { formatTime } from "@/utils/time";
-import { Heart, Layers, Maximize2, Minimize2 } from "lucide-react";
+import { Heart, Layers, ListPlus, Maximize2, Minimize2 } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 
@@ -73,6 +73,7 @@ export default function MaturePlayer({
   onTogglePatternControls,
 }: PlayerProps) {
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [showPlaylistSelector, setShowPlaylistSelector] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -101,6 +102,22 @@ export default function MaturePlayer({
         await utils.music.isFavorite.invalidate({ trackId: currentTrack.id });
         await utils.music.getFavorites.invalidate();
       }
+    },
+  });
+
+  // Playlist queries and mutations
+  const { data: playlists, refetch: refetchPlaylists } =
+    api.music.getPlaylists.useQuery();
+
+  const addToPlaylist = api.music.addToPlaylist.useMutation({
+    onSuccess: () => {
+      hapticMedium();
+      setShowPlaylistSelector(false);
+      void refetchPlaylists();
+    },
+    onError: (error) => {
+      console.error("Failed to add to playlist:", error);
+      hapticMedium();
     },
   });
 
@@ -237,6 +254,83 @@ export default function MaturePlayer({
             <p className="truncate text-sm text-[var(--color-subtext)]">
               {currentTrack.artist.name}
             </p>
+          </div>
+
+          {/* Add to Playlist Button */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                hapticLight();
+                setShowPlaylistSelector(!showPlaylistSelector);
+              }}
+              className={`rounded-full p-2 transition-all ${
+                showPlaylistSelector
+                  ? "text-[var(--color-accent)]"
+                  : "text-[var(--color-subtext)] hover:text-[var(--color-text)]"
+              }`}
+              title="Add to playlist"
+            >
+              <ListPlus className="h-5 w-5" />
+            </button>
+
+            {/* Playlist Selector Dropdown */}
+            {showPlaylistSelector && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowPlaylistSelector(false)}
+                />
+                <div className="absolute bottom-full left-1/2 z-20 mb-2 w-64 max-h-72 overflow-y-auto -translate-x-1/2 rounded-xl border border-[rgba(244,178,102,0.18)] bg-[rgba(12,18,27,0.98)] shadow-xl backdrop-blur-xl">
+                  <div className="p-3 border-b border-[rgba(255,255,255,0.08)]">
+                    <h3 className="text-sm font-semibold text-[var(--color-text)]">
+                      Add to Playlist
+                    </h3>
+                  </div>
+                  <div className="py-2">
+                    {playlists && playlists.length > 0 ? (
+                      playlists.map((playlist) => (
+                        <button
+                          key={playlist.id}
+                          onClick={() => {
+                            if (currentTrack) {
+                              addToPlaylist.mutate({
+                                playlistId: playlist.id,
+                                track: currentTrack,
+                              });
+                            }
+                          }}
+                          disabled={addToPlaylist.isPending}
+                          className="w-full px-4 py-3 text-left text-sm transition-colors hover:bg-[rgba(244,178,102,0.1)] disabled:opacity-50"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-medium text-[var(--color-text)]">
+                                {playlist.name}
+                              </p>
+                              <p className="text-xs text-[var(--color-subtext)]">
+                                {playlist.trackCount ?? 0}{" "}
+                                {playlist.trackCount === 1
+                                  ? "track"
+                                  : "tracks"}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-6 text-center">
+                        <p className="text-sm text-[var(--color-subtext)]">
+                          No playlists yet
+                        </p>
+                        <p className="mt-1 text-xs text-[var(--color-muted)]">
+                          Create one from the Playlists page
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Favorite Button */}

@@ -80,11 +80,11 @@ export async function generateMetadata({
   const defaultMetadata: Metadata = {
     title: "darkfloor.art",
     description:
-      "Modern music streaming and discovery platform with smart recommendations",
+      "Modern music streaming and discovery platform with advanced audio features and visual patterns",
     openGraph: {
       title: "darkfloor.art",
       description:
-        "Modern music streaming and discovery platform with smart recommendations",
+        "Modern music streaming and discovery platform with advanced audio features and visual patterns",
       type: "website",
       url: baseUrl,
       siteName: "darkfloor.art",
@@ -101,7 +101,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: "darkfloor.art",
       description:
-        "Modern music streaming and discovery platform with smart recommendations",
+        "Modern music streaming and discovery platform with advanced audio features and visual patterns",
       images: [defaultOgImage],
     },
   };

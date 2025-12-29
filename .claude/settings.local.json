@@ -39,7 +39,10 @@
       "Bash(electron-builder --linux:*)",
       "Bash(pm2 describe:*)",
       "Bash(pm2 flush:*)",
-      "Bash(pm2 monit:*)"
+      "Bash(pm2 monit:*)",
+      "Bash(pm2 list:*)",
+      "Bash(npm run pm2:start:*)",
+      "Bash(pm2 save:*)"
     ],
     "deny": [],
     "ask": []

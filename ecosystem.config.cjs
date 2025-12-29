@@ -14,36 +14,34 @@ module.exports = {
   apps: [
     {
       // ============================================
-      // PRODUCTION CONFIGURATION (CLUSTER MODE)
+      // PRODUCTION CONFIGURATION (OPTIMIZED FORK MODE)
       // ============================================
-      // CLUSTER MODE BENEFITS:
-      // ✓ Better performance: Distributes load across all CPU cores
-      // ✓ Zero-downtime deployments: Reload instances one by one (pm2 reload)
-      // ✓ High availability: If one instance crashes, others continue serving requests
-      // ✓ Automatic load balancing: PM2 distributes incoming connections evenly
-      // ✓ Better resource utilization: Maximizes multi-core CPU usage
+      // WHY FORK MODE FOR NEXT.JS:
+      // ✓ Next.js has built-in concurrency handling (Node.js async I/O)
+      // ✓ Next.js standalone mode doesn't work with PM2 cluster (port binding conflicts)
+      // ✓ Single optimized instance is more efficient than multiple instances
+      // ✓ Automatic restart on crash provides high availability
+      // ✓ PM2 reload still provides zero-downtime deployments
       //
       // DEPLOYMENT WORKFLOW:
-      // 1. npm run deploy (builds + reloads all instances gracefully)
+      // 1. npm run deploy (builds + gracefully reloads instance)
       // 2. PM2 starts new instance → waits for 'ready' signal → kills old instance
-      // 3. Repeat for each instance until all are updated (zero downtime!)
+      // 3. Zero downtime achieved through graceful reload!
       //
-      name: "songbird-player-prod",
+      name: "songbird-frontend-prod",
       script: "scripts/server.js",
       args: "",
       interpreter: "node",
 
-      // CLUSTER MODE: Maximize performance & enable zero-downtime reloads
-      // Using "max" instances to utilize all CPU cores for optimal load distribution
-      instances: "max", // Auto-scale to number of CPU cores (use "max-1" to reserve one core for system tasks)
-      exec_mode: "cluster", // PM2 cluster mode with built-in load balancer
+      // FORK MODE: Single optimized instance (Next.js handles concurrency internally)
+      instances: 1, // Single instance - Next.js already optimized for concurrent requests
+      exec_mode: "fork", // Fork mode (required for Next.js port binding)
 
       // ============================================
       // MEMORY MANAGEMENT
       // ============================================
-      // Reduced per-instance limit since total memory = instances × max_memory_restart
-      // With 4 cores: 4 × 1.5GB = 6GB total max usage (adjust based on available RAM)
-      max_memory_restart: "1536M", // Restart individual instance if it exceeds 1.5GB
+      // Optimized memory limits for single instance
+      max_memory_restart: "2560M", // Restart if memory exceeds 2.5GB (increased for single instance)
       min_uptime: "30s", // Minimum uptime before considered stable (increased from 10s for Next.js)
 
       // ============================================
@@ -114,15 +112,15 @@ module.exports = {
       increment_var: "INSTANCE_NUMBER", // Sets incrementing number (1, 2, 3, etc.) for human-readable logging
 
       // ============================================
-      // CLUSTER MODE OPTIMIZATIONS
+      // FORK MODE OPTIMIZATIONS
       // ============================================
-      // Graceful reloading: Restart instances one by one to achieve zero-downtime
-      // PM2 waits for new instance to be ready (via 'ready' signal) before killing old one
-      kill_timeout: 8000, // Increased from 5s to 8s for graceful shutdown in cluster mode
-      listen_timeout: 15000, // Increased from 10s to 15s to allow time for Next.js startup under load
+      // Graceful reloading: Start new instance before killing old one (zero-downtime)
+      // PM2 waits for new instance to be ready (via 'ready' signal) before killing old instance
+      kill_timeout: 5000, // Grace period before force kill (5s is sufficient for fork mode)
+      listen_timeout: 10000, // Wait 10s for app to be ready (Next.js startup time)
 
-      // Node.js cluster settings
-      node_args: "--max-old-space-size=1536", // Match max_memory_restart limit (prevents OOM before PM2 can restart)
+      // Node.js memory settings
+      node_args: "--max-old-space-size=2560", // Match max_memory_restart limit (prevents OOM before PM2 can restart)
 
       // ============================================
       // HEALTH CHECKS & MONITORING
@@ -139,7 +137,7 @@ module.exports = {
       // ============================================
       // DEVELOPMENT CONFIGURATION
       // ============================================
-      name: "songbird-player-dev",
+      name: "songbird-frontend-dev",
       script: "scripts/server.js",
       args: "",
       interpreter: "node",
