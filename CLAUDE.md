@@ -4,17 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-darkfloor.art - A modern music streaming and discovery platform built with Next.js 15, TypeScript, and TailwindCSS v4. Features include audio playback with equalizer, smart recommendations, visual audio patterns, and a Spotify-like mobile experience.
+**darkfloor.art** (npm package: `songbird-player`) - A modern music streaming and discovery platform built with Next.js 15, TypeScript, and TailwindCSS v4. Features include audio playback with equalizer, smart recommendations, visual audio patterns, and a Spotify-like mobile experience.
 
 **Tech Stack:**
-- Next.js 15.5+ (App Router, Turbopack, standalone mode)
-- TypeScript (strict mode, noUncheckedIndexedAccess)
+- Next.js ^15.5.9 (App Router, Turbopack, standalone mode)
+- TypeScript (strict mode, noUncheckedIndexedAccess, checkJs enabled)
 - TailwindCSS v4 with CSS variables
 - tRPC for type-safe API calls
 - Framer Motion for animations
 - NextAuth v5 (Discord OAuth)
-- Drizzle ORM + PostgreSQL
+- Drizzle ORM + PostgreSQL (Neon serverless)
 - Electron for desktop builds
+- Chalk for enhanced logging
 
 ## Common Commands
 
@@ -65,9 +66,12 @@ src/
 ├── app/                    # Next.js App Router (pages & layouts)
 │   ├── layout.tsx          # Root layout (providers, mobile/desktop headers)
 │   ├── page.tsx            # Home page (search, recent tracks)
+│   ├── _components/        # App-specific components (not for reuse)
+│   ├── api/                # API routes (health check, etc.)
 │   ├── library/            # User library page
 │   ├── playlists/          # Playlists management
-│   └── [userhash]/         # User profile pages
+│   ├── license/            # License page
+│   └── [userhash]/         # User profile pages (dynamic route)
 ├── components/             # React components
 │   ├── MobileHeader.tsx    # Persistent top header (mobile only)
 │   ├── HamburgerMenu.tsx   # Slide-out navigation drawer (mobile)
@@ -96,6 +100,13 @@ src/
 │   ├── auth/               # NextAuth configuration
 │   ├── db/                 # Drizzle ORM setup & schema
 │   └── services/           # Business logic (recommendations, etc.)
+├── trpc/                   # tRPC client setup
+│   ├── react.tsx           # React hooks for tRPC
+│   └── server.ts           # Server-side tRPC caller
+├── lib/                    # Third-party library configurations
+├── services/               # External service integrations
+├── config/                 # App configuration constants
+├── constants/              # Global constants
 ├── utils/                  # Utility functions
 │   ├── api.ts              # API client for external music service
 │   ├── haptics.ts          # Mobile haptic feedback helpers
@@ -104,7 +115,12 @@ src/
 │   └── index.ts            # Track, Album, Artist, SearchResponse
 ├── styles/
 │   └── globals.css         # TailwindCSS + CSS variables (colors, animations)
-└── env.js                  # Environment variable validation (Zod)
+├── env.js                  # Environment variable validation (Zod)
+└── global.d.ts             # Global TypeScript declarations
+
+scripts/                    # Build and deployment scripts
+electron/                   # Electron desktop app files
+drizzle/                    # Database migrations (auto-generated)
 
 electron/
 ├── main.cjs               # Electron main process (CommonJS)
@@ -386,11 +402,55 @@ ELECTRON_BUILD=true             # Set during Electron builds
 - **Formatting:** `npm run format:write` - Prettier with Tailwind plugin
 - **Manual testing:** Test responsive breakpoints, audio playback, and mobile gestures
 
+## Server Architecture (Custom Server Script)
+
+The application uses a **custom Node.js server wrapper** (`scripts/server.js`) that provides enhanced logging, build validation, and startup configuration:
+
+**Key Features:**
+- **Chalk-based logging**: Colorized, timestamped logs with icons (ℹ, ✓, ⚠, ✗)
+- **Automatic build validation**: Checks for `.next/BUILD_ID` before starting production server
+- **Auto-recovery**: Automatically runs `npm run build` if production build is missing
+- **Environment priority**: `.env.local` > `.env.production` > `.env` (production), or `.env.development` only (dev)
+- **System monitoring**: Memory usage tracking, network interface detection
+- **Graceful shutdown**: Handles SIGTERM, SIGINT, SIGUSR2 with proper cleanup
+- **PM2 integration**: Sends 'ready' signal to PM2 when server is up
+
+**Environment Loading Behavior:**
+```js
+// Development: ONLY loads .env.development
+// Production: Loads in priority order (first wins):
+//   1. .env.local (highest priority)
+//   2. .env.production
+//   3. .env (lowest priority)
+```
+
+**Build Validation:**
+- Production mode requires valid `.next/BUILD_ID` file
+- Missing build triggers automatic `npm run build`
+- Prevents crash loops by exiting cleanly if build fails
+- Pre-start hook (`scripts/ensure-build.js`) also validates before PM2 starts
+
+## Helper Scripts
+
+The `scripts/` directory contains utility scripts for various tasks:
+
+- **server.js** - Custom Next.js server wrapper with enhanced logging (main entry point)
+- **ensure-build.js** - PM2 pre-start hook to validate/create production build
+- **load-env-build.js** - Environment variable loader for Electron builds
+- **generate-ssl-cert.js** - SSL certificate generation for HTTPS development
+- **download-node.js** - Downloads Node.js binaries for Electron packaging
+- **check-users.ts** - Database utility to check user accounts
+- **populate-userhash.ts** - Populate user hash fields in database
+- **set-profile-public.ts** - Set user profile visibility
+- **copydb/** - Database migration/copy utilities
+
 ## Deployment (PM2)
 
 **Configuration:** `ecosystem.config.cjs` defines two apps:
 - `darkfloor-art-prod` - Production (uses PORT from .env, default: 3222)
 - `darkfloor-art-dev` - Development (uses PORT from .env, default: 3222)
+
+**Important:** Process names are `darkfloor-art-prod` and `darkfloor-art-dev` (not `songbird-player-*`). The package name "songbird-player" is only used in npm/package.json.
 
 **Workflow:**
 1. Make changes
@@ -398,3 +458,5 @@ ELECTRON_BUILD=true             # Set during Electron builds
 3. Check logs: `npm run pm2:logs`
 
 **Environment files:** PM2 loads `.env.production` for prod instance, `.env.local` for dev.
+
+**Pre-start Hook:** `scripts/ensure-build.js` runs before PM2 starts the process, ensuring build exists.

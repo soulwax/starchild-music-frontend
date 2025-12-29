@@ -14,19 +14,36 @@ module.exports = {
   apps: [
     {
       // ============================================
-      // PRODUCTION CONFIGURATION
+      // PRODUCTION CONFIGURATION (CLUSTER MODE)
       // ============================================
+      // CLUSTER MODE BENEFITS:
+      // ✓ Better performance: Distributes load across all CPU cores
+      // ✓ Zero-downtime deployments: Reload instances one by one (pm2 reload)
+      // ✓ High availability: If one instance crashes, others continue serving requests
+      // ✓ Automatic load balancing: PM2 distributes incoming connections evenly
+      // ✓ Better resource utilization: Maximizes multi-core CPU usage
+      //
+      // DEPLOYMENT WORKFLOW:
+      // 1. npm run deploy (builds + reloads all instances gracefully)
+      // 2. PM2 starts new instance → waits for 'ready' signal → kills old instance
+      // 3. Repeat for each instance until all are updated (zero downtime!)
+      //
       name: "darkfloor-art-prod",
       script: "scripts/server.js",
       args: "",
       interpreter: "node",
-      instances: 1, // Single instance (Next.js is already optimized, doesn't work well with PM2 cluster mode)
-      exec_mode: "fork", // Fork mode (Next.js binds to port directly, incompatible with PM2 cluster mode)
+
+      // CLUSTER MODE: Maximize performance & enable zero-downtime reloads
+      // Using "max" instances to utilize all CPU cores for optimal load distribution
+      instances: "max", // Auto-scale to number of CPU cores (use "max-1" to reserve one core for system tasks)
+      exec_mode: "cluster", // PM2 cluster mode with built-in load balancer
 
       // ============================================
       // MEMORY MANAGEMENT
       // ============================================
-      max_memory_restart: "2G", // Restart if memory exceeds 2GB per instance
+      // Reduced per-instance limit since total memory = instances × max_memory_restart
+      // With 4 cores: 4 × 1.5GB = 6GB total max usage (adjust based on available RAM)
+      max_memory_restart: "1536M", // Restart individual instance if it exceeds 1.5GB
       min_uptime: "30s", // Minimum uptime before considered stable (increased from 10s for Next.js)
 
       // ============================================
@@ -35,8 +52,6 @@ module.exports = {
       autorestart: true, // Auto-restart on crash
       max_restarts: 10, // Max restarts within restart_delay window
       restart_delay: 5000, // Wait 5s before restart (increased from 4s for graceful shutdown)
-      kill_timeout: 5000, // Grace period before force kill (5s)
-      listen_timeout: 10000, // Wait 10s for app to be ready (increased from 3s for Next.js startup)
       wait_ready: true, // Wait for Next.js ready signal
 
       // Exponential backoff for restarts (prevents crash loops)
@@ -59,13 +74,14 @@ module.exports = {
       },
 
       // ============================================
-      // LOGGING
+      // LOGGING (CLUSTER MODE)
       // ============================================
-      // Combine logs for easier debugging
+      // Merge logs from all instances for easier debugging
+      // Each log line will include instance ID for tracking which instance handled the request
       combine_logs: true,
       merge_logs: true,
 
-      // Log file paths
+      // Log file paths (all instances write to same files with instance ID prefix)
       error_file: "./logs/pm2/error.log",
       out_file: "./logs/pm2/out.log",
       log_file: "./logs/pm2/combined.log",
@@ -73,6 +89,9 @@ module.exports = {
       // Log formatting
       time: true, // Prefix logs with timestamp
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+
+      // PM2 log type (enables JSON mode for better parsing if needed)
+      // log_type: "json", // Uncomment for structured JSON logs
 
       // ============================================
       // PROCESS MONITORING
@@ -90,8 +109,20 @@ module.exports = {
       // Source map support for better error traces
       source_map_support: true,
 
-      // Instance variables (useful for debugging which instance handled request)
-      instance_var: "INSTANCE_ID",
+      // Instance variables (useful for debugging which instance handled request in cluster mode)
+      instance_var: "INSTANCE_ID", // Sets process.env.INSTANCE_ID to instance number (0, 1, 2, etc.)
+      increment_var: "INSTANCE_NUMBER", // Sets incrementing number (1, 2, 3, etc.) for human-readable logging
+
+      // ============================================
+      // CLUSTER MODE OPTIMIZATIONS
+      // ============================================
+      // Graceful reloading: Restart instances one by one to achieve zero-downtime
+      // PM2 waits for new instance to be ready (via 'ready' signal) before killing old one
+      kill_timeout: 8000, // Increased from 5s to 8s for graceful shutdown in cluster mode
+      listen_timeout: 15000, // Increased from 10s to 15s to allow time for Next.js startup under load
+
+      // Node.js cluster settings
+      node_args: "--max-old-space-size=1536", // Match max_memory_restart limit (prevents OOM before PM2 can restart)
 
       // ============================================
       // HEALTH CHECKS & MONITORING
