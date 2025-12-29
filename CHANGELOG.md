@@ -5,6 +5,66 @@ All notable changes to darkfloor.art will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-12-29
+
+### Fixed
+
+#### Audio Player State Synchronization
+
+- **Pause Button Not Working**: Fixed infinite play/pause loop caused by React state being out of sync with audio element state
+  - Root cause: useEffect dependency on `isPlaying` triggered when user paused, causing immediate auto-play
+  - Solution: Removed `isPlaying` from dependency array and eliminated auto-play for already-loaded tracks
+  - Added polling mechanism (500ms) to sync React state with actual audio element state
+  - Locations:
+    - `src/hooks/useAudioPlayer.ts:694-711` - togglePlay checks actual audio state
+    - `src/hooks/useAudioPlayer.ts:1080` - Removed isPlaying from dependency array
+    - `src/hooks/useAudioPlayer.ts:1084-1096` - Added state sync polling
+
+#### Visualizer Animation Lifecycle
+
+- **Visualizer Not Responding to Play/Pause**: Fixed animation loop not starting/stopping with playback
+  - Root cause: Animation loop only triggered on audioElement changes, not play/pause state changes
+  - Solution: Added play/pause event listeners to track audio state and trigger animation loop
+  - Animation now properly starts when playing and stops when paused
+  - Locations:
+    - `src/components/FlowFieldBackground.tsx:32-57` - Added play/pause event listeners
+    - `src/components/FlowFieldBackground.tsx:150-154` - Animation loop depends on isPlaying state
+    - `src/components/PersistentPlayer.tsx:294-297` - Fixed prop mismatch (audioElement vs analyser/audioContext)
+
+#### Browser Autoplay Policy Compliance
+
+- **NotAllowedError on Page Load**: Fixed browser blocking audio autoplay on initial page load
+  - Solution: Skip auto-play on first render when restoring queue from localStorage
+  - User must explicitly click play or select a song for audio to start
+  - Locations:
+    - `src/hooks/useAudioPlayer.ts:1052-1056` - Skip auto-play on initial mount
+    - `src/hooks/useAudioPlayer.ts:112-122` - Initialize audio source without playing
+
+### Technical Details
+
+**State Synchronization Architecture:**
+
+- Audio element's `.paused` property is now the source of truth
+- React `isPlaying` state synced via:
+  1. Audio element event listeners (play/pause events)
+  2. Polling fallback (500ms) to catch missed events
+  3. Direct checks in togglePlay and visualizer
+- UI button icons always match actual playback state
+
+**Visualizer Event-Driven Updates:**
+
+```
+Audio Element Events → FlowFieldBackground State → Animation Loop
+     play event      →   setIsPlaying(true)     →   Start animating
+    pause event      →   setIsPlaying(false)    →   Stop animating
+```
+
+**Files Modified:**
+
+- Modified: `src/hooks/useAudioPlayer.ts` - State sync, autoplay prevention, pause button fix
+- Modified: `src/components/FlowFieldBackground.tsx` - Event-driven animation, play/pause tracking
+- Modified: `src/components/PersistentPlayer.tsx` - Fixed visualizer props
+
 ## [0.7.9] - 2025-12-29
 
 ### Fixed
