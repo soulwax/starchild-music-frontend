@@ -44,20 +44,26 @@ interface QueueItemProps {
   track: Track;
   index: number;
   isActive: boolean;
+  isSelected: boolean;
   onPlay: () => void;
   onRemove: () => void;
+  onToggleSelect: (e: React.MouseEvent) => void;
   sortableId: string;
   isSmartTrack?: boolean;
+  canRemove: boolean;
 }
 
 function SortableQueueItem({
   track,
   index,
   isActive,
+  isSelected,
   onPlay,
   onRemove,
+  onToggleSelect,
   sortableId,
   isSmartTrack,
+  canRemove,
 }: QueueItemProps) {
   const {
     attributes,
@@ -93,12 +99,22 @@ function SortableQueueItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative flex items-center gap-3 p-3 transition-colors ${
-        isActive
-          ? "bg-[rgba(244,178,102,0.16)] ring-1 ring-[rgba(244,178,102,0.3)]"
-          : isSmartTrack
-            ? "bg-[rgba(88,198,177,0.04)] hover:bg-[rgba(88,198,177,0.08)]"
-            : "hover:bg-[rgba(244,178,102,0.08)]"
+      onClick={(e) => {
+        // Don't trigger selection when clicking on interactive elements
+        if ((e.target as HTMLElement).closest('button')) {
+          return;
+        }
+        onToggleSelect(e);
+      }}
+      tabIndex={0}
+      className={`group relative flex items-center gap-3 p-3 transition-colors cursor-pointer ${
+        isSelected
+          ? "bg-[rgba(88,198,177,0.18)] ring-2 ring-[rgba(88,198,177,0.4)]"
+          : isActive
+            ? "bg-[rgba(244,178,102,0.16)] ring-1 ring-[rgba(244,178,102,0.3)]"
+            : isSmartTrack
+              ? "bg-[rgba(88,198,177,0.04)] hover:bg-[rgba(88,198,177,0.08)]"
+              : "hover:bg-[rgba(244,178,102,0.08)]"
       }`}
     >
       {/* Left accent bar for smart tracks */}
@@ -168,14 +184,19 @@ function SortableQueueItem({
         {formatDuration(track.duration)}
       </span>
 
-      {/* Remove Button */}
-      <button
-        onClick={onRemove}
-        className="flex-shrink-0 rounded p-1.5 opacity-0 transition-colors group-hover:opacity-100 hover:bg-[rgba(244,178,102,0.12)]"
-        aria-label="Remove from queue"
-      >
-        <X className="h-4 w-4 text-[var(--color-subtext)] transition-colors hover:text-[var(--color-text)]" />
-      </button>
+      {/* Remove Button - Only show if track can be removed */}
+      {canRemove && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering onToggleSelect
+            onRemove();
+          }}
+          className="flex-shrink-0 rounded p-1.5 opacity-0 transition-colors group-hover:opacity-100 hover:bg-[rgba(244,178,102,0.12)]"
+          aria-label="Remove from queue"
+        >
+          <X className="h-4 w-4 text-[var(--color-subtext)] transition-colors hover:text-[var(--color-text)]" />
+        </button>
+      )}
     </div>
   );
 }
@@ -191,7 +212,7 @@ interface EnhancedQueueProps {
   onReorder: (oldIndex: number, newIndex: number) => void;
   onPlayFrom: (index: number) => void;
   onSaveAsPlaylist?: () => void;
-  onAddSmartTracks?: () => Promise<void>;
+  onAddSmartTracks?: (count?: number) => Promise<Track[]>;
   onRefreshSmartTracks?: () => Promise<void>;
   onClearSmartTracks?: () => void;
   // COMMENTED OUT - Smart queue features disabled
@@ -200,6 +221,11 @@ interface EnhancedQueueProps {
   //   seedTrackIds: number[],
   //   count?: number,
   // ) => Promise<void>;
+}
+
+interface SelectedIndices {
+  indices: Set<number>;
+  lastSelectedIndex: number | null;
 }
 
 export function EnhancedQueue({
@@ -221,6 +247,8 @@ export function EnhancedQueue({
   // onGenerateSmartMix,
 }: EnhancedQueueProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   // COMMENTED OUT - Smart queue UI state disabled
   // const [showSettings, setShowSettings] = useState(false);
   // const [addingSimilar, setAddingSimilar] = useState(false);
@@ -363,6 +391,85 @@ export function EnhancedQueue({
     return filteredQueue.slice(1).filter(entry => entry.isSmartTrack);
   }, [filteredQueue]);
 
+  // Selection handlers
+  const handleToggleSelect = useCallback((index: number, shiftKey: boolean) => {
+    setSelectedIndices((prev) => {
+      const newSet = new Set(prev);
+
+      if (shiftKey && lastSelectedIndex !== null) {
+        // Range selection with Shift
+        const start = Math.min(lastSelectedIndex, index);
+        const end = Math.max(lastSelectedIndex, index);
+        for (let i = start; i <= end; i++) {
+          if (i !== 0) { // Don't select currently playing track
+            newSet.add(i);
+          }
+        }
+      } else {
+        // Single toggle
+        if (index !== 0) { // Don't select currently playing track
+          if (newSet.has(index)) {
+            newSet.delete(index);
+          } else {
+            newSet.add(index);
+          }
+        }
+      }
+
+      return newSet;
+    });
+
+    if (!shiftKey || lastSelectedIndex === null) {
+      setLastSelectedIndex(index);
+    }
+  }, [lastSelectedIndex]);
+
+  const handleRemoveSelected = useCallback(() => {
+    if (selectedIndices.size === 0) return;
+
+    // Sort indices in descending order to remove from end to beginning
+    // This prevents index shifting issues
+    const sortedIndices = Array.from(selectedIndices).sort((a, b) => b - a);
+
+    sortedIndices.forEach(index => {
+      onRemove(index);
+    });
+
+    setSelectedIndices(new Set());
+    setLastSelectedIndex(null);
+    showToast(`Removed ${sortedIndices.length} track${sortedIndices.length === 1 ? '' : 's'} from queue`, 'success');
+  }, [selectedIndices, onRemove, showToast]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedIndices(new Set());
+    setLastSelectedIndex(null);
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!queueListRef.current?.contains(document.activeElement)) return;
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+
+        const direction = e.key === 'ArrowDown' ? 1 : -1;
+        const currentIndex = lastSelectedIndex ?? 0;
+        const newIndex = Math.max(0, Math.min(queue.length - 1, currentIndex + direction));
+
+        handleToggleSelect(newIndex, e.shiftKey);
+      } else if (e.key === 'Escape') {
+        handleClearSelection();
+      } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedIndices.size > 0) {
+        e.preventDefault();
+        handleRemoveSelected();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [queue.length, lastSelectedIndex, selectedIndices, handleToggleSelect, handleClearSelection, handleRemoveSelected]);
+
   const totalDuration = queue.reduce((acc, track) => acc + track.duration, 0);
 
   return (
@@ -462,6 +569,29 @@ export function EnhancedQueue({
             </button>
           </div>
         </div>
+
+        {/* Mass Actions Bar */}
+        {selectedIndices.size > 0 && (
+          <div className="flex items-center gap-2 rounded-lg border border-[rgba(88,198,177,0.25)] bg-[rgba(88,198,177,0.12)] p-3">
+            <span className="text-sm font-medium text-[var(--color-text)]">
+              {selectedIndices.size} selected
+            </span>
+            <div className="flex-1" />
+            <button
+              onClick={handleRemoveSelected}
+              className="flex items-center gap-2 rounded-lg bg-[rgba(248,139,130,0.2)] px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[rgba(248,139,130,0.3)]"
+            >
+              <Trash2 className="h-4 w-4" />
+              Remove
+            </button>
+            <button
+              onClick={handleClearSelection}
+              className="rounded-lg bg-[rgba(255,255,255,0.1)] px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[rgba(255,255,255,0.15)]"
+            >
+              Clear
+            </button>
+          </div>
+        )}
 
         {/* Search Bar */}
         {queue.length > 0 && (
@@ -787,9 +917,12 @@ export function EnhancedQueue({
                         track={filteredNowPlaying.track}
                         index={filteredNowPlaying.index}
                         isActive={currentTrack?.id === filteredNowPlaying.track.id}
+                        isSelected={selectedIndices.has(filteredNowPlaying.index)}
                         onPlay={() => onPlayFrom(filteredNowPlaying.index)}
                         onRemove={() => onRemove(filteredNowPlaying.index)}
+                        onToggleSelect={(e) => handleToggleSelect(filteredNowPlaying.index, e.shiftKey)}
                         isSmartTrack={filteredNowPlaying.isSmartTrack}
+                        canRemove={filteredNowPlaying.index !== 0}
                       />
                     </div>
                   </div>
@@ -809,9 +942,12 @@ export function EnhancedQueue({
                             track={track}
                             index={index}
                             isActive={currentTrack?.id === track.id}
+                            isSelected={selectedIndices.has(index)}
                             onPlay={() => onPlayFrom(index)}
                             onRemove={() => onRemove(index)}
+                            onToggleSelect={(e) => handleToggleSelect(index, e.shiftKey)}
                             isSmartTrack={isSmartTrack}
+                            canRemove={index !== 0}
                           />
                         </div>
                       ))}
@@ -854,9 +990,12 @@ export function EnhancedQueue({
                             track={track}
                             index={index}
                             isActive={currentTrack?.id === track.id}
+                            isSelected={selectedIndices.has(index)}
                             onPlay={() => onPlayFrom(index)}
                             onRemove={() => onRemove(index)}
+                            onToggleSelect={(e) => handleToggleSelect(index, e.shiftKey)}
                             isSmartTrack={isSmartTrack}
+                            canRemove={index !== 0}
                           />
                         </div>
                       ))}
@@ -890,6 +1029,11 @@ export function EnhancedQueue({
           {searchQuery && filteredQueue.length !== queue.length && (
             <div className="mt-2 text-xs text-[var(--color-muted)]">
               Showing {filteredQueue.length} of {queue.length} tracks
+            </div>
+          )}
+          {!searchQuery && selectedIndices.size === 0 && (
+            <div className="mt-2 text-xs text-[var(--color-muted)]">
+              Tip: Click to select • Shift+Arrow to multi-select • Del/Backspace to remove
             </div>
           )}
         </div>

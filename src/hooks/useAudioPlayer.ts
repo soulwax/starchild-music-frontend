@@ -1024,6 +1024,12 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
   );
 
   const removeFromQueue = useCallback((index: number) => {
+    console.log("[useAudioPlayer] removeFromQueue called", {
+      index,
+      queueLength: queuedTracks.length,
+      isCurrentTrack: index === 0,
+    });
+
     // Prevent removing queuedTracks[0] (current track)
     if (index === 0) {
       console.warn(
@@ -1031,8 +1037,17 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       );
       return;
     }
-    setQueuedTracks((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+
+    setQueuedTracks((prev) => {
+      const newQueue = prev.filter((_, i) => i !== index);
+      console.log("[useAudioPlayer] Queue updated after removal", {
+        previousLength: prev.length,
+        newLength: newQueue.length,
+        removedIndex: index,
+      });
+      return newQueue;
+    });
+  }, [queuedTracks]);
 
   const clearQueue = useCallback(() => {
     // Clear only upcoming tracks (queuedTracks[1..n]), keep current track (queuedTracks[0])

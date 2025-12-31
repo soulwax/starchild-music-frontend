@@ -15,12 +15,16 @@ export default function SuppressExtensionErrors() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Store the original console.error function
     const originalError = console.error;
     
     // Ensure originalError is actually a function
     if (typeof originalError !== "function") {
       return;
     }
+
+    // Create a bound version of the original function to preserve context
+    const boundOriginalError = originalError.bind(console);
 
     console.error = function (...args: unknown[]) {
       try {
@@ -34,24 +38,26 @@ export default function SuppressExtensionErrors() {
         ) {
           return; // Suppress this specific error
         }
-        // Call original error handler safely
-        if (typeof originalError === "function") {
-          originalError.apply(console, args);
-        }
+        
+        // Call original error handler with proper context
+        // Use bound function to ensure 'this' context is correct
+        boundOriginalError(...args);
       } catch (error) {
-        // Fallback: if apply fails, try direct call
+        // If our wrapper fails, try to call the original directly
+        // This should never happen, but provides a safety net
         try {
-          if (typeof originalError === "function") {
-            originalError(...args);
-          }
+          // Use Function.prototype.apply with console as context
+          Function.prototype.apply.call(originalError, console, args);
         } catch {
-          // Silently fail if error handling itself fails
+          // If all else fails, silently ignore to prevent infinite loops
+          // This should be extremely rare
         }
       }
     };
 
     // Cleanup on unmount
     return () => {
+      // Restore original console.error
       if (typeof originalError === "function") {
         console.error = originalError;
       }

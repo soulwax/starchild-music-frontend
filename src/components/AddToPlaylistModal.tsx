@@ -137,7 +137,7 @@ export function AddToPlaylistModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={springPresets.gentle}
-            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm"
             onClick={() => {
               hapticLight();
               onClose();
@@ -150,7 +150,7 @@ export function AddToPlaylistModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={springPresets.gentle}
-            className="fixed inset-x-4 top-1/2 z-[101] max-h-[80vh] -translate-y-1/2 md:left-1/2 md:right-auto md:w-full md:max-w-md md:-translate-x-1/2"
+            className="fixed inset-x-4 top-1/2 z-[201] max-h-[80vh] -translate-y-1/2 md:left-1/2 md:right-auto md:w-full md:max-w-md md:-translate-x-1/2"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="surface-panel flex max-h-[80vh] flex-col overflow-hidden">

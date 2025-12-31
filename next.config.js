@@ -98,7 +98,6 @@ const config = {
   // Turbopack configuration (Next.js 15.3.0+)
   // This configures Turbopack when using --turbo flag in development
   turbopack: {
-    
   },
   images: {
     remotePatterns: [

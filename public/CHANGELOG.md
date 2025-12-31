@@ -7,7 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.2] - 2025-12-31
 
+### Added
+
+#### Queue Multi-Select and Mass Actions
+
+- **Keyboard Navigation**: Implemented keyboard-driven multi-select for queue management
+  - Click individual tracks to select/deselect
+  - Shift+Arrow Up/Down for range selection
+  - Visual indication with teal accent ring for selected tracks
+  - Mass action bar appears when tracks are selected, showing count and action buttons
+  - Location: `src/components/EnhancedQueue.tsx:43-54, 220-223, 244-245, 388-465`
+
+- **Mass Actions**:
+  - Remove multiple tracks at once (Remove button or Del/Backspace key)
+  - Clear selection (Clear button or Escape key)
+  - Smart removal order (descending indices to prevent shifting issues)
+  - Toast notification showing number of tracks removed
+  - Location: `src/components/EnhancedQueue.tsx:421-435, 567-588`
+
+- **UI Enhancements**:
+  - Remove button now hidden for currently playing track (index 0) since it cannot be removed
+  - Helpful keyboard shortcut hints in footer
+  - Selection state persists until explicitly cleared
+  - Click detection intelligently avoids triggering selection when clicking buttons
+  - Location: `src/components/EnhancedQueue.tsx:102-108, 182-193, 1034-1038`
+
 ### Fixed
+
+#### Queue Track Removal
+
+- **Remove Button Visibility**: Fixed remove button showing for currently playing track which cannot be removed
+  - Added `canRemove` prop to `SortableQueueItem` to conditionally show remove button
+  - Currently playing track (index 0) now correctly hides the remove button
+  - Added enhanced logging to `removeFromQueue` function for debugging
+  - Location: `src/components/EnhancedQueue.tsx:53, 182-193`, `src/hooks/useAudioPlayer.ts:1026-1050`
 
 #### Search Results Persistence Bug
 
