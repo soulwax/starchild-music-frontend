@@ -43,14 +43,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-#### Album Track Artist Validation Error
+#### Track Validation Errors (Album & Search)
 
-- **Add to Playlist from Album**: Fixed validation error when adding tracks from album pages to playlists
-  - Root cause: Artist objects from album endpoints lacked required picture fields (link, picture, picture_small, picture_medium, picture_big, picture_xl, tracklist)
-  - Solution: Made artist picture fields optional in both Zod schema and TypeScript type definition
-  - Album tracks now validate correctly even when artist data is incomplete
-  - Image utility functions already had fallback handling for missing artist pictures
-  - Location: `src/types/index.ts:14-25`, `src/server/api/routers/music.ts:53-64`
+- **Add to Playlist/Favorites Validation**: Fixed validation errors when adding tracks from various sources to playlists or favorites
+  - Root cause: Some tracks have incomplete metadata from the Deezer API
+  - Issues fixed:
+    1. Artist objects from album endpoints lacked picture fields (link, picture, picture_small, picture_medium, picture_big, picture_xl, tracklist)
+    2. Some tracks missing `title_version` field entirely
+  - Solution: Made optional fields in both Zod schema and TypeScript type definition:
+    - Artist: `link`, `picture`, `picture_small`, `picture_medium`, `picture_big`, `picture_xl`, `tracklist`
+    - Track: `title_version`
+  - All tracks now validate correctly regardless of completeness
+  - Image utility functions already had fallback handling for missing fields
+  - Location: `src/types/index.ts:14-25, 49-69`, `src/server/api/routers/music.ts:39-78`
 
 #### Queue Track Progression (CRITICAL)
 

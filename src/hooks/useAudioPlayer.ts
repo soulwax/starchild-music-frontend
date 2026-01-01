@@ -12,6 +12,7 @@ import type {
   Track,
 } from "@/types";
 import { getStreamUrlById } from "@/utils/api";
+import { logger } from "@/utils/logger";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   loadPersistedQueueState,
@@ -139,7 +140,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
     // Priority: initialQueueState (from database) > localStorage
     if (initialQueueState && initialQueueState.queuedTracks.length > 0) {
-      console.log("[useAudioPlayer] 📥 Restoring queue state from database");
+      logger.info("[useAudioPlayer] 📥 Restoring queue state from database");
       setQueuedTracks(initialQueueState.queuedTracks);
       setSmartQueueState(initialQueueState.smartQueueState);
       setHistory(initialQueueState.history);
@@ -206,7 +207,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         // Don't auto-restore currentTime to avoid unexpected jumps
       } else {
         // Queue was empty (intentionally cleared), don't restore
-        console.log(
+        logger.debug(
           "[useAudioPlayer] Queue was cleared, not restoring from persistence",
         );
       }
@@ -260,7 +261,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     if (audioRef.current && currentTrack && !audioRef.current.src) {
       // Only initialize if there's no source already set
       // This happens when state is restored from localStorage
-      console.log(
+      logger.debug(
         "[useAudioPlayer] 🔄 Restoring audio source from localStorage (no autoplay)",
       );
       const streamUrl = getStreamUrlById(currentTrack.id.toString());
@@ -317,7 +318,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       // Clear the queue since playback is complete
       setQueuedTracks([]);
       setIsPlaying(false);
-      console.log("[useAudioPlayer] 🏁 Playback ended, queue cleared");
+      logger.debug("[useAudioPlayer] 🏁 Playback ended, queue cleared");
     }
   }, [currentTrack, queuedTracks, repeatMode, history, onTrackEnd]);
 
@@ -386,7 +387,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         Math.floor(newTime) % 5 === 0 &&
         Math.floor(newTime) !== Math.floor(currentTime)
       ) {
-        console.log("[useAudioPlayer] Time update:", {
+        logger.debug("[useAudioPlayer] Time update:", {
           currentTime: newTime,
           paused: audio.paused,
           readyState: audio.readyState,
@@ -435,7 +436,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       if (isAborted) {
         // This is expected when switching tracks quickly, not a real error
-        console.debug(
+        logger.debug(
           "[useAudioPlayer] Fetch aborted (normal during rapid track changes)",
         );
         return;
@@ -452,7 +453,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       if (isHttpError && currentTrack) {
         // For upstream errors, don't mark as permanently failed - might be temporary
         if (isUpstreamError) {
-          console.warn(
+          logger.warn(
             `[useAudioPlayer] Upstream error for track ${currentTrack.id} - may be temporary:`,
             errorMessage,
           );
@@ -466,7 +467,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
         // Mark this track as failed to prevent infinite retries (for other 503 errors)
         failedTracksRef.current.add(currentTrack.id);
-        console.error(
+        logger.error(
           `Audio error for track ${currentTrack.id}:`,
           errorMessage,
         );
@@ -482,7 +483,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       }
 
       // Log other errors for debugging
-      console.error("Audio error:", errorMessage || "Unknown error");
+      logger.error("Audio error:", errorMessage || "Unknown error");
       setIsLoading(false);
       setIsPlaying(false);
     };
@@ -514,7 +515,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Check if this track has already failed (prevent infinite retries)
       if (failedTracksRef.current.has(track.id)) {
-        console.warn(
+        logger.warn(
           `[useAudioPlayer] Track ${track.id} previously failed, skipping load`,
         );
         setIsLoading(false);
@@ -541,7 +542,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
       } catch (error) {
-        console.debug("[useAudioPlayer] Error resetting audio:", error);
+        logger.debug("[useAudioPlayer] Error resetting audio:", error);
       }
 
       // NEW QUEUE-FIRST APPROACH: Don't manually update history or currentTrack
@@ -552,7 +553,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       const applySource = () => {
         // Check if this load is still current
         if (currentLoadId !== loadIdRef.current) {
-          console.debug(
+          logger.debug(
             "[useAudioPlayer] Load cancelled, newer load in progress",
           );
           return false;
@@ -561,14 +562,14 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         if (!audioRef.current) return false;
 
         try {
-          console.log("[useAudioPlayer] Setting audio source:", {
+          logger.debug("[useAudioPlayer] Setting audio source:", {
             streamUrl,
             currentSrc: audioRef.current.src,
             readyState: audioRef.current.readyState,
           });
           audioRef.current.src = streamUrl;
           audioRef.current.load(); // Explicitly load the new source
-          console.log("[useAudioPlayer] Audio source set and load() called");
+          logger.debug("[useAudioPlayer] Audio source set and load() called");
           return true;
         } catch (error) {
           // Ignore abort errors - these are normal when switching tracks quickly
@@ -578,12 +579,12 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
               error.message?.includes("aborted") ||
               error.message?.includes("fetching process"))
           ) {
-            console.debug(
+            logger.debug(
               "[useAudioPlayer] Loading aborted for new source (ignored).",
             );
             return false;
           } else {
-            console.error(
+            logger.error(
               "[useAudioPlayer] Failed to load new audio source:",
               error,
             );
@@ -608,7 +609,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           }, delay);
         } else {
           // Max retries exceeded, mark track as failed
-          console.error(
+          logger.error(
             `[useAudioPlayer] Max retries (${maxRetries}) exceeded for track ${track.id}`,
           );
           failedTracksRef.current.add(track.id);
@@ -632,7 +633,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
   const play = useCallback(async () => {
     if (!audioRef.current) {
-      console.warn(
+      logger.warn(
         "[useAudioPlayer] play() called but audioRef.current is null",
       );
       return;
@@ -640,7 +641,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
     // Guard: Prevent rapid play/pause loops
     if (isPlayPauseOperationRef.current) {
-      console.debug(
+      logger.debug(
         "[useAudioPlayer] Play operation already in progress, skipping",
       );
       return;
@@ -649,7 +650,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     isPlayPauseOperationRef.current = true;
 
     try {
-      console.log("[useAudioPlayer] Attempting to play audio", {
+      logger.debug("[useAudioPlayer] Attempting to play audio", {
         src: audioRef.current.src,
         readyState: audioRef.current.readyState,
         paused: audioRef.current.paused,
@@ -662,7 +663,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         await import("@/utils/audioContextManager");
       const connection = getAudioConnection(audioRef.current);
       if (connection) {
-        console.log("[useAudioPlayer] Audio connected to Web Audio API", {
+        logger.debug("[useAudioPlayer] Audio connected to Web Audio API", {
           contextState: connection.audioContext.state,
           hasAnalyser: !!connection.analyser,
           hasFilters: !!connection.filters,
@@ -674,25 +675,25 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         ensureConnectionChain(connection);
 
         if (connection.audioContext.state === "suspended") {
-          console.log("[useAudioPlayer] Resuming suspended audio context");
+          logger.debug("[useAudioPlayer] Resuming suspended audio context");
           await connection.audioContext.resume();
         }
       } else {
-        console.log(
+        logger.debug(
           "[useAudioPlayer] Audio not connected to Web Audio API (normal playback)",
         );
       }
 
       // Ensure source is loaded
       if (!audioRef.current.src) {
-        console.warn("[useAudioPlayer] No audio source set, cannot play");
+        logger.warn("[useAudioPlayer] No audio source set, cannot play");
         setIsPlaying(false);
         return;
       }
 
       // Check if audio is ready to play
       if (audioRef.current.readyState < 2) {
-        console.log(
+        logger.debug(
           "[useAudioPlayer] Audio not ready, waiting for canplay event",
         );
         // Wait for canplay event
@@ -725,10 +726,10 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       }
 
       const playPromise = audioRef.current.play();
-      console.log("[useAudioPlayer] play() called, waiting for promise...");
+      logger.debug("[useAudioPlayer] play() called, waiting for promise...");
 
       await playPromise;
-      console.log("[useAudioPlayer] Playback started successfully", {
+      logger.debug("[useAudioPlayer] Playback started successfully", {
         paused: audioRef.current.paused,
         currentTime: audioRef.current.currentTime,
         readyState: audioRef.current.readyState,
@@ -736,28 +737,28 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Double-check connection chain after play
       if (connection) {
-        console.log(
+        logger.debug(
           "[useAudioPlayer] Verifying connection chain after play...",
         );
         const { verifyConnectionChain } =
           await import("@/utils/audioContextManager");
         const isValid = verifyConnectionChain(connection);
         if (!isValid) {
-          console.warn(
+          logger.warn(
             "[useAudioPlayer] Connection chain invalid, rebuilding...",
           );
           const { ensureConnectionChain } =
             await import("@/utils/audioContextManager");
           ensureConnectionChain(connection);
         } else {
-          console.log("[useAudioPlayer] Connection chain verified");
+          logger.debug("[useAudioPlayer] Connection chain verified");
         }
       }
 
       setIsPlaying(true);
     } catch (err) {
-      console.error("[useAudioPlayer] Playback failed:", err);
-      console.error("[useAudioPlayer] Error details:", {
+      logger.error("[useAudioPlayer] Playback failed:", err);
+      logger.error("[useAudioPlayer] Error details:", {
         name: err instanceof Error ? err.name : "Unknown",
         message: err instanceof Error ? err.message : String(err),
         audioState: audioRef.current
@@ -780,7 +781,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
   const pause = useCallback(() => {
     if (!audioRef.current) {
-      console.warn(
+      logger.warn(
         "[useAudioPlayer] Cannot pause: audio element not initialized",
       );
       setIsPlaying(false);
@@ -789,7 +790,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
     // Guard: Prevent rapid play/pause loops
     if (isPlayPauseOperationRef.current) {
-      console.debug(
+      logger.debug(
         "[useAudioPlayer] Pause operation already in progress, skipping",
       );
       return;
@@ -803,7 +804,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       // But we also set it here as a backup in case the event doesn't fire
       setIsPlaying(false);
     } catch (error) {
-      console.error("[useAudioPlayer] Error pausing audio:", error);
+      logger.error("[useAudioPlayer] Error pausing audio:", error);
       setIsPlaying(false);
     } finally {
       // Reset the guard after a short delay to allow state to settle
@@ -827,7 +828,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           pause();
         } else {
           play().catch((error) => {
-            console.error("Playback failed:", error);
+            logger.error("Playback failed:", error);
           });
         }
       }
@@ -900,7 +901,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       navigator.mediaSession.setActionHandler("seekforward", handleSeekForward);
       navigator.mediaSession.setActionHandler("seekto", handleSeekTo);
     } catch (error) {
-      console.error("Failed to set media session handlers:", error);
+      logger.error("Failed to set media session handlers:", error);
     }
 
     // Cleanup - remove handlers on unmount
@@ -924,7 +925,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     // This ensures pause button works even if React state is out of sync
     const isActuallyPlaying = audioRef.current && !audioRef.current.paused;
 
-    console.log("[useAudioPlayer] togglePlay called", {
+    logger.debug("[useAudioPlayer] togglePlay called", {
       reactState_isPlaying: isPlaying,
       audioElement_paused: audioRef.current?.paused,
       isActuallyPlaying,
@@ -943,7 +944,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
     // Validate that time is a finite number
     if (!isFinite(time)) {
-      console.error(`[useAudioPlayer] ❌ Invalid seek time: ${time}`);
+      logger.error(`[useAudioPlayer] ❌ Invalid seek time: ${time}`);
       return;
     }
 
@@ -992,7 +993,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     (track: Track | Track[], checkDuplicates = true) => {
       const tracks = Array.isArray(track) ? track : [track];
 
-      console.log("[useAudioPlayer] 📥 addToQueue called:", {
+      logger.debug("[useAudioPlayer] 📥 addToQueue called:", {
         trackCount: tracks.length,
         checkDuplicates,
         currentQueueSize: queuedTracks.length,
@@ -1003,7 +1004,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       const validTracks = tracks.filter((t): t is Track => {
         const valid = isValidTrack(t);
         if (!valid) {
-          console.warn(
+          logger.warn(
             `[useAudioPlayer] ⚠️ Rejecting invalid track:`,
             t && typeof t === "object" && "title" in t
               ? (t as Track).title
@@ -1014,7 +1015,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       });
 
       if (validTracks.length === 0) {
-        console.warn("[useAudioPlayer] ❌ No valid tracks to add to queue");
+        logger.warn("[useAudioPlayer] ❌ No valid tracks to add to queue");
         return;
       }
 
@@ -1033,7 +1034,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           (t) => !queuedTracks.some((qt) => qt.track.id === t.id),
         );
 
-        console.log("[useAudioPlayer] 🔍 After validation & duplicate check:", {
+        logger.debug("[useAudioPlayer] 🔍 After validation & duplicate check:", {
           original: tracks.length,
           valid: validTracks.length,
           duplicates: duplicates.length,
@@ -1045,7 +1046,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
             createQueuedTrack(t, "user"),
           );
           setQueuedTracks((prev) => {
-            console.log("[useAudioPlayer] ✅ Adding tracks to queue:", {
+            logger.debug("[useAudioPlayer] ✅ Adding tracks to queue:", {
               previousSize: prev.length,
               adding: newQueuedTracks.length,
               newSize: prev.length + newQueuedTracks.length,
@@ -1054,19 +1055,19 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
             return [...prev, ...newQueuedTracks];
           });
         } else {
-          console.log(
+          logger.debug(
             "[useAudioPlayer] ⚠️ No unique valid tracks to add (filtered out)",
           );
         }
       } else {
-        console.log(
+        logger.debug(
           "[useAudioPlayer] ➕ Adding valid tracks without duplicate check",
         );
         const newQueuedTracks = validTracks.map((t) =>
           createQueuedTrack(t, "user"),
         );
         setQueuedTracks((prev) => {
-          console.log("[useAudioPlayer] ✅ Queue updated:", {
+          logger.debug("[useAudioPlayer] ✅ Queue updated:", {
             previousSize: prev.length,
             adding: newQueuedTracks.length,
             newSize: prev.length + newQueuedTracks.length,
@@ -1086,7 +1087,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       const validTracks = tracks.filter((t): t is Track => {
         const valid = isValidTrack(t);
         if (!valid) {
-          console.warn(
+          logger.warn(
             `[useAudioPlayer] ⚠️ Rejecting invalid track in addToPlayNext:`,
             t && typeof t === "object" && "title" in t
               ? (t as Track).title
@@ -1097,7 +1098,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       });
 
       if (validTracks.length === 0) {
-        console.warn("[useAudioPlayer] ❌ No valid tracks to add to play next");
+        logger.warn("[useAudioPlayer] ❌ No valid tracks to add to play next");
         return;
       }
 
@@ -1117,14 +1118,14 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
   );
 
   const removeFromQueue = useCallback((index: number) => {
-    console.log("[useAudioPlayer] removeFromQueue called", {
+    logger.debug("[useAudioPlayer] removeFromQueue called", {
       index,
       isCurrentTrack: index === 0,
     });
 
     // Prevent removing queuedTracks[0] (current track)
     if (index === 0) {
-      console.warn(
+      logger.warn(
         "[useAudioPlayer] Cannot remove currently playing track (queuedTracks[0])",
       );
       return;
@@ -1132,7 +1133,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
     setQueuedTracks((prev) => {
       const newQueue = prev.filter((_, i) => i !== index);
-      console.log("[useAudioPlayer] Queue updated after removal", {
+      logger.debug("[useAudioPlayer] Queue updated after removal", {
         previousLength: prev.length,
         newLength: newQueue.length,
         removedIndex: index,
@@ -1156,7 +1157,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
   const reorderQueue = useCallback((oldIndex: number, newIndex: number) => {
     // Prevent reordering queuedTracks[0] (current track)
     if (oldIndex === 0 || newIndex === 0) {
-      console.warn(
+      logger.warn(
         "[useAudioPlayer] Cannot reorder currently playing track (queuedTracks[0])",
       );
       return;
@@ -1309,14 +1310,14 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     async (count = 5): Promise<Track[]> => {
       const currentQueuedTrack = queuedTracks[0];
       if (!currentQueuedTrack) {
-        console.warn(
+        logger.warn(
           "[useAudioPlayer] ⚠️ Cannot add smart tracks: no current track",
         );
         return [];
       }
 
       const seedTrack = currentQueuedTrack.track;
-      console.log(
+      logger.debug(
         "[useAudioPlayer] 🎵 Adding smart tracks based on:",
         seedTrack.title,
       );
@@ -1341,7 +1342,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
               seedTrackId: seedTrack.id,
               trackCount: tracksToAdd.length,
             });
-            console.log(
+            logger.debug(
               `[useAudioPlayer] ✅ Added ${tracksToAdd.length} smart tracks to queue`,
             );
             return tracksToAdd;
@@ -1349,7 +1350,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         }
         return [];
       } catch (error) {
-        console.error("[useAudioPlayer] ❌ Failed to add smart tracks:", error);
+        logger.error("[useAudioPlayer] ❌ Failed to add smart tracks:", error);
         return [];
       }
     },
@@ -1357,7 +1358,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
   );
 
   const refreshSmartTracks = useCallback(async (): Promise<void> => {
-    console.log("[useAudioPlayer] 🔄 Refreshing smart tracks");
+    logger.debug("[useAudioPlayer] 🔄 Refreshing smart tracks");
     // Remove all current smart tracks
     setQueuedTracks((prev) => prev.filter((qt) => qt.queueSource !== "smart"));
     // Add new smart tracks
@@ -1365,7 +1366,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
   }, [addSmartTracks]);
 
   const clearSmartTracks = useCallback(() => {
-    console.log("[useAudioPlayer] 🧹 Clearing smart tracks");
+    logger.debug("[useAudioPlayer] 🧹 Clearing smart tracks");
     setQueuedTracks((prev) => prev.filter((qt) => qt.queueSource !== "smart"));
     setSmartQueueState({
       isActive: false,
@@ -1392,7 +1393,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Validate that duration and currentTime are finite
       if (!isFinite(currentTime) || !isFinite(duration)) {
-        console.warn(
+        logger.warn(
           `[useAudioPlayer] ⚠️ Skip forward failed: audio not ready (currentTime: ${currentTime}, duration: ${duration})`,
         );
         return;
@@ -1402,13 +1403,13 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Final validation before seeking
       if (!isFinite(newTime)) {
-        console.error(
+        logger.error(
           `[useAudioPlayer] ❌ Skip forward calculated invalid time: ${newTime} (currentTime: ${currentTime}, duration: ${duration}, seconds: ${validSeconds})`,
         );
         return;
       }
 
-      console.log(
+      logger.debug(
         `[useAudioPlayer] ⏩ Skip forward ${validSeconds}s: ${currentTime.toFixed(1)}s → ${newTime.toFixed(1)}s`,
       );
       seek(newTime);
@@ -1428,7 +1429,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Validate that currentTime is finite
       if (!isFinite(currentTime)) {
-        console.warn(
+        logger.warn(
           `[useAudioPlayer] ⚠️ Skip backward failed: audio not ready (currentTime: ${currentTime})`,
         );
         return;
@@ -1438,13 +1439,13 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       // Final validation before seeking
       if (!isFinite(newTime)) {
-        console.error(
+        logger.error(
           `[useAudioPlayer] ❌ Skip backward calculated invalid time: ${newTime} (currentTime: ${currentTime}, seconds: ${validSeconds})`,
         );
         return;
       }
 
-      console.log(
+      logger.debug(
         `[useAudioPlayer] ⏪ Skip backward ${validSeconds}s: ${currentTime.toFixed(1)}s → ${newTime.toFixed(1)}s`,
       );
       seek(newTime);
@@ -1463,7 +1464,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     // This prevents "NotAllowedError" from browser autoplay policy
     // User must explicitly click play or select a song
     if (isInitialMountRef.current) {
-      console.log(
+      logger.debug(
         "[useAudioPlayer] 🚫 Skipping auto-play on initial mount (browser autoplay policy)",
       );
       isInitialMountRef.current = false;
@@ -1474,7 +1475,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       const streamUrl = getStreamUrlById(currentTrack.id.toString());
       // Only load if the track is different from what's currently loaded
       if (audioRef.current.src !== streamUrl || !audioRef.current.src) {
-        console.log(
+        logger.debug(
           `[useAudioPlayer] 🎶 Loading new track: ${currentTrack.title}`,
           {
             streamUrl,
@@ -1493,12 +1494,12 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
                 error.message?.includes("aborted") ||
                 error.message?.includes("fetching process"))
             ) {
-              console.debug(
+              logger.debug(
                 "[useAudioPlayer] Playback aborted (normal during rapid track changes)",
               );
               return;
             }
-            console.error("Playback failed:", error);
+            logger.error("Playback failed:", error);
           });
         }, 150); // Small delay to ensure source is set and connection chain is ready
       }
@@ -1528,7 +1529,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
             lastSync.wasPlaying !== actuallyPlaying;
 
           if (shouldSync) {
-            console.log(
+            logger.debug(
               "[useAudioPlayer] 🔄 Syncing state: audio is",
               actuallyPlaying ? "playing" : "paused",
               "but state says",
@@ -1581,7 +1582,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       const removedCount = prev.length - deduplicated.length;
       if (removedCount > 0) {
-        console.log(
+        logger.debug(
           `[useAudioPlayer] 🧹 Removed ${removedCount} duplicate track${removedCount === 1 ? "" : "s"} from queue`,
         );
       }
@@ -1597,7 +1598,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       const removedCount = prev.length - valid.length;
 
       if (removedCount > 0) {
-        console.warn(
+        logger.warn(
           `[useAudioPlayer] 🧹 Removed ${removedCount} invalid track${removedCount === 1 ? "" : "s"} from queue`,
         );
       }
@@ -1630,7 +1631,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
       const totalRemoved = removedInvalid + removedDuplicates;
 
       if (totalRemoved > 0) {
-        console.log(
+        logger.debug(
           `[useAudioPlayer] 🧹 Queue cleaned: removed ${removedInvalid} invalid, ${removedDuplicates} duplicate track${totalRemoved === 1 ? "" : "s"}`,
         );
       }
@@ -1641,7 +1642,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
   // NEW: Clear entire queue and history (for login/logout)
   const clearQueueAndHistory = useCallback(() => {
-    console.log(
+    logger.debug(
       "[useAudioPlayer] 🧹 Clearing queue and history (user session change)",
     );
     setQueuedTracks([]);
@@ -1671,7 +1672,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
     (track: Track) => {
       // NEW: Validate track before playing
       if (!isValidTrack(track)) {
-        console.error(
+        logger.error(
           "[useAudioPlayer] ❌ Cannot play invalid track:",
           typeof track === "object" && track && "title" in track
             ? (track as Track).title
@@ -1684,7 +1685,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
 
       if (trackIndex === -1) {
         // Track not in queue - FIX: INSERT at position 0, preserving the queue
-        console.log(
+        logger.debug(
           "[useAudioPlayer] 🎵 Playing new track, inserting at queue position 0, preserving existing queue",
           {
             newTrack: track.title,
@@ -1702,7 +1703,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         ]); // Keep queue[1..n], replace queue[0]
       } else if (trackIndex === 0) {
         // Track is already playing (queue[0]), just restart it
-        console.log(
+        logger.debug(
           "[useAudioPlayer] 🔄 Track already playing, restarting from beginning",
         );
         if (audioRef.current) {
@@ -1710,7 +1711,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
           // Ensure audio source is set and loaded before playing
           if (audioRef.current.src !== streamUrl || !audioRef.current.src) {
             // Source is different or missing, reload the track
-            console.log(
+            logger.debug(
               "[useAudioPlayer] Audio source missing or different, reloading track",
               {
                 currentSrc: audioRef.current.src,
@@ -1720,7 +1721,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
             loadTrack(track, streamUrl);
           } else {
             // Source is correct, just restart playback
-            console.log("[useAudioPlayer] Restarting playback from beginning", {
+            logger.debug("[useAudioPlayer] Restarting playback from beginning", {
               src: audioRef.current.src,
               currentTime: audioRef.current.currentTime,
               paused: audioRef.current.paused,
@@ -1728,10 +1729,10 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
             });
             audioRef.current.currentTime = 0;
             audioRef.current.play().catch((error) => {
-              console.error("Playback failed:", error);
+              logger.error("Playback failed:", error);
               setIsPlaying(false);
               // If play fails, try reloading the track
-              console.log(
+              logger.debug(
                 "[useAudioPlayer] Play failed, reloading track as fallback",
               );
               loadTrack(track, streamUrl);
@@ -1740,7 +1741,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}) {
         }
       } else {
         // Track is in queue but not at position 0 - use playFromQueue
-        console.log(
+        logger.debug(
           "[useAudioPlayer] ⏩ Track found in queue at position",
           trackIndex,
           ", playing from queue",
