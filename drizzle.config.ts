@@ -66,7 +66,9 @@ function getSslConfig() {
 
 // Use DATABASE_URL if available, otherwise fall back to individual credentials
 // for backward compatibility with drizzle.env.ts
-const databaseUrl = process.env.DATABASE_URL;
+// Normalize empty strings to undefined to match src/env.js behavior
+const rawUrl = process.env.DATABASE_URL?.trim();
+const databaseUrl = rawUrl && rawUrl.length > 0 ? rawUrl : undefined;
 
 if (!databaseUrl && !process.env.DB_HOST) {
   console.warn(
@@ -86,7 +88,7 @@ const config = {
         },
       }
     : {
-        // Fallback to individual credentials if DATABASE_URL is not set
+        // Fallback to individual credentials if DATABASE_URL is not set or empty
         dbCredentials: {
           host: drizzleEnv.DB_HOST ?? "localhost",
           port: parseInt(drizzleEnv.DB_PORT ?? "5432", 10),
