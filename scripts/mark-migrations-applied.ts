@@ -57,14 +57,13 @@ async function main() {
     `);
     log("✓ Migration tracking table ready\n", "green");
 
-    // Get all migration files
-    const drizzleDir = join(process.cwd(), "drizzle");
-    const files = await readdir(drizzleDir);
-    const migrationFiles = files
-      .filter((f) => f.endsWith(".sql"))
-      .sort();
+    // Read the journal to get migration tags
+    const journalPath = join(process.cwd(), "drizzle", "meta", "_journal.json");
+    const journalContent = await readFile(journalPath, "utf-8");
+    const journal = JSON.parse(journalContent);
 
-    log(`Found ${migrationFiles.length} migration files\n`, "cyan");
+    const migrations = journal.entries || [];
+    log(`Found ${migrations.length} migrations in journal\n`, "cyan");
 
     // Get already applied migrations
     const appliedResult = await pool.query(
@@ -77,35 +76,22 @@ async function main() {
     let marked = 0;
     let skipped = 0;
 
-    for (const file of migrationFiles) {
-      // Read migration file to get hash
-      const filePath = join(drizzleDir, file);
-      const content = await readFile(filePath, "utf-8");
+    for (const entry of migrations) {
+      const tag = entry.tag; // e.g., "0000_eager_gideon"
       
-      // Generate hash from filename (Drizzle uses filename as hash identifier)
-      // Format: 0000_name.sql -> hash is derived from the migration name
-      const match = file.match(/^(\d+)_(.+)\.sql$/);
-      if (!match) {
-        log(`⚠️  Skipping ${file} (unexpected format)`, "yellow");
-        continue;
-      }
-
-      // Drizzle uses the migration name as part of the hash
-      // We'll use a simple hash based on the filename
-      const hash = file.replace(/\.sql$/, "");
-
-      if (appliedHashes.has(hash)) {
-        log(`⊘ ${file} - already marked as applied`, "yellow");
+      if (appliedHashes.has(tag)) {
+        log(`⊘ ${tag} - already marked as applied`, "yellow");
         skipped++;
         continue;
       }
 
-      // Mark as applied
+      // Mark as applied using the timestamp from journal or current time
+      const createdAt = entry.when || Date.now();
       await pool.query(
         'INSERT INTO "__drizzle_migrations" (hash, created_at) VALUES ($1, $2)',
-        [hash, Date.now()]
+        [tag, createdAt]
       );
-      log(`✓ ${file} - marked as applied`, "green");
+      log(`✓ ${tag} - marked as applied`, "green");
       marked++;
     }
 
