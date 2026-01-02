@@ -5,9 +5,15 @@
  * Migration script to transfer all data from source database to NEON Postgres
  * 
  * Usage:
- *   SOURCE_DATABASE_URL="postgresql://..." TARGET_DATABASE_URL="postgresql://..." npm run migrate:neon
+ *   OLD_DATABASE_URL="postgresql://..." DATABASE_URL_UNPOOLED="postgresql://..." npm run migrate:neon
  * 
- * Or set TARGET_DATABASE_URL in .env.local
+ * Environment variables:
+ *   - OLD_DATABASE_URL: Source database (old database to migrate from)
+ *   - DATABASE_URL_UNPOOLED: Target database (Neon unpooled connection)
+ * 
+ * Falls back to:
+ *   - SOURCE_DATABASE_URL or DATABASE_URL for source
+ *   - TARGET_DATABASE_URL for target
  */
 
 import "dotenv/config";
@@ -393,18 +399,26 @@ async function main() {
   log("\n🚀 Starting database migration to NEON Postgres\n", "bright");
 
   // Get connection strings
-  const sourceUrl = process.env.SOURCE_DATABASE_URL || process.env.DATABASE_URL;
+  // Source: OLD_DATABASE_URL (preferred) or SOURCE_DATABASE_URL or DATABASE_URL (fallback)
+  const sourceUrl = 
+    process.env.OLD_DATABASE_URL || 
+    process.env.SOURCE_DATABASE_URL || 
+    process.env.DATABASE_URL;
+  
+  // Target: DATABASE_URL_UNPOOLED (preferred) or TARGET_DATABASE_URL (fallback)
   const targetUrl = 
-    process.env.TARGET_DATABASE_URL || 
-    "postgresql://neondb_owner:npg_wGoei3E1pZdX@ep-wandering-night-agpfwl6e-pooler.c-2.eu-central-1.aws.neon.tech/starchild?sslmode=require&channel_binding=require";
+    process.env.DATABASE_URL_UNPOOLED || 
+    process.env.TARGET_DATABASE_URL;
 
   if (!sourceUrl) {
-    error("❌ SOURCE_DATABASE_URL or DATABASE_URL environment variable is required");
+    error("❌ OLD_DATABASE_URL, SOURCE_DATABASE_URL, or DATABASE_URL environment variable is required");
+    error("   Recommended: Set OLD_DATABASE_URL for the source database");
     process.exit(1);
   }
 
   if (!targetUrl) {
-    error("❌ TARGET_DATABASE_URL environment variable is required");
+    error("❌ DATABASE_URL_UNPOOLED or TARGET_DATABASE_URL environment variable is required");
+    error("   Recommended: Set DATABASE_URL_UNPOOLED for the Neon target database");
     process.exit(1);
   }
 

@@ -1,6 +1,11 @@
 // File: drizzle.env.ts
 
 import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+
+// Load .env.local explicitly (dotenv/config may not load it by default)
+// This ensures DATABASE_URL from .env.local is available
+dotenvConfig({ path: ".env.local" });
 
 // If DATABASE_URL is set, we don't need individual DB credentials
 const useConnectionString = !!process.env.DATABASE_URL;

@@ -2,10 +2,13 @@
 
 import "dotenv/config";
 import { config as dotenvConfig } from "dotenv";
-import drizzleEnv from "./drizzle.env";
 
-// Explicitly load .env.local if it exists (dotenv/config may not always load it)
+// IMPORTANT: Load .env.local BEFORE importing drizzle.env.ts
+// This ensures DATABASE_URL from .env.local is available when drizzle.env.ts evaluates
 dotenvConfig({ path: ".env.local" });
+
+// Now import drizzle.env.ts after .env.local is loaded
+import drizzleEnv from "./drizzle.env";
 
 // Use DATABASE_URL if available, otherwise fall back to individual credentials
 // for backward compatibility with drizzle.env.ts
