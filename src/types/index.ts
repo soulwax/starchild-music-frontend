@@ -1,16 +1,5 @@
 // File: src/types/index.ts
 
-/**
- * ============================================================================
- * CORE MUSIC ENTITIES
- * ============================================================================
- * Base types representing music catalog entities from the streaming service
- */
-
-/**
- * Artist entity from music service
- * Note: picture fields may be undefined when artist data comes from album endpoints
- */
 export interface Artist {
   id: number;
   name: string;
@@ -24,9 +13,6 @@ export interface Artist {
   type: "artist";
 }
 
-/**
- * Album entity from music service
- */
 export interface Album {
   id: number;
   title: string;
@@ -43,22 +29,19 @@ export interface Album {
   artist?: Artist;
 }
 
-/**
- * Track entity from music service
- */
 export interface Track {
   id: number;
   readable: boolean;
   title: string;
   title_short: string;
-  title_version?: string; // Optional: some tracks may not have version info
+  title_version?: string;
   link: string;
-  duration: number; // Duration in seconds
-  rank: number; // Popularity rank
+  duration: number;
+  rank: number;
   explicit_lyrics: boolean;
   explicit_content_lyrics: number;
   explicit_content_cover: number;
-  preview: string; // 30-second preview URL
+  preview: string;
   md5_image: string;
   artist: Artist;
   album: Album;
@@ -68,142 +51,92 @@ export interface Track {
   release_date?: string;
 }
 
-/**
- * ============================================================================
- * QUEUE SYSTEM
- * ============================================================================
- * Types for queue management, smart queue, and playback order
- */
-
-/**
- * Source identifier for where a track was added to the queue
- */
 export type QueueSource =
-  | 'user'           // Manually added by user
-  | 'smart'          // Added by smart queue algorithm
-  | 'playlist'       // Added from playlist
-  | 'album'          // Added from album
-  | 'artist'         // Added from artist page
-  | 'radio'          // Added from radio/autoplay
-  | 'recommendation'; // Added from recommendations
+  | 'user'
+  | 'smart'
+  | 'playlist'
+  | 'album'
+  | 'artist'
+  | 'radio'
+  | 'recommendation';
 
-/**
- * Individual track in the queue with metadata
- */
 export interface QueuedTrack {
   track: Track;
   queueSource: QueueSource;
   addedAt: Date;
-  queueId: string; // Unique ID for drag-drop stability and React keys
-  addedBy?: string; // User ID who added the track (for collaborative queues)
+  queueId: string;
+  addedBy?: string;
   smartQueueMetadata?: SmartQueueMetadata;
 }
 
-/**
- * Metadata for tracks added by smart queue
- */
 export interface SmartQueueMetadata {
   seedTrackId: number;
-  similarity: number; // 0-1 score
-  reason: string; // Human-readable reason
+  similarity: number;
+  reason: string;
   method: SimilarityMethod;
 }
 
-/**
- * Complete queue state
- */
 export interface QueueState {
-  queuedTracks: QueuedTrack[]; // [0] is currently playing, [1..n] are upcoming
-  history: Track[]; // Previously played tracks
-  originalQueue?: QueuedTrack[]; // Original order before shuffle
+  queuedTracks: QueuedTrack[];
+  history: Track[];
+  originalQueue?: QueuedTrack[];
   isShuffled: boolean;
   repeatMode: RepeatMode;
-  currentTime: number; // Current playback position in seconds
+  currentTime: number;
   smartQueueState: SmartQueueState;
 }
 
-/**
- * Repeat mode options
- */
 export type RepeatMode = 'none' | 'one' | 'all';
 
-/**
- * Smart queue operational state
- */
 export interface SmartQueueState {
   isActive: boolean;
   lastRefreshedAt: Date | null;
   seedTrackId: number | null;
-  trackCount: number; // Number of smart tracks currently in queue
+  trackCount: number;
 }
 
-/**
- * User preferences for smart queue behavior
- */
 export interface SmartQueueSettings {
   autoQueueEnabled: boolean;
-  autoQueueThreshold: number; // Add tracks when queue has <= N tracks
-  autoQueueCount: number; // Number of tracks to add at once
+  autoQueueThreshold: number;
+  autoQueueCount: number;
   smartMixEnabled: boolean;
   similarityPreference: SimilarityPreference;
-  diversityFactor: number; // 0-1, higher = more diverse recommendations
+  diversityFactor: number;
   excludeExplicit: boolean;
   preferLiveVersions: boolean;
 }
 
-/**
- * Similarity preference for recommendations
- */
 export type SimilarityPreference =
-  | 'strict'     // Same artists only
-  | 'balanced'   // Related artists, similar sound
-  | 'diverse';   // Genre variety, exploration
+  | 'strict'
+  | 'balanced'
+  | 'diverse';
 
-/**
- * Queue sections for UI organization
- */
 export interface QueueSections {
   nowPlaying: QueuedTrack | null;
   userQueue: QueuedTrack[];
   smartQueue: QueuedTrack[];
 }
 
-/**
- * ============================================================================
- * PLAYLIST SYSTEM
- * ============================================================================
- * Types for user-created playlists and playlist management
- */
-
-/**
- * Playlist visibility and access control
- */
 export type PlaylistVisibility = 'public' | 'private' | 'unlisted';
 
-/**
- * Playlist with full metadata
- */
 export interface Playlist {
   id: number;
   userId: string;
   name: string;
   description: string | null;
   visibility: PlaylistVisibility;
-  isPublic: boolean; // Legacy field, use visibility instead
+  isPublic: boolean;
   coverImage: string | null;
   createdAt: Date;
   updatedAt: Date | null;
   trackCount: number;
-  totalDuration: number; // Total duration in seconds
+  totalDuration: number;
   isCollaborative: boolean;
-  collaborators?: string[]; // User IDs
+  collaborators?: string[];
   tags?: string[];
   mood?: PlaylistMood;
 }
 
-/**
- * Playlist mood/vibe classification
- */
 export type PlaylistMood =
   | 'energetic'
   | 'chill'
@@ -216,53 +149,35 @@ export type PlaylistMood =
   | 'romantic'
   | 'melancholic';
 
-/**
- * Track within a playlist
- */
 export interface PlaylistTrack {
   id: number;
   playlistId: number;
   track: Track;
   position: number;
   addedAt: Date;
-  addedBy: string; // User ID
-  note?: string; // User note about why they added this track
+  addedBy: string;
+  note?: string;
 }
 
-/**
- * Playlist with populated tracks
- */
 export interface PlaylistWithTracks extends Playlist {
   tracks: PlaylistTrack[];
 }
 
-/**
- * Playlist with track inclusion status (for "Add to Playlist" modal)
- */
 export interface PlaylistWithTrackStatus extends Playlist {
-  hasTrack: boolean; // Whether a specific track is in this playlist
+  hasTrack: boolean;
 }
 
-/**
- * Playlist reorder operation
- */
 export interface PlaylistReorderPayload {
   playlistId: number;
   order: Array<{ trackId: number; position: number }>;
 }
 
-/**
- * Playlist merge operation
- */
 export interface PlaylistMergePayload {
   sourcePlaylistId: number;
   targetPlaylistId: number;
   removeSource: boolean;
 }
 
-/**
- * Playlist statistics
- */
 export interface PlaylistStats {
   playlistId: number;
   totalPlays: number;
@@ -274,26 +189,13 @@ export interface PlaylistStats {
   lastPlayedAt: Date | null;
 }
 
-/**
- * ============================================================================
- * USER PROFILE & IDENTITY
- * ============================================================================
- * Types for user profiles, authentication, and social features
- */
-
-/**
- * User profile visibility settings
- */
 export type ProfileVisibility = 'public' | 'friends' | 'private';
 
-/**
- * Complete user profile
- */
 export interface UserProfile {
   userId: string;
-  userHash: string; // Public identifier for profile URLs
+  userHash: string;
   name: string | null;
-  displayName: string; // Display name or fallback to username
+  displayName: string;
   username: string | null;
   email: string | null;
   image: string | null;
@@ -310,25 +212,19 @@ export interface UserProfile {
   socialLinks?: SocialLinks;
 }
 
-/**
- * User statistics
- */
 export interface UserStats {
   favorites: number;
   playlists: number;
   publicPlaylists: number;
   tracksPlayed: number;
-  totalListeningTime: number; // In seconds
+  totalListeningTime: number;
   followers: number;
   following: number;
   topGenres: string[];
   joinedAt: Date;
-  listeningStreak: number; // Days
+  listeningStreak: number;
 }
 
-/**
- * Extended user statistics with analytics
- */
 export interface DetailedUserStats extends UserStats {
   thisWeek: {
     tracksPlayed: number;
@@ -344,14 +240,11 @@ export interface DetailedUserStats extends UserStats {
     topTrack: Track | null;
     topArtist: Artist | null;
     topAlbum: Album | null;
-    mostPlayedHour: number; // 0-23
+    mostPlayedHour: number;
     averageSessionDuration: number;
   };
 }
 
-/**
- * Social media links
- */
 export interface SocialLinks {
   twitter?: string;
   instagram?: string;
@@ -360,9 +253,6 @@ export interface SocialLinks {
   youtube?: string;
 }
 
-/**
- * User preferences
- */
 export interface UserPreferences {
   theme: ThemePreference;
   language: string;
@@ -376,14 +266,8 @@ export interface UserPreferences {
   visualizerEnabled: boolean;
 }
 
-/**
- * Theme preference
- */
 export type ThemePreference = 'dark' | 'light' | 'auto';
 
-/**
- * Notification preferences
- */
 export interface NotificationPreferences {
   newFollowers: boolean;
   playlistUpdates: boolean;
@@ -393,9 +277,6 @@ export interface NotificationPreferences {
   push: boolean;
 }
 
-/**
- * Privacy preferences
- */
 export interface PrivacyPreferences {
   showListeningActivity: boolean;
   showPlaylists: boolean;
@@ -405,52 +286,30 @@ export interface PrivacyPreferences {
   shareHistory: boolean;
 }
 
-/**
- * Playback preferences
- */
 export interface PlaybackPreferences {
-  crossfade: number; // 0-12 seconds
+  crossfade: number;
   gaplessPlayback: boolean;
   normalizeVolume: boolean;
-  defaultVolume: number; // 0-1
+  defaultVolume: number;
   defaultQuality: AudioQuality;
   autoplay: boolean;
   downloadQuality: AudioQuality;
 }
 
-/**
- * Audio quality options
- */
 export type AudioQuality = 'low' | 'normal' | 'high' | 'lossless';
 
-/**
- * Visualizer preferences
- */
 export interface VisualizerPreferences {
   enabled: boolean;
   pattern: string;
   colorScheme: 'track' | 'album' | 'custom';
   customColors?: string[];
-  sensitivity: number; // 0-1
+  sensitivity: number;
   particleCount: number;
-  animationSpeed: number; // 0-1
+  animationSpeed: number;
 }
 
-/**
- * ============================================================================
- * PLAYBACK & AUDIO
- * ============================================================================
- * Types for audio playback, player state, and audio processing
- */
-
-/**
- * Player state
- */
 export type PlayerState = 'idle' | 'loading' | 'playing' | 'paused' | 'error' | 'buffering';
 
-/**
- * Complete player state
- */
 export interface AudioPlayerState {
   currentTrack: Track | null;
   queue: QueueState;
@@ -458,18 +317,15 @@ export interface AudioPlayerState {
   isPlaying: boolean;
   isMuted: boolean;
   isLoading: boolean;
-  volume: number; // 0-1
-  currentTime: number; // seconds
-  duration: number; // seconds
-  buffered: number; // 0-1, percentage buffered
-  playbackRate: number; // 0.5-2.0
+  volume: number;
+  currentTime: number;
+  duration: number;
+  buffered: number;
+  playbackRate: number;
   error: PlayerError | null;
   streamUrl: string | null;
 }
 
-/**
- * Player error information
- */
 export interface PlayerError {
   code: PlayerErrorCode;
   message: string;
@@ -478,9 +334,6 @@ export interface PlayerError {
   recoverable: boolean;
 }
 
-/**
- * Player error codes
- */
 export type PlayerErrorCode =
   | 'NETWORK_ERROR'
   | 'DECODE_ERROR'
@@ -490,56 +343,41 @@ export type PlayerErrorCode =
   | 'PERMISSION_DENIED'
   | 'UNKNOWN';
 
-/**
- * Audio features and analysis
- */
 export interface AudioFeatures {
   trackId: number;
-  // Rhythm features
+
   bpm: number | null;
-  timeSignature: string | null; // e.g., "4/4"
-  rhythm: number | null; // 0-1
+  timeSignature: string | null;
+  rhythm: number | null;
 
-  // Tonal features
-  key: string | null; // e.g., "C", "F#"
+  key: string | null;
   mode: 'major' | 'minor' | null;
-  harmonicComplexity: number | null; // 0-1
+  harmonicComplexity: number | null;
 
-  // Spectral features
-  energy: number | null; // 0-1
-  danceability: number | null; // 0-1
-  valence: number | null; // 0-1, positivity
-  acousticness: number | null; // 0-1
-  instrumentalness: number | null; // 0-1
-  liveness: number | null; // 0-1
-  speechiness: number | null; // 0-1
-  loudness: number | null; // dB
+  energy: number | null;
+  danceability: number | null;
+  valence: number | null;
+  acousticness: number | null;
+  instrumentalness: number | null;
+  liveness: number | null;
+  speechiness: number | null;
+  loudness: number | null;
   spectralCentroid: number | null;
   spectralRolloff: number | null;
 
-  // Metadata
   analyzedAt: Date;
   source: AudioAnalysisSource;
-  confidence: number; // 0-1, confidence in analysis
+  confidence: number;
 }
 
-/**
- * Audio analysis source
- */
 export type AudioAnalysisSource = 'essentia' | 'spotify' | 'librosa' | 'manual';
 
-/**
- * Equalizer settings
- */
 export interface EqualizerSettings {
   enabled: boolean;
   preset: EqualizerPreset;
   bands: EqualizerBand[];
 }
 
-/**
- * Equalizer preset name
- */
 export type EqualizerPreset =
   | 'Flat'
   | 'Rock'
@@ -554,41 +392,25 @@ export type EqualizerPreset =
   | 'Acoustic'
   | 'Custom';
 
-/**
- * Individual equalizer band
- */
 export interface EqualizerBand {
-  frequency: number; // Hz
-  gain: number; // dB, typically -12 to +12
-  Q: number; // Quality factor, typically 0.5-2.0
+  frequency: number;
+  gain: number;
+  Q: number;
 }
 
-/**
- * ============================================================================
- * LISTENING HISTORY & ANALYTICS
- * ============================================================================
- * Types for tracking user listening behavior and generating insights
- */
-
-/**
- * Individual listening history entry
- */
 export interface ListeningHistoryItem {
   id: number;
   userId: string;
   track: Track;
   playedAt: Date;
-  duration: number | null; // How long the track was played (seconds)
-  completionRate: number | null; // 0-1, percentage of track played
+  duration: number | null;
+  completionRate: number | null;
   source: PlaybackSource;
   context?: PlaybackContext;
   skipped: boolean;
   device?: DeviceInfo;
 }
 
-/**
- * Source of playback initiation
- */
 export type PlaybackSource =
   | 'queue'
   | 'playlist'
@@ -600,18 +422,12 @@ export type PlaybackSource =
   | 'history'
   | 'favorite';
 
-/**
- * Playback context information
- */
 export interface PlaybackContext {
   type: 'playlist' | 'album' | 'artist' | 'radio' | 'queue';
   id?: number | string;
   name?: string;
 }
 
-/**
- * Device information
- */
 export interface DeviceInfo {
   type: 'browser' | 'desktop' | 'mobile' | 'tablet';
   name: string;
@@ -619,13 +435,10 @@ export interface DeviceInfo {
   browser?: string;
 }
 
-/**
- * Aggregated listening statistics for a time period
- */
 export interface ListeningStats {
   period: TimePeriod;
   totalTracks: number;
-  totalTime: number; // seconds
+  totalTime: number;
   uniqueTracks: number;
   uniqueArtists: number;
   uniqueAlbums: number;
@@ -633,28 +446,19 @@ export interface ListeningStats {
   topArtists: TopArtistItem[];
   topAlbums: TopAlbumItem[];
   topGenres: GenreStats[];
-  listeningByHour: number[]; // 24-element array
-  listeningByDay: number[]; // 7-element array (Mon-Sun)
+  listeningByHour: number[];
+  listeningByDay: number[];
 }
 
-/**
- * Time period for statistics
- */
 export type TimePeriod = 'week' | 'month' | 'year' | 'all-time';
 
-/**
- * Top track statistics
- */
 export interface TopTrackItem {
   track: Track;
   playCount: number;
-  totalDuration: number | null; // Total time listened in seconds
+  totalDuration: number | null;
   lastPlayed: Date;
 }
 
-/**
- * Top artist statistics
- */
 export interface TopArtistItem {
   artist: Artist;
   playCount: number;
@@ -663,9 +467,6 @@ export interface TopArtistItem {
   lastPlayed: Date;
 }
 
-/**
- * Top album statistics
- */
 export interface TopAlbumItem {
   album: Album;
   playCount: number;
@@ -674,39 +475,23 @@ export interface TopAlbumItem {
   lastPlayed: Date;
 }
 
-/**
- * Genre statistics
- */
 export interface GenreStats {
   genre: string;
   playCount: number;
-  percentage: number; // 0-100
+  percentage: number;
   tracks: number;
   artists: number;
 }
 
-/**
- * ============================================================================
- * FAVORITES & LIKES
- * ============================================================================
- * Types for user favorites and liked content
- */
-
-/**
- * Favorited track
- */
 export interface FavoriteItem {
   id: number;
   userId: string;
   track: Track;
   createdAt: Date;
-  note?: string; // Optional user note
-  playlistIds?: number[]; // Playlists this favorite is in
+  note?: string;
+  playlistIds?: number[];
 }
 
-/**
- * Favorite collection metadata
- */
 export interface FavoriteCollection {
   userId: string;
   totalFavorites: number;
@@ -716,46 +501,27 @@ export interface FavoriteCollection {
   topArtists: Artist[];
 }
 
-/**
- * ============================================================================
- * RECOMMENDATIONS & DISCOVERY
- * ============================================================================
- * Types for music recommendations and discovery features
- */
-
-/**
- * Recommendation context and metadata
- */
 export interface RecommendationContext {
   source: RecommendationSource;
   seedTrackId: number;
-  reason: string; // Human-readable explanation
-  similarity: number; // 0-1 similarity score
+  reason: string;
+  similarity: number;
   method: SimilarityMethod;
-  confidence: number; // 0-1 confidence in recommendation
+  confidence: number;
 }
 
-/**
- * Recommendation source
- */
 export type RecommendationSource =
-  | 'deezer'           // From Deezer API
-  | 'custom'           // Custom algorithm
-  | 'ml'               // Machine learning model
-  | 'audio-features'   // Based on audio analysis
-  | 'collaborative'    // Collaborative filtering
-  | 'content-based';   // Content-based filtering
+  | 'deezer'
+  | 'custom'
+  | 'ml'
+  | 'audio-features'
+  | 'collaborative'
+  | 'content-based';
 
-/**
- * Track with recommendation metadata
- */
 export interface RecommendedTrack extends Track {
   recommendationContext: RecommendationContext;
 }
 
-/**
- * Similarity method used for recommendations
- */
 export type SimilarityMethod =
   | 'same-artist'
   | 'same-album'
@@ -769,22 +535,16 @@ export type SimilarityMethod =
   | 'lyric-similarity'
   | 'user-taste-profile';
 
-/**
- * Options for fetching similar tracks
- */
 export interface SimilarTrackOptions {
   limit: number;
   excludeTrackIds: number[];
   excludeArtistIds?: number[];
   preferredMethods: SimilarityMethod[];
   useAudioFeatures: boolean;
-  diversityFactor: number; // 0-1, higher = more diverse
-  minSimilarity: number; // 0-1, minimum similarity threshold
+  diversityFactor: number;
+  minSimilarity: number;
 }
 
-/**
- * Cached recommendation entry
- */
 export interface RecommendationCacheEntry {
   id: number;
   seedTrackId: number;
@@ -797,16 +557,6 @@ export interface RecommendationCacheEntry {
   hitCount: number;
 }
 
-/**
- * ============================================================================
- * API & NETWORK
- * ============================================================================
- * Types for API interactions and network requests
- */
-
-/**
- * Search response from music API
- */
 export interface SearchResponse {
   data: Track[];
   total: number;
@@ -814,18 +564,12 @@ export interface SearchResponse {
   prev?: string;
 }
 
-/**
- * Stream URL parameters
- */
 export interface StreamUrlParams {
   query?: string;
   id?: number;
   quality?: AudioQuality;
 }
 
-/**
- * API error response
- */
 export interface ApiError {
   message: string;
   status: number;
@@ -834,18 +578,12 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
-/**
- * Pagination parameters
- */
 export interface PaginationParams {
   page: number;
   limit: number;
   offset?: number;
 }
 
-/**
- * Paginated response
- */
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -858,16 +596,6 @@ export interface PaginatedResponse<T> {
   };
 }
 
-/**
- * ============================================================================
- * SOCIAL FEATURES
- * ============================================================================
- * Types for social interactions and collaborative features
- */
-
-/**
- * User follow relationship
- */
 export interface FollowRelationship {
   id: number;
   followerId: string;
@@ -877,9 +605,6 @@ export interface FollowRelationship {
   followingProfile?: UserProfile;
 }
 
-/**
- * Activity feed item
- */
 export interface ActivityItem {
   id: number;
   userId: string;
@@ -889,9 +614,6 @@ export interface ActivityItem {
   isPublic: boolean;
 }
 
-/**
- * Activity type
- */
 export type ActivityType =
   | 'track_played'
   | 'playlist_created'
@@ -900,9 +622,6 @@ export type ActivityType =
   | 'user_followed'
   | 'achievement_unlocked';
 
-/**
- * Activity data (polymorphic based on type)
- */
 export type ActivityData =
   | { type: 'track_played'; track: Track }
   | { type: 'playlist_created'; playlist: Playlist }
@@ -911,9 +630,6 @@ export type ActivityData =
   | { type: 'user_followed'; user: UserProfile }
   | { type: 'achievement_unlocked'; achievement: Achievement };
 
-/**
- * Achievement
- */
 export interface Achievement {
   id: string;
   name: string;
@@ -921,12 +637,9 @@ export interface Achievement {
   icon: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
   unlockedAt: Date;
-  progress?: number; // 0-1 for progressive achievements
+  progress?: number;
 }
 
-/**
- * Share link
- */
 export interface ShareLink {
   id: string;
   type: 'track' | 'playlist' | 'album' | 'artist' | 'profile';
@@ -938,25 +651,12 @@ export interface ShareLink {
   views: number;
 }
 
-/**
- * ============================================================================
- * UI STATE & CONTROLS
- * ============================================================================
- * Types for UI state management and component props
- */
-
-/**
- * Modal state
- */
 export interface ModalState {
   isOpen: boolean;
   type: ModalType | null;
   data?: unknown;
 }
 
-/**
- * Modal types
- */
 export type ModalType =
   | 'add-to-playlist'
   | 'create-playlist'
@@ -967,9 +667,6 @@ export type ModalType =
   | 'settings'
   | 'user-profile';
 
-/**
- * Toast notification
- */
 export interface ToastNotification {
   id: string;
   type: 'success' | 'error' | 'info' | 'warning';
@@ -978,17 +675,11 @@ export interface ToastNotification {
   action?: ToastAction;
 }
 
-/**
- * Toast action button
- */
 export interface ToastAction {
   label: string;
   onClick: () => void;
 }
 
-/**
- * Keyboard shortcut
- */
 export interface KeyboardShortcut {
   key: string;
   modifiers: Array<'ctrl' | 'shift' | 'alt' | 'meta'>;
@@ -996,13 +687,6 @@ export interface KeyboardShortcut {
   description: string;
   handler: () => void;
 }
-
-/**
- * ============================================================================
- * TYPE GUARDS
- * ============================================================================
- * Runtime type checking utilities
- */
 
 export function isTrack(obj: unknown): obj is Track {
   return (
@@ -1060,83 +744,36 @@ export function isUserProfile(obj: unknown): obj is UserProfile {
   );
 }
 
-/**
- * ============================================================================
- * UTILITY TYPES
- * ============================================================================
- * Helper types for common patterns
- */
-
-/**
- * Make specific properties optional
- */
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-/**
- * Make specific properties required
- */
 export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
-/**
- * Deep partial (recursive)
- */
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
-/**
- * Readonly deep (recursive)
- */
 export type DeepReadonly<T> = {
   readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P];
 };
 
-/**
- * Extract enum values
- */
 export type ValueOf<T> = T[keyof T];
 
-/**
- * Nullable
- */
 export type Nullable<T> = T | null;
 
-/**
- * Optional nullable
- */
 export type Maybe<T> = T | null | undefined;
 
-/**
- * ============================================================================
- * LEGACY TYPE ALIASES
- * ============================================================================
- * Deprecated types maintained for backward compatibility
- */
-
-/**
- * @deprecated Use Playlist instead
- */
 export type PlaylistType = Playlist;
 
-/**
- * @deprecated Use QueuedTrack instead
- */
 export interface QueueItem {
   id: string;
   track: Track;
   addedAt: Date;
 }
 
-/**
- * @deprecated Use EqualizerSettings instead
- */
 export interface EQPreferences {
   enabled: boolean;
   preset: string;
   bands: number[];
 }
 
-/**
- * @deprecated Use RecommendationContext['reason'] instead
- */
 export type EqualizerType = EqualizerPreset;

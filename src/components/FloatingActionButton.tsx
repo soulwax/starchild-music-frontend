@@ -43,7 +43,6 @@ export default function FloatingActionButton() {
     rotation.set(isOpen ? 45 : 0);
   }, [isOpen, rotation]);
 
-  // Don't render on desktop
   if (!mounted || !isMobile) return null;
 
   const quickActions: QuickAction[] = [
@@ -73,7 +72,6 @@ export default function FloatingActionButton() {
     },
   ];
 
-  // All actions are always visible
   const visibleActions = quickActions;
 
   const handleToggle = () => {
@@ -83,7 +81,7 @@ export default function FloatingActionButton() {
 
   return (
     <>
-      {/* Backdrop */}
+      {}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -100,7 +98,7 @@ export default function FloatingActionButton() {
         )}
       </AnimatePresence>
 
-      {/* Quick Action Buttons */}
+      {}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed right-4 bottom-36 z-[56] flex flex-col-reverse items-end gap-3">
@@ -116,7 +114,7 @@ export default function FloatingActionButton() {
                 }}
                 className="flex items-center gap-3"
               >
-                {/* Label */}
+                {}
                 <motion.span
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -127,7 +125,7 @@ export default function FloatingActionButton() {
                   {action.label}
                 </motion.span>
 
-                {/* Button */}
+                {}
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   whileHover={{ scale: 1.05 }}
@@ -142,7 +140,7 @@ export default function FloatingActionButton() {
         )}
       </AnimatePresence>
 
-      {/* Main FAB Button */}
+      {}
       <motion.button
         style={{ scale }}
         whileTap={{ scale: 0.9 }}
@@ -185,7 +183,7 @@ export default function FloatingActionButton() {
         </AnimatePresence>
       </motion.button>
 
-      {/* Active Track Indicator - when playing */}
+      {}
       {player.isPlaying && !isOpen && (
         <motion.div
           initial={{ scale: 0 }}

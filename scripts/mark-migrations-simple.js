@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// File: scripts/mark-migrations-simple.js
+
 // Simple script to mark migrations as applied
 
 import dotenv from 'dotenv';

@@ -48,7 +48,6 @@ export default function AlbumPage({
         setIsLoading(true);
         setError(null);
 
-        // Fetch album info and tracks in parallel
         const [albumResponse, tracksResponse] = await Promise.all([
           fetch(`/api/album/${albumId}`),
           getAlbumTracks(albumId),
@@ -141,7 +140,7 @@ export default function AlbumPage({
 
   return (
     <div className="container mx-auto px-3 py-4 md:px-6 md:py-8">
-      {/* Album Header */}
+      {}
       <div className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:gap-6">
         <div className="flex-shrink-0">
           <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-xl md:max-w-[300px]">
@@ -201,7 +200,7 @@ export default function AlbumPage({
         </div>
       </div>
 
-      {/* Tracks List */}
+      {}
       {tracks.length > 0 ? (
         <div className="space-y-2">
           {tracks.map((track) => (

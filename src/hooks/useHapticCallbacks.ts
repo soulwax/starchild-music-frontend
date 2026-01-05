@@ -1,16 +1,8 @@
 // File: src/hooks/useHapticCallbacks.ts
 
-/**
- * Custom hook for wrapping callbacks with haptic feedback
- * Eliminates code duplication across player components
- */
-
 import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { useCallback } from "react";
 
-/**
- * Input callbacks to be wrapped with haptic feedback
- */
 export interface HapticCallbacksInput {
   onPlayPause: () => void;
   onNext: () => void;
@@ -21,9 +13,6 @@ export interface HapticCallbacksInput {
   onSkipBackward?: () => void;
 }
 
-/**
- * Output callbacks wrapped with haptic feedback
- */
 export interface HapticCallbacksOutput {
   handlePlayPause: () => void;
   handleNext: () => void;
@@ -34,21 +23,6 @@ export interface HapticCallbacksOutput {
   handleSkipBackward: () => void;
 }
 
-/**
- * Hook that wraps player callbacks with appropriate haptic feedback
- *
- * @param callbacks - Player callback functions to wrap
- * @returns Wrapped callback functions with haptic feedback
- *
- * @example
- * const { handlePlayPause, handleNext } = useHapticCallbacks({
- *   onPlayPause,
- *   onNext,
- *   onPrevious,
- *   onToggleShuffle,
- *   onCycleRepeat,
- * });
- */
 export function useHapticCallbacks(
   callbacks: HapticCallbacksInput,
 ): HapticCallbacksOutput {
@@ -62,13 +36,11 @@ export function useHapticCallbacks(
     onSkipBackward,
   } = callbacks;
 
-  // Play/pause gets medium feedback (more prominent action)
   const handlePlayPause = useCallback(() => {
     hapticMedium();
     onPlayPause();
   }, [onPlayPause]);
 
-  // Navigation actions get light feedback
   const handleNext = useCallback(() => {
     hapticLight();
     onNext();

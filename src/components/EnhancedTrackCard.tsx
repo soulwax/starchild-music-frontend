@@ -18,7 +18,7 @@ export interface EnhancedTrackCardProps {
   onPlay: (track: Track) => void;
   onAddToQueue: (track: Track) => void;
   showActions?: boolean;
-  excludePlaylistId?: number; // Optional: for context menu to exclude current playlist
+  excludePlaylistId?: number;
 }
 
 export default function EnhancedTrackCard({
@@ -67,14 +67,12 @@ export default function EnhancedTrackCard({
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Trigger haptic feedback
     if (favoriteData?.isFavorite) {
       hapticLight();
     } else {
       hapticSuccess();
     }
 
-    // Trigger heart animation
     setIsHeartAnimating(true);
     setTimeout(() => setIsHeartAnimating(false), 600);
 

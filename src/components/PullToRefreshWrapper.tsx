@@ -48,7 +48,6 @@ export function PullToRefreshWrapper({
       threshold,
     });
 
-  // Update pull motion value
   useEffect(() => {
     pullY.set(pullDistance);
 
@@ -68,7 +67,6 @@ export function PullToRefreshWrapper({
     }
   }, [pullDistance, isRefreshing, threshold, refreshState, pullY]);
 
-  // Progress transforms
   const refreshProgress = Math.min(pullDistance / threshold, 1);
   const indicatorOpacity = useTransform(pullY, [0, 20, threshold], [0, 0.5, 1]);
   const indicatorScale = useTransform(
@@ -127,7 +125,7 @@ export function PullToRefreshWrapper({
       className={`relative overflow-hidden ${className}`}
       {...handlers}
     >
-      {/* Pull-to-refresh indicator */}
+      {}
       <AnimatePresence>
         {showIndicator && (
           <motion.div
@@ -137,7 +135,7 @@ export function PullToRefreshWrapper({
             transition={springPresets.gentle}
             className="pointer-events-none absolute top-0 right-0 left-0 z-50 flex flex-col items-center pt-4"
           >
-            {/* Indicator Pill */}
+            {}
             <motion.div
               style={{
                 opacity:
@@ -164,7 +162,7 @@ export function PullToRefreshWrapper({
               </span>
             </motion.div>
 
-            {/* Progress Ring (only in pulling state) */}
+            {}
             {refreshState === "pulling" && (
               <motion.svg
                 className="absolute -z-10"
@@ -198,7 +196,7 @@ export function PullToRefreshWrapper({
         )}
       </AnimatePresence>
 
-      {/* Content with pull effect */}
+      {}
       <motion.div
         animate={{
           y: isRefreshing ? 80 : Math.min(pullDistance * 0.5, 100),
@@ -211,7 +209,7 @@ export function PullToRefreshWrapper({
         {children}
       </motion.div>
 
-      {/* Pull stretch effect */}
+      {}
       {refreshState === "pulling" && (
         <motion.div
           className="pointer-events-none absolute top-0 right-0 left-0 h-20 bg-gradient-to-b from-[rgba(244,178,102,0.08)] to-transparent"

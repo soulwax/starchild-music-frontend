@@ -1,4 +1,6 @@
 #!/bin/bash
+# File: scripts/db-sync.sh
+
 # Script to handle database migration/push in prebuild
 # Tries db:migrate first, falls back to db:push if migrate fails
 
@@ -40,4 +42,3 @@ else
     exit 1
   fi
 fi
-

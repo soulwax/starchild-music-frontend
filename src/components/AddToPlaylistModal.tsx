@@ -11,15 +11,28 @@ import { useSession } from "next-auth/react";
 
 import { useToast } from "@/contexts/ToastContext";
 import { api } from "@/trpc/react";
-import type { PlaylistWithTrackStatus, Track } from "@/types";
+import type { Track } from "@/types";
 import { hapticLight, hapticSuccess } from "@/utils/haptics";
 import { springPresets } from "@/utils/spring-animations";
+
+type PlaylistWithTrackStatus = {
+  id: number;
+  name: string;
+  description: string | null;
+  isPublic: boolean;
+  coverImage: string | null;
+  trackCount: number;
+  hasTrack: boolean;
+  createdAt: Date;
+  updatedAt: Date | null;
+  userId: string;
+};
 
 interface AddToPlaylistModalProps {
   isOpen: boolean;
   onClose: () => void;
   track: Track;
-  excludePlaylistId?: number; // Optional: hide current playlist if on detail page
+  excludePlaylistId?: number;
 }
 
 export function AddToPlaylistModal({
@@ -39,14 +52,12 @@ export function AddToPlaylistModal({
   const { data: session } = useSession();
   const isAuthenticated = !!session?.user;
 
-  // Fetch playlists with track status (only when modal is open and user is authenticated)
   const { data: playlists, isLoading } =
     api.music.getPlaylistsWithTrackStatus.useQuery(
       { trackId: track.id, excludePlaylistId },
       { enabled: isOpen && isAuthenticated },
     );
 
-  // Add to playlist mutation
   const addToPlaylist = api.music.addToPlaylist.useMutation({
     onSuccess: async (data, variables) => {
       if (data.alreadyExists) {
@@ -58,7 +69,6 @@ export function AddToPlaylistModal({
         showToast(`Added to "${playlistName}"`, "success");
         hapticSuccess();
 
-        // Invalidate queries to refresh playlist data
         await utils.music.getPlaylistsWithTrackStatus.invalidate({
           trackId: track.id,
         });
@@ -72,7 +82,6 @@ export function AddToPlaylistModal({
     },
   });
 
-  // Client-side search filtering
   const filteredPlaylists = useMemo(() => {
     if (!playlists) return [];
     if (!searchQuery.trim()) return playlists;
@@ -85,23 +94,19 @@ export function AddToPlaylistModal({
     );
   }, [playlists, searchQuery]);
 
-  // Track mounted state for SSR safety
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
 
-  // Auto-focus search input when modal opens
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
-      // Small delay to ensure modal is rendered
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 100);
     }
   }, [isOpen]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -116,13 +121,11 @@ export function AddToPlaylistModal({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Handle adding track to playlist
   const handleAddToPlaylist = (playlistId: number) => {
     setSubmittingPlaylistId(playlistId);
     addToPlaylist.mutate({ playlistId, track });
   };
 
-  // Animation variants for list items
   const listItemVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: (i: number) => ({
@@ -135,14 +138,13 @@ export function AddToPlaylistModal({
     }),
   };
 
-  // Don't render on server or before mount
   if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -155,17 +157,17 @@ export function AddToPlaylistModal({
             }}
           />
 
-          {/* Modal */}
+          {}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={springPresets.gentle}
-            className="fixed inset-x-4 top-1/2 z-[201] max-h-[80vh] -translate-y-1/2 md:left-1/2 md:right-auto md:w-full md:max-w-md md:-translate-x-1/2"
+            className="fixed inset-x-4 top-1/2 z-[201] max-h-[80vh] -translate-y-1/2 md:right-auto md:left-1/2 md:w-full md:max-w-md md:-translate-x-1/2"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="surface-panel flex max-h-[80vh] flex-col overflow-hidden">
-              {/* Header with track info */}
+              {}
               <div className="flex items-start gap-3 border-b border-[rgba(245,241,232,0.08)] px-4 py-4">
                 <div className="flex-1">
                   <h2 className="mb-1 text-lg font-bold text-[var(--color-text)]">
@@ -187,25 +189,25 @@ export function AddToPlaylistModal({
                 </button>
               </div>
 
-              {/* Search bar */}
+              {}
               <div className="border-b border-[rgba(245,241,232,0.08)] px-4 py-3">
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
+                  <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search playlists..."
-                    className="w-full rounded-lg border border-[rgba(244,178,102,0.18)] bg-[rgba(18,26,38,0.92)] py-2 pl-10 pr-4 text-sm text-[var(--color-text)] placeholder-[var(--color-muted)] backdrop-blur-sm transition-all hover:border-[rgba(244,178,102,0.35)] focus:border-[rgba(244,178,102,0.4)] focus:outline-none focus:ring-2 focus:ring-[rgba(244,178,102,0.25)]"
+                    className="w-full rounded-lg border border-[rgba(244,178,102,0.18)] bg-[rgba(18,26,38,0.92)] py-2 pr-4 pl-10 text-sm text-[var(--color-text)] placeholder-[var(--color-muted)] backdrop-blur-sm transition-all hover:border-[rgba(244,178,102,0.35)] focus:border-[rgba(244,178,102,0.4)] focus:ring-2 focus:ring-[rgba(244,178,102,0.25)] focus:outline-none"
                   />
                 </div>
               </div>
 
-              {/* Scrollable playlist list */}
+              {}
               <div className="flex-1 overflow-y-auto px-2 py-2">
                 {!isAuthenticated ? (
-                  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
                     <Music className="mb-4 h-16 w-16 text-[var(--color-muted)]" />
                     <p className="mb-2 text-sm font-medium text-[var(--color-text)]">
                       Sign in to create playlists
@@ -254,32 +256,34 @@ export function AddToPlaylistModal({
                 )}
               </div>
 
-              {/* Footer with create playlist link */}
-              {isAuthenticated && !isLoading && playlists && playlists.length > 0 && (
-                <div className="border-t border-[rgba(245,241,232,0.08)] px-4 py-3">
-                  <Link
-                    href="/playlists"
-                    onClick={() => {
-                      hapticLight();
-                      onClose();
-                    }}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-[rgba(244,178,102,0.1)] px-4 py-2.5 text-sm font-medium text-[var(--color-accent)] transition-all hover:bg-[rgba(244,178,102,0.18)] active:scale-[0.98]"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Create New Playlist
-                  </Link>
-                </div>
-              )}
+              {}
+              {isAuthenticated &&
+                !isLoading &&
+                playlists &&
+                playlists.length > 0 && (
+                  <div className="border-t border-[rgba(245,241,232,0.08)] px-4 py-3">
+                    <Link
+                      href="/playlists"
+                      onClick={() => {
+                        hapticLight();
+                        onClose();
+                      }}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-[rgba(244,178,102,0.1)] px-4 py-2.5 text-sm font-medium text-[var(--color-accent)] transition-all hover:bg-[rgba(244,178,102,0.18)] active:scale-[0.98]"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create New Playlist
+                    </Link>
+                  </div>
+                )}
             </div>
           </motion.div>
         </>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }
 
-// Playlist item component
 interface PlaylistItemProps {
   playlist: PlaylistWithTrackStatus;
   track: Track;
@@ -294,7 +298,7 @@ interface PlaylistItemProps {
 
 function PlaylistItem({
   playlist,
-  track,
+  track: _track,
   onAdd,
   isSubmitting,
   index,
@@ -318,12 +322,12 @@ function PlaylistItem({
       }`}
     >
       <div className="flex items-center gap-3">
-        {/* Playlist icon */}
+        {}
         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[rgba(244,178,102,0.1)]">
           <Music className="h-6 w-6 text-[var(--color-accent)]" />
         </div>
 
-        {/* Playlist info */}
+        {}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h3 className="truncate text-sm font-semibold text-[var(--color-text)]">
@@ -338,7 +342,7 @@ function PlaylistItem({
           </p>
         </div>
 
-        {/* Status indicator */}
+        {}
         <div className="flex-shrink-0">
           {isSubmitting ? (
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-[rgba(244,178,102,0.2)] border-t-[var(--color-accent)]" />
@@ -353,7 +357,6 @@ function PlaylistItem({
   );
 }
 
-// Empty state component
 interface EmptyStateProps {
   hasSearchQuery: boolean;
   onClose: () => void;

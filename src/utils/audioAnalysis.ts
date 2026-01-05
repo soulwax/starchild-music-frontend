@@ -1,23 +1,20 @@
 // File: src/utils/audioAnalysis.ts
 
 export interface FrequencyBands {
-  bass: number; // 20-250 Hz
-  lowMid: number; // 250-500 Hz
-  mid: number; // 500-2000 Hz
-  highMid: number; // 2000-4000 Hz
-  treble: number; // 4000-20000 Hz
+  bass: number;
+  lowMid: number;
+  mid: number;
+  highMid: number;
+  treble: number;
 }
 
 export interface AudioAnalysis {
   frequencyBands: FrequencyBands;
   overallVolume: number;
   peakFrequency: number;
-  rms: number; // Root Mean Square for energy
+  rms: number;
 }
 
-/**
- * Analyze frequency data and extract frequency bands
- */
 export function analyzeFrequencyBands(
   frequencyData: Uint8Array,
   sampleRate = 44100,
@@ -26,14 +23,12 @@ export function analyzeFrequencyBands(
   const nyquist = sampleRate / 2;
   const binSize = nyquist / (fftSize / 2);
 
-  // Define frequency ranges
   const bassRange = { start: 20, end: 250 };
   const lowMidRange = { start: 250, end: 500 };
   const midRange = { start: 500, end: 2000 };
   const highMidRange = { start: 2000, end: 4000 };
   const trebleRange = { start: 4000, end: 20000 };
 
-  // Calculate average amplitude for each band
   const getBandAverage = (startHz: number, endHz: number): number => {
     const startBin = Math.floor(startHz / binSize);
     const endBin = Math.min(
@@ -62,9 +57,6 @@ export function analyzeFrequencyBands(
   };
 }
 
-/**
- * Calculate overall volume (RMS)
- */
 export function calculateRMS(frequencyData: Uint8Array): number {
   let sum = 0;
   for (const value of frequencyData) {
@@ -74,9 +66,6 @@ export function calculateRMS(frequencyData: Uint8Array): number {
   return Math.sqrt(sum / frequencyData.length);
 }
 
-/**
- * Find peak frequency
- */
 export function findPeakFrequency(
   frequencyData: Uint8Array,
   sampleRate = 44100,
@@ -97,9 +86,6 @@ export function findPeakFrequency(
   return maxIndex * binSize;
 }
 
-/**
- * Comprehensive audio analysis
- */
 export function analyzeAudio(
   frequencyData: Uint8Array,
   sampleRate = 44100,
@@ -113,7 +99,6 @@ export function analyzeAudio(
   const rms = calculateRMS(frequencyData);
   const peakFrequency = findPeakFrequency(frequencyData, sampleRate, fftSize);
 
-  // Overall volume is the average of all frequency data
   const overallVolume =
     frequencyData.reduce((sum, val) => sum + (val ?? 0), 0) /
     frequencyData.length /
@@ -127,9 +112,6 @@ export function analyzeAudio(
   };
 }
 
-/**
- * Apply smoothing to frequency data to reduce jitter
- */
 export function smoothFrequencyData(
   data: Uint8Array,
   previousData: Uint8Array | null,
@@ -150,9 +132,6 @@ export function smoothFrequencyData(
   return smoothed;
 }
 
-/**
- * Detect beats using energy-based algorithm
- */
 export function detectBeat(
   currentEnergy: number,
   previousEnergies: number[],

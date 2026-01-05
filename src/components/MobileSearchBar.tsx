@@ -26,7 +26,6 @@ interface MobileSearchBarProps {
   onRecentSearchClick?: (search: string) => void;
 }
 
-// Speech Recognition types
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
@@ -86,14 +85,12 @@ export default function MobileSearchBar({
   const [interimTranscript, setInterimTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  // Check for speech recognition support
   useEffect(() => {
     const SpeechRecognitionAPI =
       window.SpeechRecognition ?? window.webkitSpeechRecognition;
     setVoiceSupported(!!SpeechRecognitionAPI);
   }, []);
 
-  // Initialize speech recognition
   const initSpeechRecognition = useCallback(() => {
     const SpeechRecognitionAPI =
       window.SpeechRecognition ?? window.webkitSpeechRecognition;
@@ -189,7 +186,7 @@ export default function MobileSearchBar({
   };
 
   const handleBlur = () => {
-    // Delay to allow click events on suggestions
+
     setTimeout(() => setIsFocused(false), 150);
   };
 
@@ -199,7 +196,7 @@ export default function MobileSearchBar({
 
   return (
     <div className="relative w-full">
-      {/* Search Form */}
+      {}
       <form onSubmit={handleSubmit} className="relative">
         <motion.div
           animate={{
@@ -215,7 +212,7 @@ export default function MobileSearchBar({
               : "border-[rgba(244,178,102,0.15)]"
           }`}
         >
-          {/* Search Icon */}
+          {}
           <motion.div
             animate={{
               scale: isLoading ? 0 : 1,
@@ -232,7 +229,7 @@ export default function MobileSearchBar({
             />
           </motion.div>
 
-          {/* Loading Spinner */}
+          {}
           <AnimatePresence>
             {isLoading && (
               <motion.div
@@ -246,7 +243,7 @@ export default function MobileSearchBar({
             )}
           </AnimatePresence>
 
-          {/* Input */}
+          {}
           <input
             ref={inputRef}
             type="text"
@@ -264,7 +261,7 @@ export default function MobileSearchBar({
             spellCheck={false}
           />
 
-          {/* Voice Button (Mobile Only) */}
+          {}
           {isMobile && voiceSupported && (
             <motion.button
               type="button"
@@ -291,7 +288,7 @@ export default function MobileSearchBar({
             </motion.button>
           )}
 
-          {/* Clear Button */}
+          {}
           <AnimatePresence>
             {showClear && (
               <motion.button
@@ -311,7 +308,7 @@ export default function MobileSearchBar({
           </AnimatePresence>
         </motion.div>
 
-        {/* Voice Animation Indicator */}
+        {}
         <AnimatePresence>
           {isListening && (
             <motion.div
@@ -341,7 +338,7 @@ export default function MobileSearchBar({
         </AnimatePresence>
       </form>
 
-      {/* Recent Searches Dropdown */}
+      {}
       <AnimatePresence>
         {showRecentSearches && onRecentSearchClick && (
           <motion.div

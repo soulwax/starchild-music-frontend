@@ -19,12 +19,11 @@ export function useWebShare(): UseWebShareResult {
   const [isSharing, setIsSharing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if Web Share API is supported
   const isSupported = typeof navigator !== "undefined" && "share" in navigator;
 
   const share = useCallback(
     async (data: ShareData): Promise<boolean> => {
-      // Reset error state
+
       setError(null);
 
       if (!isSupported) {
@@ -46,12 +45,10 @@ export function useWebShare(): UseWebShareResult {
       } catch (err) {
         setIsSharing(false);
 
-        // User cancelled the share - not really an error
         if (err instanceof Error && err.name === "AbortError") {
           return false;
         }
 
-        // Actual error
         const errorMessage =
           err instanceof Error ? err.message : "Failed to share";
         setError(errorMessage);

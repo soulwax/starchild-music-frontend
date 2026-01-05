@@ -1,18 +1,13 @@
 // File: src/components/LoadingSpinner.tsx
 
-/**
- * Loading spinner component
- * Provides a consistent loading indicator across the app
- */
-
 import { cn } from "@/lib/utils";
 
 export interface LoadingSpinnerProps {
-  /** Size of the spinner */
+
   size?: "sm" | "md" | "lg" | "xl";
-  /** Custom className for additional styling */
+
   className?: string;
-  /** Optional label for accessibility */
+
   label?: string;
 }
 
@@ -23,10 +18,6 @@ const sizeClasses = {
   xl: "h-16 w-16 border-4",
 };
 
-/**
- * LoadingSpinner component
- * Displays an animated spinner for loading states
- */
 export function LoadingSpinner({
   size = "md",
   className,
@@ -48,19 +39,14 @@ export function LoadingSpinner({
 }
 
 export interface LoadingStateProps {
-  /** Custom message to display */
+
   message?: string;
-  /** Size of the spinner */
+
   size?: "sm" | "md" | "lg" | "xl";
-  /** Custom className for the container */
+
   className?: string;
 }
 
-/**
- * LoadingState component
- * Displays a centered loading spinner with optional message
- * Use this for full-page or section loading states
- */
 export function LoadingState({
   message = "Loading...",
   size = "md",

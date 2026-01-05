@@ -7,14 +7,13 @@ export const metadata = {
   description: "GNU General Public License v3.0 for darkfloor.art",
 };
 
-// Force dynamic rendering to avoid build-time circular dependency issues
 export const dynamic = "force-dynamic";
 
 export default function LicensePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
       <div className="mx-auto max-w-4xl px-4 py-12">
-        {/* Header */}
+        {}
         <div className="mb-8">
           <Link
             href="/"
@@ -44,7 +43,7 @@ export default function LicensePage() {
           </p>
         </div>
 
-        {/* Quick Info Card */}
+        {}
         <div className="mb-8 rounded-2xl border border-indigo-500/30 bg-indigo-900/20 p-6 backdrop-blur-sm">
           <h2 className="mb-4 text-xl font-semibold text-white">
             License Summary
@@ -86,7 +85,7 @@ export default function LicensePage() {
           </div>
         </div>
 
-        {/* Copyright Notice */}
+        {}
         <div className="mb-8 rounded-lg border border-gray-800 bg-gray-900/50 p-6">
           <p className="mb-2 font-mono text-sm text-gray-300">
             Copyright (C) 2025 Konstantin Kling
@@ -99,7 +98,7 @@ export default function LicensePage() {
           </p>
         </div>
 
-        {/* Full License Text */}
+        {}
         <div className="rounded-lg border border-gray-800 bg-gray-900/30 p-8">
           <h2 className="mb-6 text-2xl font-bold text-white">
             GNU General Public License
@@ -185,7 +184,7 @@ modification follow.
           </div>
         </div>
 
-        {/* Additional Resources */}
+        {}
         <div className="mt-8 rounded-lg border border-gray-800 bg-gray-900/30 p-6">
           <h3 className="mb-4 text-lg font-semibold text-white">Learn More</h3>
           <div className="space-y-3">

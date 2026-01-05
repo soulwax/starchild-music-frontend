@@ -194,10 +194,16 @@ const addToHistory = api.music.addToHistory.useMutation();
 #### 4. Visual Pattern System
 
 **FlowFieldRenderer** (`src/components/visualizers/FlowFieldRenderer.ts`):
-- 62+ procedurally-generated audio-reactive patterns
+- 80+ procedurally-generated audio-reactive patterns
 - Configurable parameters (particle count, size, speed, colors)
 - Pattern-specific controls via `PatternControls.tsx`
 - Frequency band analysis drives visual effects
+- 11,000+ lines of highly optimized Canvas2D rendering
+
+**LightweightParticleBackground**:
+- Minimal performance footprint
+- Used as fallback when main visualizer is disabled
+- Simple particle system for ambient visuals
 
 **Pattern Categories:**
 - Sacred geometry (Flower of Life, Metatron's Cube, Mandala)
@@ -390,13 +396,15 @@ DB_SSL_CA=                      # PostgreSQL SSL CA certificate path (PEM format
 
 5. **TypeScript strict indexing:** Arrays and objects may be `undefined`. Always check:
    ```tsx
-   const track = tracks[0]; // track is Track | undefined
-   if (track) { /* use track */ }
+   const track = tracks[0];
+   if (track) { }
    ```
 
 6. **Electron builds:** Don't use `npm run build` - use `npm run electron:build:*` scripts which set `ELECTRON_BUILD=true` and handle packaging.
 
 7. **Z-index conflicts:** Follow documented hierarchy. Mobile header/player use z-50, menu uses z-60-61, modals use z-98-99.
+
+8. **Source code comments:** All comments have been removed from source files for a cleaner, more lightweight codebase. Documentation lives in CLAUDE.md, README.md, and commit messages.
 
 ## Testing & Quality
 

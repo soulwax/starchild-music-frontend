@@ -30,14 +30,14 @@ export default function ProfileHeader({
   onShare,
 }: ProfileHeaderProps) {
   const [imageError, setImageError] = useState(false);
-  
+
   return (
     <div className="surface-panel relative mb-8 overflow-hidden p-8">
       <div className="bg-[radial-gradient(circle,rgba(244,178,102,0.2),transparent 60%)] pointer-events-none absolute -top-24 -left-16 h-72 w-72 rounded-full blur-3xl" />
       <div className="bg-[radial-gradient(circle,rgba(88,198,177,0.18),transparent 65%)] pointer-events-none absolute -right-24 -bottom-32 h-80 w-80 rounded-full blur-3xl" />
 
       <div className="relative flex flex-col items-center gap-6 md:flex-row">
-        {/* Avatar */}
+        {}
         <div className="relative">
           {profile.image && !imageError ? (
             <Image
@@ -64,7 +64,7 @@ export default function ProfileHeader({
           </div>
         </div>
 
-        {/* Profile Info */}
+        {}
         <div className="relative flex-1 text-center md:text-left">
           <h1 className="text-glow mb-2 text-4xl font-bold text-[var(--color-text)]">
             {profile.name ?? "Anonymous User"}
@@ -75,7 +75,7 @@ export default function ProfileHeader({
             </p>
           )}
 
-          {/* Stats */}
+          {}
           <div className="flex flex-wrap justify-center gap-6 md:justify-start">
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--color-accent)]">
@@ -104,7 +104,7 @@ export default function ProfileHeader({
           </div>
         </div>
 
-        {/* Share Button */}
+        {}
         {isShareSupported && (
           <button
             onClick={onShare}

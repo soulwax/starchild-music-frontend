@@ -36,7 +36,6 @@ export function SwipeableTrackItem({
   const x = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Transform for background actions visibility
   const leftActionOpacity = useTransform(x, [0, 80], [0, 1]);
   const rightActionOpacity = useTransform(x, [-80, 0], [1, 0]);
 
@@ -51,14 +50,13 @@ export function SwipeableTrackItem({
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
-    // Swipe right (favorite action)
     if (offset > swipeThreshold || velocity > 500) {
       if (showFavorite && onFavorite) {
         hapticMedium();
         onFavorite(track);
       }
     }
-    // Swipe left (remove action)
+
     else if (offset < -swipeThreshold || velocity < -500) {
       if (showRemove && onRemove) {
         hapticMedium();
@@ -74,9 +72,9 @@ export function SwipeableTrackItem({
 
   return (
     <div className="relative overflow-hidden">
-      {/* Background Actions */}
+      {}
       <div className="absolute inset-0 flex items-center justify-between">
-        {/* Left action (Remove) */}
+        {}
         {showRemove && (
           <motion.div
             style={{ opacity: rightActionOpacity }}
@@ -86,7 +84,7 @@ export function SwipeableTrackItem({
           </motion.div>
         )}
 
-        {/* Right action (Favorite) */}
+        {}
         {showFavorite && (
           <motion.div
             style={{ opacity: leftActionOpacity }}
@@ -99,7 +97,7 @@ export function SwipeableTrackItem({
         )}
       </div>
 
-      {/* Main Track Item */}
+      {}
       <motion.div
         ref={containerRef}
         drag="x"
@@ -116,7 +114,7 @@ export function SwipeableTrackItem({
         onTap={handleTap}
         className="relative z-10 flex cursor-pointer items-center gap-3 bg-[var(--color-bg)] p-3 transition-colors hover:bg-[var(--color-surface)]"
       >
-        {/* Album Cover */}
+        {}
         <div className="relative flex-shrink-0">
           <Image
             src={coverImage}
@@ -142,7 +140,7 @@ export function SwipeableTrackItem({
           </div>
         </div>
 
-        {/* Track Info */}
+        {}
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-base font-semibold text-[var(--color-text)]">
             {track.title}
@@ -152,7 +150,7 @@ export function SwipeableTrackItem({
           </p>
         </div>
 
-        {/* More Options */}
+        {}
         {onMore && (
           <motion.button
             whileTap={{ scale: 0.9 }}

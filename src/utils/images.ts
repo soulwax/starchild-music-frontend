@@ -1,33 +1,17 @@
 // File: src/utils/images.ts
 
-/**
- * Image utility functions for album covers and artist pictures
- */
-
 import type { Album, Artist, Track } from "@/types";
 
-/**
- * Gets the best available cover image for a track's album with fallback chain
- * Priority: cover_medium > cover_small > cover > placeholder
- * @param track - The track object containing album information
- * @param size - Optional preferred size ('small' | 'medium' | 'big' | 'xl')
- * @returns URL string for the cover image
- * @example
- * getCoverImage(track) // returns medium cover or fallback
- * getCoverImage(track, 'big') // returns big cover or fallback
- */
 export function getCoverImage(
   track: Track,
   size: "small" | "medium" | "big" | "xl" = "medium",
 ): string {
   const album = track.album;
 
-  // If album is missing, return placeholder
   if (!album) {
     return "/images/placeholder-cover.svg";
   }
 
-  // Try to get the requested size
   const normalize = (value?: string | null) =>
     value && value.trim().length > 0 ? value : undefined;
 
@@ -38,7 +22,6 @@ export function getCoverImage(
     xl: normalize(album.cover_xl),
   };
 
-  // Fallback chain
   return (
     sizeMap[size] ??
     normalize(album.cover_medium) ??
@@ -48,12 +31,6 @@ export function getCoverImage(
   );
 }
 
-/**
- * Gets the best available cover image directly from an Album object
- * @param album - The album object
- * @param size - Optional preferred size ('small' | 'medium' | 'big' | 'xl')
- * @returns URL string for the cover image
- */
 export function getAlbumCover(
   album: Album,
   size: "small" | "medium" | "big" | "xl" = "medium",
@@ -77,12 +54,6 @@ export function getAlbumCover(
   );
 }
 
-/**
- * Gets the best available artist picture with fallback chain
- * @param artist - The artist object
- * @param size - Optional preferred size ('small' | 'medium' | 'big' | 'xl')
- * @returns URL string for the artist picture
- */
 export function getArtistPicture(
   artist: Artist,
   size: "small" | "medium" | "big" | "xl" = "medium",
@@ -106,13 +77,6 @@ export function getArtistPicture(
   );
 }
 
-/**
- * Generates a srcSet string for responsive images
- * @param album - The album object containing cover URLs
- * @returns srcSet string for use in img elements
- * @example
- * <img src={getCoverImage(track)} srcSet={getImageSrcSet(track.album)} />
- */
 export function getImageSrcSet(album: Album): string {
   const sizes = [];
 

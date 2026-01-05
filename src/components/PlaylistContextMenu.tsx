@@ -66,7 +66,6 @@ export function PlaylistContextMenu() {
     onSuccess: async (newPlaylist) => {
       if (!playlist) return;
 
-      // Copy all tracks to new playlist
       if (playlist.tracks && playlist.tracks.length > 0) {
         await Promise.all(
           playlist.tracks.map((pt) =>
@@ -87,7 +86,6 @@ export function PlaylistContextMenu() {
     },
   });
 
-  // Close menu when clicking outside
   useEffect(() => {
     if (!playlist) return;
 
@@ -112,7 +110,6 @@ export function PlaylistContextMenu() {
     };
   }, [playlist, closeMenu]);
 
-  // Adjust menu position to stay within viewport
   useEffect(() => {
     if (!menuRef.current || !position) return;
 
@@ -125,13 +122,11 @@ export function PlaylistContextMenu() {
 
     let { x, y } = position;
 
-    // Adjust horizontal position
     if (x + rect.width > viewport.width) {
       x = viewport.width - rect.width - 16;
     }
     if (x < 16) x = 16;
 
-    // Adjust vertical position
     if (y + rect.height > viewport.height) {
       y = viewport.height - rect.height - 16;
     }
@@ -145,11 +140,10 @@ export function PlaylistContextMenu() {
     if (!playlist) return;
 
     hapticMedium();
-    
-    // Fetch full playlist data to get all tracks (not just the 4 preview tracks)
+
     try {
       const fullPlaylist = await utils.music.getPlaylist.fetch({ id: playlist.id });
-      
+
       if (!fullPlaylist.tracks || fullPlaylist.tracks.length === 0) {
         showToast("This playlist has no tracks", "info");
         closeMenu();
@@ -171,7 +165,7 @@ export function PlaylistContextMenu() {
       console.error("Failed to fetch full playlist:", error);
       showToast("Failed to load playlist tracks", "error");
     }
-    
+
     closeMenu();
   };
 
@@ -179,11 +173,10 @@ export function PlaylistContextMenu() {
     if (!playlist) return;
 
     hapticLight();
-    
-    // Fetch full playlist data to get all tracks (not just the 4 preview tracks)
+
     try {
       const fullPlaylist = await utils.music.getPlaylist.fetch({ id: playlist.id });
-      
+
       if (!fullPlaylist.tracks || fullPlaylist.tracks.length === 0) {
         showToast("This playlist has no tracks", "info");
         closeMenu();
@@ -200,14 +193,14 @@ export function PlaylistContextMenu() {
       console.error("Failed to fetch full playlist:", error);
       showToast("Failed to load playlist tracks", "error");
     }
-    
+
     closeMenu();
   };
 
   const handleMergePlaylist = () => {
     hapticLight();
     setShowMergeModal(true);
-    // Don't close menu yet - will close after merge selection
+
   };
 
   const handleShare = async () => {
@@ -231,7 +224,7 @@ export function PlaylistContextMenu() {
     if (success) {
       showToast("Playlist shared successfully!", "success");
     } else {
-      // Fallback: copy to clipboard
+
       try {
         await navigator.clipboard.writeText(url);
         showToast("Link copied to clipboard!", "success");
@@ -280,7 +273,7 @@ export function PlaylistContextMenu() {
     duplicatePlaylist.mutate({
       name: `${playlist.name} (Copy)`,
       description: playlist.description ?? undefined,
-      isPublic: false, // Duplicates are always private by default
+      isPublic: false,
     });
   };
 
@@ -291,7 +284,7 @@ export function PlaylistContextMenu() {
       <AnimatePresence>
         {playlist && position && (
           <>
-            {/* Backdrop */}
+            {}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -301,7 +294,7 @@ export function PlaylistContextMenu() {
               onClick={closeMenu}
             />
 
-            {/* Horizontal Context Menu */}
+            {}
             <motion.div
               ref={menuRef}
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
@@ -314,7 +307,7 @@ export function PlaylistContextMenu() {
                 top: position.y,
               }}
             >
-              {/* Play All */}
+              {}
               <button
                 onClick={handlePlayAll}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -327,7 +320,7 @@ export function PlaylistContextMenu() {
                 </span>
               </button>
 
-              {/* Add to Queue */}
+              {}
               <button
                 onClick={handleAddAllToQueue}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -340,10 +333,10 @@ export function PlaylistContextMenu() {
                 </span>
               </button>
 
-              {/* Divider */}
+              {}
               <div className="h-10 w-px bg-[rgba(244,178,102,0.15)]" />
 
-              {/* Merge */}
+              {}
               <button
                 onClick={handleMergePlaylist}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -355,7 +348,7 @@ export function PlaylistContextMenu() {
                 </span>
               </button>
 
-              {/* Share */}
+              {}
               <button
                 onClick={handleShare}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -372,10 +365,10 @@ export function PlaylistContextMenu() {
                 </span>
               </button>
 
-              {/* Divider */}
+              {}
               <div className="h-10 w-px bg-[rgba(244,178,102,0.15)]" />
 
-              {/* Edit */}
+              {}
               <button
                 onClick={handleEdit}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -387,7 +380,7 @@ export function PlaylistContextMenu() {
                 </span>
               </button>
 
-              {/* Toggle Visibility */}
+              {}
               <button
                 onClick={handleToggleVisibility}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -404,7 +397,7 @@ export function PlaylistContextMenu() {
                 </span>
               </button>
 
-              {/* Duplicate */}
+              {}
               <button
                 onClick={handleDuplicate}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -417,10 +410,10 @@ export function PlaylistContextMenu() {
                 </span>
               </button>
 
-              {/* Divider */}
+              {}
               <div className="h-10 w-px bg-[rgba(244,178,102,0.15)]" />
 
-              {/* Delete */}
+              {}
               <button
                 onClick={handleDelete}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] hover:bg-red-500/10 active:scale-95"
@@ -437,7 +430,7 @@ export function PlaylistContextMenu() {
         )}
       </AnimatePresence>
 
-      {/* TODO: Merge Playlist Modal - Will implement in next iteration */}
+      {}
       {showMergeModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="surface-panel max-w-md p-6">

@@ -65,7 +65,6 @@ export function TrackContextMenu() {
     },
   });
 
-  // Close menu when clicking outside
   useEffect(() => {
     if (!track) return;
 
@@ -90,7 +89,6 @@ export function TrackContextMenu() {
     };
   }, [track, closeMenu]);
 
-  // Adjust menu position to stay within viewport
   useEffect(() => {
     if (!menuRef.current || !position) return;
 
@@ -103,22 +101,18 @@ export function TrackContextMenu() {
 
     let { x, y } = position;
 
-    // Adjust horizontal position if menu would overflow right edge
     if (x + rect.width > viewport.width) {
       x = viewport.width - rect.width - 16;
     }
 
-    // Adjust vertical position if menu would overflow bottom edge
     if (y + rect.height > viewport.height) {
       y = viewport.height - rect.height - 16;
     }
 
-    // Ensure menu doesn't go off left edge
     if (x < 16) {
       x = 16;
     }
 
-    // Ensure menu doesn't go off top edge
     if (y < 16) {
       y = 16;
     }
@@ -206,7 +200,7 @@ export function TrackContextMenu() {
       <AnimatePresence>
         {track && position && (
           <>
-            {/* Backdrop */}
+            {}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -216,7 +210,7 @@ export function TrackContextMenu() {
               onClick={closeMenu}
             />
 
-            {/* Horizontal Context Menu */}
+            {}
             <motion.div
               ref={menuRef}
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
@@ -229,7 +223,7 @@ export function TrackContextMenu() {
                 top: position.y,
               }}
             >
-              {/* Play */}
+              {}
               <button
                 onClick={handlePlay}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -241,10 +235,10 @@ export function TrackContextMenu() {
                 </span>
               </button>
 
-              {/* Divider */}
+              {}
               <div className="h-10 w-px bg-[rgba(244,178,102,0.15)]" />
 
-              {/* Add to Queue */}
+              {}
               <button
                 onClick={handleAddToQueue}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -256,7 +250,7 @@ export function TrackContextMenu() {
                 </span>
               </button>
 
-              {/* Play Next */}
+              {}
               <button
                 onClick={handleAddToPlayNext}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -268,10 +262,10 @@ export function TrackContextMenu() {
                 </span>
               </button>
 
-              {/* Divider */}
+              {}
               <div className="h-10 w-px bg-[rgba(244,178,102,0.15)]" />
 
-              {/* Favorite */}
+              {}
               {session && (
                 <button
                   onClick={handleToggleFavorite}
@@ -296,7 +290,7 @@ export function TrackContextMenu() {
                 </button>
               )}
 
-              {/* Add to Playlist */}
+              {}
               {session && (
                 <button
                   onClick={handleAddToPlaylist}
@@ -310,12 +304,12 @@ export function TrackContextMenu() {
                 </button>
               )}
 
-              {/* Divider */}
+              {}
               {(session ?? isShareSupported) && (
                 <div className="h-10 w-px bg-[rgba(244,178,102,0.15)]" />
               )}
 
-              {/* Share */}
+              {}
               {isShareSupported && (
                 <button
                   onClick={handleShare}
@@ -329,10 +323,10 @@ export function TrackContextMenu() {
                 </button>
               )}
 
-              {/* Divider */}
+              {}
               <div className="h-10 w-px bg-[rgba(244,178,102,0.15)]" />
 
-              {/* Go to Artist */}
+              {}
               <button
                 onClick={handleGoToArtist}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -344,7 +338,7 @@ export function TrackContextMenu() {
                 </span>
               </button>
 
-              {/* Go to Album */}
+              {}
               <button
                 onClick={handleGoToAlbum}
                 className="group flex flex-col items-center gap-1 rounded-lg px-3 py-2 transition-all hover:bg-[rgba(244,178,102,0.15)] active:scale-95"
@@ -360,7 +354,7 @@ export function TrackContextMenu() {
         )}
       </AnimatePresence>
 
-      {/* Add to Playlist Modal */}
+      {}
       {track && (
         <AddToPlaylistModal
           isOpen={showAddToPlaylistModal}

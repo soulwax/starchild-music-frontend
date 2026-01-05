@@ -21,7 +21,7 @@ import {
 } from "react";
 
 interface AudioPlayerContextType {
-  // Player state
+
   currentTrack: Track | null;
   queue: Track[];
   queuedTracks: QueuedTrack[];
@@ -41,10 +41,8 @@ interface AudioPlayerContextType {
   hideUI: boolean;
   setHideUI: (hide: boolean) => void;
 
-  // Audio element reference for visualizer and equalizer
   audioElement: HTMLAudioElement | null;
 
-  // Actions
   play: (track: Track) => void;
   togglePlay: () => Promise<void>;
   addToQueue: (track: Track | Track[], checkDuplicates?: boolean) => void;
@@ -64,17 +62,14 @@ interface AudioPlayerContextType {
   skipForward: () => void;
   skipBackward: () => void;
 
-  // Queue Management
   saveQueueAsPlaylist: () => Promise<void>;
 
-  // Queue Safety & Cleanup
   removeDuplicates: () => void;
   cleanInvalidTracks: () => void;
   cleanQueue: () => void;
   clearQueueAndHistory: () => void;
   isValidTrack: (track: Track | null | undefined) => track is Track;
 
-  // Smart Queue Operations
   addSmartTracks: (count?: number) => Promise<Track[]>;
   refreshSmartTracks: () => Promise<void>;
   clearSmartTracks: () => void;
@@ -95,8 +90,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const addToHistory = api.music.addToHistory.useMutation();
   const createPlaylistMutation = api.music.createPlaylist.useMutation();
   const addToPlaylistMutation = api.music.addToPlaylist.useMutation();
-  
-  // Queue persistence mutations for logged-in users
+
   const saveQueueStateMutation = api.music.saveQueueState.useMutation();
   const clearQueueStateMutation = api.music.clearQueueState.useMutation();
   const { data: dbQueueState } = api.music.getQueueState.useQuery(
@@ -104,13 +98,11 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     { enabled: !!session, refetchOnWindowFocus: false },
   );
 
-  // Smart queue settings (re-enabled for light smart queue feature)
   const { data: smartQueueSettings } = api.music.getSmartQueueSettings.useQuery(
     undefined,
     { enabled: !!session },
   );
 
-  // TRPC utils for imperative calls
   const utils = api.useUtils();
 
   const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
@@ -171,14 +163,13 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  // Smart queue trigger - fetches similar tracks for manual smart queue feature
   const handleAutoQueueTrigger = useCallback(
     async (currentTrack: Track, _queueLength: number): Promise<Track[]> => {
       try {
         const result = await utils.music.getSimilarTracks.fetch({
           trackId: currentTrack.id,
-          limit: 10, // Fetch 10, will use ~5
-          useEnhanced: false, // Use basic mode for speed
+          limit: 10,
+          useEnhanced: false,
         });
 
         return result || [];
@@ -190,11 +181,10 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     [utils],
   );
 
-  // Prepare initial queue state from database for useAudioPlayer (must be before useAudioPlayer call)
   const initialQueueState = session && dbQueueState && dbQueueState.queuedTracks && dbQueueState.queuedTracks.length > 0 ? {
     queuedTracks: dbQueueState.queuedTracks.map((qt: any) => ({
       ...qt,
-      addedAt: new Date(qt.addedAt), // Convert string to Date
+      addedAt: new Date(qt.addedAt),
     })) as QueuedTrack[],
     smartQueueState: {
       ...dbQueueState.smartQueueState,
@@ -234,7 +224,6 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
         error,
       );
 
-      // Check for upstream errors (backend can't reach upstream service)
       if (
         error.includes("upstream error") ||
         error.includes("ServiceUnavailableException")
@@ -258,31 +247,29 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     smartQueueSettings: smartQueueSettings ?? undefined,
   });
 
-  // Persist queue state to database when logged in (debounced)
   useEffect(() => {
-    if (!session) return; // Only persist to DB if logged in
-    
+    if (!session) return;
+
     const persistTimer = setTimeout(() => {
       const queueState = {
         version: 2 as const,
         queuedTracks: player.queuedTracks,
         smartQueueState: player.smartQueueState,
-        history: player.history, // History is available from useAudioPlayer
+        history: player.history,
         currentTime: player.currentTime,
         isShuffled: player.isShuffled,
         repeatMode: player.repeatMode,
       };
-      
-      // If queue is empty, clear from database (queue was intentionally cleared)
+
       if (queueState.queuedTracks.length === 0) {
         console.log("[AudioPlayerContext] 🧹 Clearing queue state from database");
         clearQueueStateMutation.mutate();
       } else {
-        // Save queue state to database
+
         console.log("[AudioPlayerContext] 💾 Persisting queue state to database");
         saveQueueStateMutation.mutate({ queueState });
       }
-    }, 1000); // Debounce by 1 second
+    }, 1000);
 
     return () => clearTimeout(persistTimer);
   }, [
@@ -297,11 +284,9 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     clearQueueStateMutation,
   ]);
 
-  // Watch for session changes (login/logout) and clear queue
   useEffect(() => {
     const currentUserId = session?.user?.id ?? null;
 
-    // Only clear on actual user change, not on initial load
     if (lastUserId !== null && currentUserId !== lastUserId) {
       console.log(
         "[AudioPlayerContext] 🔄 User session changed, clearing queue",
@@ -311,12 +296,11 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
         },
       );
       player.clearQueueAndHistory();
-      
-      // Clear from database if logging in (new user)
+
       if (currentUserId && session) {
         clearQueueStateMutation.mutate();
       }
-      
+
       showToast(
         currentUserId
           ? "Welcome! Queue has been cleared for your new session."
@@ -328,28 +312,26 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     setLastUserId(currentUserId);
   }, [session?.user?.id, lastUserId, player, showToast, clearQueueStateMutation]);
 
-  // Periodically clean queue (remove duplicates and invalid tracks)
   useEffect(() => {
     const cleanupInterval = setInterval(
       () => {
         if (player.queue.length > 1) {
-          // Only clean if there's actually a queue
+
           console.log("[AudioPlayerContext] 🧹 Running periodic queue cleanup");
           player.cleanQueue();
         }
       },
       5 * 60 * 1000,
-    ); // Every 5 minutes
+    );
 
     return () => clearInterval(cleanupInterval);
   }, [player]);
 
   const play = useCallback(
     (track: Track) => {
-      // NEW: Use playTrack for queue-first behavior
+
       player.playTrack(track);
 
-      // Auto-show mobile player when starting a new track (Spotify-like behavior)
       if (isMobile) {
         setShowMobilePlayer(true);
       }
@@ -358,39 +340,22 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   );
 
   const playNext = useCallback(() => {
-    // NEW: playNext now handles queue management automatically via useEffect
+
     player.playNext();
   }, [player]);
 
   const playPrevious = useCallback(() => {
-    // NEW: playPrevious now handles queue management automatically via useEffect
+
     player.playPrevious();
   }, [player]);
 
   const playFromQueue = useCallback(
     (index: number) => {
-      // NEW: playFromQueue now handles queue management automatically via useEffect
+
       player.playFromQueue(index);
     },
     [player],
   );
-
-  // COMMENTED OUT - Smart Queue Functions disabled
-  // const addSimilarTracks = useCallback(
-  //   async (trackId: number, count = 5) => {
-  //     // Disabled for simplified queue
-  //     showToast("Smart queue features are currently disabled", "info");
-  //   },
-  //   [showToast],
-  // );
-
-  // const generateSmartMix = useCallback(
-  //   async (seedTrackIds: number[], count = 50) => {
-  //     // Disabled for simplified queue
-  //     showToast("Smart queue features are currently disabled", "info");
-  //   },
-  //   [showToast],
-  // );
 
   const saveQueueAsPlaylist = useCallback(async () => {
     console.log("[AudioPlayerContext] 💾 saveQueueAsPlaylist called", {
@@ -404,7 +369,6 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // NEW: queue already includes current track at queue[0]
     const tracksToSave: Track[] = [...player.queue];
 
     if (tracksToSave.length === 0) {
@@ -447,7 +411,6 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
         `[AudioPlayerContext] 💾 Adding ${tracksToSave.length} tracks to playlist ${playlist.id}`,
       );
 
-      // FIX: Use Promise.all to add all tracks in parallel and avoid race conditions
       await Promise.all(
         tracksToSave.map((track, index) => {
           console.log(
@@ -486,7 +449,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   ]);
 
   const value: AudioPlayerContextType = {
-    // State
+
     currentTrack: player.currentTrack,
     queue: player.queue,
     queuedTracks: player.queuedTracks,
@@ -506,10 +469,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     hideUI,
     setHideUI,
 
-    // Audio element reference
     audioElement: player.audioRef.current,
 
-    // Actions
     play,
     togglePlay: player.togglePlay,
     addToQueue: player.addToQueue,
@@ -529,17 +490,14 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     skipForward: player.skipForward,
     skipBackward: player.skipBackward,
 
-    // Queue Management
     saveQueueAsPlaylist,
 
-    // Queue Safety & Cleanup
     removeDuplicates: player.removeDuplicates,
     cleanInvalidTracks: player.cleanInvalidTracks,
     cleanQueue: player.cleanQueue,
     clearQueueAndHistory: player.clearQueueAndHistory,
     isValidTrack: player.isValidTrack,
 
-    // Smart Queue Operations
     addSmartTracks: player.addSmartTracks,
     refreshSmartTracks: player.refreshSmartTracks,
     clearSmartTracks: player.clearSmartTracks,

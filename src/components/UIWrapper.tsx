@@ -14,7 +14,6 @@ export function UIWrapper({ children }: UIWrapperProps) {
   const { hideUI } = useGlobalPlayer();
   const isMobile = useIsMobile();
 
-  // Only hide UI on desktop when hideUI is true
   if (!isMobile && hideUI) {
     return null;
   }

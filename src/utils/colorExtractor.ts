@@ -1,9 +1,5 @@
 // File: src/utils/colorExtractor.ts
 
-/**
- * Extract dominant colors from an image for visualizer theming
- */
-
 export interface ColorPalette {
   primary: string;
   secondary: string;
@@ -13,10 +9,6 @@ export interface ColorPalette {
   lightness: number;
 }
 
-/**
- * Extracts dominant colors from an image URL
- * Uses canvas to sample pixels and calculate average color
- */
 export async function extractColorsFromImage(
   imageUrl: string,
 ): Promise<ColorPalette> {
@@ -26,7 +18,7 @@ export async function extractColorsFromImage(
 
     img.onload = () => {
       try {
-        // Create canvas to sample image
+
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) {
@@ -34,19 +26,15 @@ export async function extractColorsFromImage(
           return;
         }
 
-        // Resize to small size for faster processing
         const size = 50;
         canvas.width = size;
         canvas.height = size;
 
-        // Draw image
         ctx.drawImage(img, 0, 0, size, size);
 
-        // Get image data
         const imageData = ctx.getImageData(0, 0, size, size);
         const data = imageData.data;
 
-        // Calculate average color (skip transparent pixels)
         let r = 0,
           g = 0,
           b = 0;
@@ -56,7 +44,7 @@ export async function extractColorsFromImage(
         for (let i = 0; i < data.length; i += 4) {
           const alpha = data[i + 3] ?? 0;
           if (alpha > 128) {
-            // Only count opaque pixels
+
             const red = data[i] ?? 0;
             const green = data[i + 1] ?? 0;
             const blue = data[i + 2] ?? 0;
@@ -66,14 +54,13 @@ export async function extractColorsFromImage(
             b += blue;
             count++;
 
-            // Track color frequency for dominant color
             const colorKey = `${Math.floor(red / 32)},${Math.floor(green / 32)},${Math.floor(blue / 32)}`;
             colorMap.set(colorKey, (colorMap.get(colorKey) ?? 0) + 1);
           }
         }
 
         if (count === 0) {
-          // Default to purple/blue if no colors found
+
           resolve({
             primary: "rgba(138, 43, 226, 0.8)",
             secondary: "rgba(99, 102, 241, 0.8)",
@@ -85,15 +72,12 @@ export async function extractColorsFromImage(
           return;
         }
 
-        // Average color
         r = Math.floor(r / count);
         g = Math.floor(g / count);
         b = Math.floor(b / count);
 
-        // Convert to HSL
         const hsl = rgbToHsl(r, g, b);
 
-        // Create color palette based on dominant color
         const primary = `rgba(${r}, ${g}, ${b}, 0.8)`;
         const secondary = `hsla(${(hsl.h + 30) % 360}, ${hsl.s}%, ${Math.min(hsl.l + 10, 70)}%, 0.8)`;
         const accent = `hsla(${(hsl.h + 60) % 360}, ${hsl.s}%, ${Math.min(hsl.l + 20, 80)}%, 0.8)`;
@@ -108,7 +92,7 @@ export async function extractColorsFromImage(
         });
       } catch (error) {
         console.error("Error extracting colors:", error);
-        // Fallback to default colors
+
         resolve({
           primary: "rgba(138, 43, 226, 0.8)",
           secondary: "rgba(99, 102, 241, 0.8)",
@@ -122,7 +106,7 @@ export async function extractColorsFromImage(
 
     img.onerror = () => {
       console.error("Failed to load image for color extraction");
-      // Fallback to default colors
+
       resolve({
         primary: "rgba(138, 43, 226, 0.8)",
         secondary: "rgba(99, 102, 241, 0.8)",
@@ -137,9 +121,6 @@ export async function extractColorsFromImage(
   });
 }
 
-/**
- * Convert RGB to HSL
- */
 function rgbToHsl(
   r: number,
   g: number,
@@ -179,9 +160,6 @@ function rgbToHsl(
   };
 }
 
-/**
- * Create a gradient from color palette
- */
 export function createGradientFromPalette(
   ctx: CanvasRenderingContext2D,
   palette: ColorPalette,

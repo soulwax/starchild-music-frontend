@@ -27,25 +27,21 @@ export default function PlaylistDetailPage() {
   const [draftTitle, setDraftTitle] = useState("");
   const [draftDescription, setDraftDescription] = useState("");
 
-  // Try authenticated query first if user is logged in
   const { data: privatePlaylist, isLoading: isLoadingPrivate } =
     api.music.getPlaylist.useQuery(
       { id: playlistId },
       { enabled: !!session && !isNaN(playlistId), retry: false },
     );
 
-  // Fall back to public query if not authenticated
   const { data: publicPlaylist, isLoading: isLoadingPublic } =
     api.music.getPublicPlaylist.useQuery(
       { id: playlistId },
       { enabled: !session && !isNaN(playlistId), retry: false },
     );
 
-  // Use private playlist if available, otherwise use public playlist
   const playlist = privatePlaylist ?? publicPlaylist;
   const isLoading = isLoadingPrivate || isLoadingPublic;
 
-  // Check if the current user owns this playlist
   const isOwner: boolean = !!session && !!privatePlaylist;
 
   const utils = api.useUtils();
@@ -95,13 +91,12 @@ export default function PlaylistDetailPage() {
   const handlePlayAll = (): void => {
     if (!playlist?.tracks || playlist.tracks.length === 0) return;
 
-    // Sort tracks by position to ensure correct order
     const sortedTracks = [...playlist.tracks].sort(
       (a, b) => a.position - b.position,
     );
     const [first, ...rest] = sortedTracks;
     if (first) {
-      // Clear existing queue before playing to ensure playlist tracks are sequential
+
       player.clearQueue();
       player.play(first.track);
       if (rest.length > 0) {
@@ -244,23 +239,20 @@ export default function PlaylistDetailPage() {
       return;
     }
 
-    // Reorder the array locally
     const newTracks = [...sortedTracks];
     newTracks.splice(draggedIndex, 1);
     newTracks.splice(dropIndex, 0, draggedTrack);
 
-    // Create updates with new positions
     const trackUpdates = newTracks.map((item, idx) => ({
       trackEntryId: item.id,
       newPosition: idx,
     }));
 
-    // Send to backend
     try {
       await reorderPlaylistMutation.mutateAsync({ playlistId, trackUpdates });
     } catch (error) {
       console.error("Failed to reorder tracks:", error);
-      // Error is already handled in the mutation's onError callback
+
     }
 
     setDraggedIndex(null);
@@ -298,9 +290,9 @@ export default function PlaylistDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col pb-32">
-      {/* Main Content */}
+      {}
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
-        {/* Playlist Header */}
+        {}
         <div className="mb-8">
           <div className="mb-2 flex items-start gap-2">
             <Link
@@ -478,14 +470,14 @@ export default function PlaylistDetailPage() {
           </div>
         </div>
 
-        {/* Drag-and-drop hint */}
+        {}
         {isOwner && playlist.tracks && playlist.tracks.length > 0 && (
           <div className="mb-4 rounded-lg bg-[rgba(16,22,31,0.65)] px-4 py-2 text-sm text-[var(--color-subtext)]">
             💡 Tip: Drag and drop tracks to reorder them
           </div>
         )}
 
-        {/* Tracks */}
+        {}
         {playlist.tracks && playlist.tracks.length > 0 ? (
           <div className="grid gap-3">
             {[...playlist.tracks]
@@ -507,7 +499,7 @@ export default function PlaylistDetailPage() {
                   } ${draggedIndex === index ? "opacity-50" : "opacity-100"}`}
                 >
                   <div className="flex items-center gap-3">
-                    {/* Drag handle or track number */}
+                    {}
                     {isOwner ? (
                       <div className="flex flex-col items-center text-[var(--color-muted)]">
                         <svg
@@ -525,7 +517,7 @@ export default function PlaylistDetailPage() {
                       </div>
                     )}
 
-                    {/* Track card */}
+                    {}
                     <div className="flex-1">
                       <EnhancedTrackCard
                         track={item.track}
@@ -536,7 +528,7 @@ export default function PlaylistDetailPage() {
                       />
                     </div>
 
-                    {/* Remove button (only for owners) */}
+                    {}
                     {isOwner && (
                       <button
                         onClick={() => handleRemoveTrack(item.id)}

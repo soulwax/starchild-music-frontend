@@ -16,7 +16,6 @@ export default function Header() {
   const [isElectron, setIsElectron] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fetch current user's profile info to get their userHash
   const { data: userProfile } = api.music.getCurrentUserProfile.useQuery(
     undefined,
     {
@@ -24,19 +23,16 @@ export default function Header() {
     },
   );
 
-  // Detect if running in Electron
   useEffect(() => {
     setIsElectron(!!window.electron?.isElectron);
   }, []);
 
-  // Reset image error when session changes
   useEffect(() => {
     if (session?.user?.image) {
       setImageError(false);
     }
   }, [session?.user?.image]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -60,7 +56,7 @@ export default function Header() {
     <>
       <header className="sticky top-0 z-30 border-b border-[rgba(244,178,102,0.12)] bg-[rgba(10,16,24,0.88)] shadow-lg shadow-[rgba(5,10,18,0.6)] backdrop-blur-xl">
         <div className="container flex items-center justify-between py-3.5">
-          {/* Logo */}
+          {}
           <Link href="/" className="group flex items-center gap-3">
             <Image
               src="/AppIcons/Assets.xcassets/AppIcon.appiconset/48.png"
@@ -75,7 +71,7 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {}
           <nav className="hidden items-center gap-6 md:flex">
             <Link
               href="/"
@@ -101,9 +97,9 @@ export default function Header() {
             )}
           </nav>
 
-          {/* Right Side Actions */}
+          {}
           <div className="flex items-center gap-2">
-            {/* User Profile Dropdown (Desktop) */}
+            {}
             {session ? (
               <div className="relative hidden md:block" ref={menuRef}>
                 <button
@@ -142,7 +138,7 @@ export default function Header() {
                   </svg>
                 </button>
 
-                {/* Dropdown Menu */}
+                {}
                 {showUserMenu && (
                   <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 mt-2 w-52 rounded-xl border border-[rgba(244,178,102,0.16)] bg-[rgba(18,26,38,0.95)] p-1 shadow-xl shadow-[rgba(5,10,18,0.6)] backdrop-blur-lg duration-200">
                     <div className="space-y-1">

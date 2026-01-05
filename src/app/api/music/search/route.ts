@@ -4,7 +4,6 @@ import { env } from "@/env";
 import { type SearchResponse } from "@/types";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Force dynamic rendering for search route
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -21,9 +20,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Use NEXT_PUBLIC_API_URL directly as the backend API URL
+
     const backendUrl = env.NEXT_PUBLIC_API_URL;
-    
+
     if (!backendUrl) {
       return NextResponse.json(
         { error: "NEXT_PUBLIC_API_URL not configured" },
@@ -31,7 +30,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Normalize URL to avoid double slashes (backendUrl has trailing slash)
     const normalizedBackendUrl = backendUrl.endsWith("/") ? backendUrl.slice(0, -1) : backendUrl;
     const url = new URL("music/search", normalizedBackendUrl);
     url.searchParams.set("q", query);
@@ -45,8 +43,8 @@ export async function GET(req: NextRequest) {
       headers: {
         "Content-Type": "application/json",
       },
-      // Add timeout
-      signal: AbortSignal.timeout(30000), // 30 second timeout
+
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!response.ok) {
@@ -61,12 +59,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Explicitly type data as unknown and validate structure
     const data: unknown = await response.json();
 
-    // Validate that the response matches SearchResponse structure
-    // Required: data (array), total (number)
-    // Optional: next (string)
     if (
       typeof data === "object" &&
       data !== null &&
@@ -81,9 +75,6 @@ export async function GET(req: NextRequest) {
         next?: string;
       };
 
-      // Construct validated response with proper typing
-      // Note: We trust the backend to return valid Track[] in data array
-      // Full Track validation would require checking each item, which is expensive
       const validatedResponse: SearchResponse = {
         data: responseData.data as SearchResponse["data"],
         total: responseData.total,

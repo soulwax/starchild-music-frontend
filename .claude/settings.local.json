@@ -49,7 +49,9 @@
       "Bash(npm run dev:*)",
       "Bash(htop:*)",
       "Bash(ps:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(chmod:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

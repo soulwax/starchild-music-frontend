@@ -12,7 +12,6 @@ interface PatternControlsProps {
   onClose: () => void;
 }
 
-// Helper component for rendering sliders
 interface SliderControlProps {
   label: string;
   value: number;
@@ -76,7 +75,6 @@ export default function PatternControls({
   const [availablePatterns, setAvailablePatterns] = useState<Pattern[]>([]);
   const [rawCurrentPattern, setRawCurrentPattern] = useState<string>("");
 
-  // Pattern-specific parameters
   const [patternParams, setPatternParams] = useState<{
     particleCount: number;
     particleSize: number;
@@ -138,7 +136,6 @@ export default function PatternControls({
     kaleidoscopeColorShift: number;
   } | null>(null);
 
-  // Get available patterns on mount
   useEffect(() => {
     if (!renderer) return;
 
@@ -146,7 +143,6 @@ export default function PatternControls({
     setAvailablePatterns(patterns);
   }, [renderer]);
 
-  // Update pattern state periodically
   useEffect(() => {
     if (!renderer) return;
 
@@ -167,7 +163,6 @@ export default function PatternControls({
         hueBase: state.hueBase,
       });
 
-      // Update pattern-specific parameters
       setPatternParams({
         particleCount: renderer.getParticleCount(),
         particleSize: renderer.getParticleSize(),
@@ -231,7 +226,7 @@ export default function PatternControls({
     };
 
     updateState();
-    const interval = setInterval(updateState, 100); // Update 10 times per second
+    const interval = setInterval(updateState, 100);
 
     return () => clearInterval(interval);
   }, [renderer]);
@@ -242,15 +237,15 @@ export default function PatternControls({
 
   return (
     <>
-      {/* Backdrop */}
+      {}
       <div
         className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Panel */}
+      {}
       <div className="fixed bottom-24 left-1/2 z-50 w-full max-w-md -translate-x-1/2 rounded-lg border border-[rgba(244,178,102,0.18)] bg-[rgba(12,18,27,0.98)] shadow-2xl shadow-[rgba(5,10,18,0.8)] backdrop-blur-xl">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between border-b border-[rgba(244,178,102,0.12)] px-4 py-3">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-[var(--color-accent)]" />
@@ -266,9 +261,9 @@ export default function PatternControls({
           </button>
         </div>
 
-        {/* Content */}
+        {}
         <div className="max-h-[60vh] overflow-y-auto p-4">
-          {/* Pattern Selection */}
+          {}
           <div className="mb-6">
             <label className="mb-2 block text-sm font-semibold text-[var(--color-text)]">
               Select Pattern
@@ -297,7 +292,7 @@ export default function PatternControls({
             )}
           </div>
 
-          {/* General Controls */}
+          {}
           <div className="mb-6 space-y-4">
             <h4 className="text-sm font-semibold text-[var(--color-text)]">
               General
@@ -350,14 +345,14 @@ export default function PatternControls({
             />
           </div>
 
-          {/* Pattern-Specific Controls */}
+          {}
           {rawCurrentPattern === "fractal" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
                 Fractal Controls
               </h4>
 
-            {/* Fractal Zoom */}
+            {}
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm text-[var(--color-subtext)]">
@@ -384,7 +379,7 @@ export default function PatternControls({
               />
             </div>
 
-            {/* Fractal Offset X */}
+            {}
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm text-[var(--color-subtext)]">
@@ -411,7 +406,7 @@ export default function PatternControls({
               />
             </div>
 
-            {/* Fractal Offset Y */}
+            {}
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm text-[var(--color-subtext)]">
@@ -438,7 +433,7 @@ export default function PatternControls({
               />
             </div>
 
-            {/* Julia C Real */}
+            {}
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm text-[var(--color-subtext)]">
@@ -470,7 +465,7 @@ export default function PatternControls({
               />
             </div>
 
-            {/* Julia C Imaginary */}
+            {}
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="text-sm text-[var(--color-subtext)]">
@@ -504,7 +499,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Rays Controls */}
+          {}
           {rawCurrentPattern === "rays" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -522,7 +517,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Waves Controls */}
+          {}
           {rawCurrentPattern === "waves" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -550,7 +545,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Swarm/Particle Controls */}
+          {}
           {(rawCurrentPattern === "swarm" || rawCurrentPattern === "fluid") && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -588,7 +583,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Bubbles Controls */}
+          {}
           {rawCurrentPattern === "bubbles" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -626,7 +621,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Starfield Controls */}
+          {}
           {rawCurrentPattern === "starfield" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -654,7 +649,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Rings Controls */}
+          {}
           {rawCurrentPattern === "rings" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -672,7 +667,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Tunnel Controls */}
+          {}
           {rawCurrentPattern === "tunnel" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -691,7 +686,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Matrix Controls */}
+          {}
           {rawCurrentPattern === "matrix" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -710,7 +705,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Lightning Controls */}
+          {}
           {rawCurrentPattern === "lightning" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -728,7 +723,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Galaxy Controls */}
+          {}
           {rawCurrentPattern === "galaxy" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -746,7 +741,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Mandala Controls */}
+          {}
           {rawCurrentPattern === "mandala" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -764,7 +759,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Tarot Controls */}
+          {}
           {rawCurrentPattern === "tarot" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -792,7 +787,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Sacred Spiral Controls */}
+          {}
           {rawCurrentPattern === "sacredSpiral" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -820,7 +815,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Pentagram Controls */}
+          {}
           {rawCurrentPattern === "pentagram" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -849,7 +844,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Runes Controls */}
+          {}
           {rawCurrentPattern === "runes" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -877,7 +872,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Sigils Controls */}
+          {}
           {rawCurrentPattern === "sigils" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -905,7 +900,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Chakras Controls */}
+          {}
           {rawCurrentPattern === "chakras" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -934,7 +929,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Portal Controls */}
+          {}
           {rawCurrentPattern === "portal" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -962,7 +957,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Phoenix Controls */}
+          {}
           {rawCurrentPattern === "phoenix" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -981,7 +976,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Crystal Grid Controls */}
+          {}
           {rawCurrentPattern === "crystalGrid" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -1009,7 +1004,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Moon Phases Controls */}
+          {}
           {rawCurrentPattern === "moonPhases" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -1037,7 +1032,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Flower of Life Controls */}
+          {}
           {rawCurrentPattern === "flowerOfLife" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">
@@ -1065,7 +1060,7 @@ export default function PatternControls({
             </div>
           )}
 
-          {/* Metatron Controls */}
+          {}
           {rawCurrentPattern === "metatron" && (
             <div className="mb-6 space-y-4">
               <h4 className="text-sm font-semibold text-[var(--color-text)]">

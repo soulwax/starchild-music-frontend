@@ -40,7 +40,7 @@ export default function MobileNavigation() {
   const dragY = useMotionValue(0);
 
   const isActive = (path: string) => {
-    // Special handling for "Now Playing" tab
+
     if (path === "#now-playing") {
       return player.showMobilePlayer;
     }
@@ -86,20 +86,18 @@ export default function MobileNavigation() {
 
   const visibleTabs = tabs.filter(
     (tab) => {
-      // Filter out "Now Playing" if no track is playing
+
       if (tab.path === "#now-playing" && !player.currentTrack) return false;
-      // Filter out auth-required tabs if not authenticated
+
       return !tab.requiresAuth || (tab.requiresAuth && session);
     },
   );
 
   const activeIndex = visibleTabs.findIndex((tab) => isActive(tab.path));
 
-  // Calculate indicator position based on active tab
   const indicatorWidth = 100 / visibleTabs.length;
   const indicatorLeft = activeIndex >= 0 ? activeIndex * indicatorWidth : 0;
 
-  // Quick actions drag handling
   const handleDragEnd = (
     _: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
@@ -110,14 +108,13 @@ export default function MobileNavigation() {
     }
   };
 
-  // Close quick actions on route change
   useEffect(() => {
     setShowQuickActions(false);
   }, [pathname]);
 
   return (
     <>
-      {/* Quick Actions Sheet */}
+      {}
       <AnimatePresence>
         {showQuickActions && (
           <>
@@ -146,9 +143,9 @@ export default function MobileNavigation() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 px-6 pb-8">
-                {/* Quick actions simplified - pane navigation removed */}
+                {}
 
-                {/* Search */}
+                {}
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
@@ -180,7 +177,7 @@ export default function MobileNavigation() {
         )}
       </AnimatePresence>
 
-      {/* Main Navigation Bar */}
+      {}
       <motion.nav
         initial={{ y: 100 }}
         animate={{ y: 0 }}
@@ -192,7 +189,7 @@ export default function MobileNavigation() {
         onDragEnd={handleDragEnd}
         className="safe-bottom fixed right-0 bottom-0 left-0 z-40 md:hidden"
       >
-        {/* Drag hint indicator */}
+        {}
         <motion.div
           animate={{ opacity: showQuickActions ? 0 : 0.5 }}
           className="absolute top-0 left-1/2 flex -translate-x-1/2 -translate-y-3 items-center justify-center"
@@ -205,10 +202,10 @@ export default function MobileNavigation() {
           </motion.div>
         </motion.div>
 
-        {/* Glass Background */}
+        {}
         <div className="absolute inset-0 border-t border-[rgba(244,178,102,0.12)] bg-[rgba(8,13,20,0.92)] backdrop-blur-xl" />
 
-        {/* Animated Indicator Line */}
+        {}
         <div className="relative">
           <motion.div
             layoutId="navIndicator"
@@ -228,7 +225,7 @@ export default function MobileNavigation() {
           />
         </div>
 
-        {/* Navigation Items */}
+        {}
         <div className="relative flex items-stretch justify-around px-2">
           {visibleTabs.map((tab, index) => {
             const active = isActive(tab.path);
@@ -238,7 +235,7 @@ export default function MobileNavigation() {
                 href={tab.path}
                 onClick={(e) => {
                   hapticLight();
-                  // Handle "Now Playing" tab specially
+
                   if (tab.path === "#now-playing") {
                     e.preventDefault();
                     player.setShowMobilePlayer(true);
@@ -246,7 +243,7 @@ export default function MobileNavigation() {
                 }}
                 className="touch-target-lg relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
               >
-                {/* Icon Container */}
+                {}
                 <motion.div
                   animate={{
                     scale: active ? 1.15 : 1,
@@ -259,7 +256,7 @@ export default function MobileNavigation() {
                       : "text-[var(--color-muted)]"
                   }`}
                 >
-                  {/* Active glow effect */}
+                  {}
                   {active && (
                     <motion.div
                       layoutId={`glow-${index}`}
@@ -273,7 +270,7 @@ export default function MobileNavigation() {
                   </span>
                 </motion.div>
 
-                {/* Label */}
+                {}
                 <motion.span
                   animate={{
                     scale: active ? 1 : 0.92,
@@ -289,7 +286,7 @@ export default function MobileNavigation() {
                   {tab.name}
                 </motion.span>
 
-                {/* Tap ripple effect */}
+                {}
                 <motion.div
                   className="absolute inset-0 rounded-2xl"
                   whileTap={{

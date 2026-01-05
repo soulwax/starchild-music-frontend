@@ -15,7 +15,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-// Force dynamic rendering to avoid build-time circular dependency issues
 export const dynamic = "force-dynamic";
 
 export default function PlaylistsPage() {
@@ -82,7 +81,7 @@ export default function PlaylistsPage() {
 
   return (
     <div className="container mx-auto flex min-h-screen flex-col px-3 py-4 md:px-6 md:py-8">
-      {/* Page Header */}
+      {}
       <div className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-bold text-[var(--color-text)] md:text-3xl">
           Your Playlists
@@ -96,7 +95,7 @@ export default function PlaylistsPage() {
         </button>
       </div>
 
-      {/* Playlists Grid */}
+      {}
       {isLoading ? (
         <LoadingState message="Loading your playlists..." />
       ) : playlists && playlists.length > 0 ? (
@@ -115,15 +114,13 @@ export default function PlaylistsPage() {
               <div className="relative aspect-square overflow-hidden rounded-xl bg-[linear-gradient(135deg,rgba(244,178,102,0.28),rgba(88,198,177,0.22))]">
                 {playlist.tracks && playlist.tracks.length > 0 ? (
                   (() => {
-                    // Get all album covers (with their frequency)
+
                     const covers = playlist.tracks
                       .map((t) => t.track?.album?.cover_medium)
                       .filter((cover): cover is string => !!cover);
 
-                    // Get unique album covers
                     const uniqueCovers = Array.from(new Set(covers));
 
-                    // If less than 4 tracks, show first song's cover
                     if (playlist.tracks.length < 4) {
                       return (
                         <div className="relative h-full w-full overflow-hidden rounded-xl bg-[rgba(12,18,27,0.9)]">
@@ -140,7 +137,6 @@ export default function PlaylistsPage() {
                       );
                     }
 
-                    // If more than 3 songs with more than 3 unique covers, show 2x2 grid
                     if (playlist.tracks.length > 3 && uniqueCovers.length > 3) {
                       return (
                         <div className="grid h-full grid-cols-2 grid-rows-2 gap-0.5">
@@ -164,8 +160,6 @@ export default function PlaylistsPage() {
                       );
                     }
 
-                    // If more than 3 songs but less than 4 unique covers, show dominant cover
-                    // Find the most frequent album cover
                     const coverFrequency = new Map<string, number>();
                     covers.forEach((cover) => {
                       coverFrequency.set(cover, (coverFrequency.get(cover) ?? 0) + 1);
@@ -243,7 +237,7 @@ export default function PlaylistsPage() {
         />
       )}
 
-      {/* Create Playlist Modal - Mobile Optimized */}
+      {}
       {showCreateModal && (
         <>
           <div

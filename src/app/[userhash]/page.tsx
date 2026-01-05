@@ -223,7 +223,7 @@ export default function PublicProfilePage({
           loading={favoritesLoading}
           items={favorites}
           renderItem={(item, idx) => {
-            // favorites is an array of Track objects directly
+
             if (typeof item !== "object" || item === null) {
               return null;
             }
@@ -270,7 +270,7 @@ export default function PublicProfilePage({
               >
                 <div className="mb-3 aspect-square overflow-hidden rounded-lg bg-[linear-gradient(135deg,rgba(244,178,102,0.3),rgba(88,198,177,0.3))]">
                   {(() => {
-                    // Check if coverImage is a JSON array of album covers
+
                     let albumCovers: string[] = [];
                     try {
                       if (playlist.coverImage?.startsWith("[")) {
@@ -279,11 +279,11 @@ export default function PublicProfilePage({
                         ) as string[];
                       }
                     } catch {
-                      // Not JSON, treat as single image
+
                     }
 
                     if (albumCovers.length > 0) {
-                      // Render 2x2 grid of album covers
+
                       return (
                         <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-0.5">
                           {albumCovers.slice(0, 4).map((cover, i) => (
@@ -302,7 +302,7 @@ export default function PublicProfilePage({
                               />
                             </div>
                           ))}
-                          {/* Fill remaining slots with placeholder */}
+                          {}
                           {Array.from({ length: 4 - albumCovers.length }).map(
                             (_, i) => (
                               <div
@@ -316,7 +316,7 @@ export default function PublicProfilePage({
                         </div>
                       );
                     } else if (playlist.coverImage) {
-                      // Single cover image
+
                       return (
                         <Image
                           src={playlist.coverImage}
@@ -327,7 +327,7 @@ export default function PublicProfilePage({
                         />
                       );
                     } else {
-                      // No cover image
+
                       return (
                         <div className="flex h-full items-center justify-center text-6xl text-white/40">
                           🎵

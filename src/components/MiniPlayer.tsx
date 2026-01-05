@@ -54,10 +54,9 @@ export default function MiniPlayer({
     e.stopPropagation();
   };
 
-  // Check if tap should be ignored (e.g., on buttons or interactive elements)
   const shouldIgnoreTap = (target: EventTarget | null) => {
     if (!(target instanceof HTMLElement)) return false;
-    // Ignore taps on buttons, inputs, or elements with data-drag-exempt
+
     return Boolean(
       target.closest("button") ??
         target.closest("input") ??
@@ -67,7 +66,7 @@ export default function MiniPlayer({
   };
 
   const handleContainerTap = (event: PointerEvent | MouseEvent | TouchEvent) => {
-    // Don't open full player if tapping on interactive elements
+
     if (shouldIgnoreTap(event.target)) {
       return;
     }
@@ -83,10 +82,10 @@ export default function MiniPlayer({
       transition={springPresets.gentle}
       className="safe-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-[rgba(244,178,102,0.16)] bg-[rgba(10,16,24,0.96)] shadow-[0_-16px_48px_rgba(5,10,18,0.8)] backdrop-blur-2xl relative"
     >
-      {/* Auto-Queue Badge */}
+      {}
       <AutoQueueBadge count={lastAutoQueueCount} />
 
-      {/* Pull-up Indicator Handle */}
+      {}
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
         <motion.div
           animate={{
@@ -114,7 +113,7 @@ export default function MiniPlayer({
         </motion.div>
       </div>
 
-      {/* Progress Bar */}
+      {}
       <div
         className="h-1 w-full cursor-pointer bg-[rgba(255,255,255,0.12)]"
         data-drag-exempt="true"
@@ -127,14 +126,14 @@ export default function MiniPlayer({
         />
       </div>
 
-      {/* Mini Player Content */}
+      {}
       <motion.div
         className="flex cursor-pointer items-center gap-4 px-5 py-4 relative group"
         onTap={handleContainerTap}
         whileTap={{ scale: 0.99 }}
         transition={springPresets.snappy}
       >
-        {/* Tap to Expand Hint */}
+        {}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-active:opacity-100 transition-opacity pointer-events-none">
           <div className="bg-[var(--color-accent)]/20 backdrop-blur-sm px-4 py-2 rounded-full border border-[var(--color-accent)]/30">
             <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wide">

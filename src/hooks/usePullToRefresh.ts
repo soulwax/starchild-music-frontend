@@ -34,7 +34,6 @@ export function usePullToRefresh(config: PullToRefreshConfig) {
       const container = containerRef.current;
       if (!container) return;
 
-      // Only start pull-to-refresh if already at top
       if (container.scrollTop > 0) return;
 
       const touch = e.touches[0];
@@ -59,11 +58,10 @@ export function usePullToRefresh(config: PullToRefreshConfig) {
       const diffY = touch.clientY - startY.current;
 
       if (diffY > 0) {
-        // Apply resistance curve
+
         const resistance = Math.min(diffY, maxPullDistance) / 2;
         setPullDistance(resistance);
 
-        // Haptic feedback at threshold
         if (diffY >= threshold) {
           hapticMedium();
         }

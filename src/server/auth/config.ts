@@ -21,21 +21,20 @@ declare module "next-auth" {
     } & DefaultSession["user"];
   }
 }
-// Debug logging for environment variables
+
 console.log("[NextAuth Config] ELECTRON_BUILD:", process.env.ELECTRON_BUILD);
 console.log("[NextAuth Config] NODE_ENV:", process.env.NODE_ENV);
 console.log("[NextAuth Config] DATABASE_URL:", process.env.DATABASE_URL ? "✓ Set" : "✗ Missing");
 
 export const authConfig = {
-  trustHost: true, // Allow NextAuth to trust the host from request headers
-  // Explicitly set the base URL from environment, with fallback for backward compatibility
+  trustHost: true,
+
   basePath: "/api/auth",
   providers: [
     DiscordProvider({
       clientId: env.AUTH_DISCORD_ID,
       clientSecret: env.AUTH_DISCORD_SECRET,
-      // The callback URL will be automatically determined from the request
-      // when trustHost is true, so we don't need to set it explicitly
+
     }),
   ],
   adapter: DrizzleAdapter(db, {
@@ -46,8 +45,8 @@ export const authConfig = {
   }),
   session: {
     strategy: "database",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    maxAge: 30 * 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
   },
   cookies: {
     sessionToken: {
@@ -60,11 +59,11 @@ export const authConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        // Disable secure cookies in Electron (runs on localhost HTTP)
+
         secure:
           process.env.NODE_ENV === "production" &&
           !process.env.ELECTRON_BUILD,
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60,
       },
     },
     csrfToken: {
@@ -77,12 +76,11 @@ export const authConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        // Disable secure cookies in Electron (runs on localhost HTTP)
+
         secure:
           process.env.NODE_ENV === "production" &&
           !process.env.ELECTRON_BUILD,
-        // Don't set domain explicitly - let it use the request domain
-        // This ensures CSRF tokens work across different domains when trustHost is true
+
       },
     },
     callbackUrl: {
@@ -94,7 +92,7 @@ export const authConfig = {
       options: {
         sameSite: "lax",
         path: "/",
-        // Disable secure cookies in Electron (runs on localhost HTTP)
+
         secure:
           process.env.NODE_ENV === "production" &&
           !process.env.ELECTRON_BUILD,
@@ -102,7 +100,7 @@ export const authConfig = {
     },
   },
   callbacks: {
-    // Update user profile data on sign-in to keep Discord avatar fresh
+
     async signIn({ user, account, profile }) {
       try {
         console.log("[NextAuth signIn] Callback triggered");
@@ -110,12 +108,9 @@ export const authConfig = {
         console.log("[NextAuth signIn] User exists:", !!user);
         console.log("[NextAuth signIn] Profile exists:", !!profile);
 
-        // Only update for Discord OAuth sign-ins
         if (account?.provider === "discord" && profile && user.id) {
           console.log("[NextAuth signIn] Updating Discord user profile...");
 
-          // Update the user's profile picture and name from Discord's latest data
-          // Use global_name (display name) if available, otherwise fall back to username
           const updates: { image?: string; name?: string } = {};
 
           if (profile.image_url) {
@@ -126,7 +121,6 @@ export const authConfig = {
             updates.name = (profile.global_name || profile.username) as string;
           }
 
-          // Only update if we have something to update
           if (Object.keys(updates).length > 0) {
             console.log("[NextAuth signIn] Updates to apply:", updates);
             await db
@@ -142,13 +136,12 @@ export const authConfig = {
       } catch (error) {
         console.error("[NextAuth signIn] ERROR in callback:");
         console.error(error);
-        // Still allow sign-in even if profile update fails
-        // The user was already created by the adapter
+
         return true;
       }
     },
     session: ({ session, user }) => {
-      // Ensure proper serialization by converting to plain object
+
       return {
         expires: session.expires,
         user: {
@@ -159,17 +152,17 @@ export const authConfig = {
         },
       };
     },
-    // Ensure the redirect URL uses the correct domain from the request
+
     redirect: ({ url, baseUrl }) => {
-      // If the URL is relative, make it absolute using the baseUrl from the request
+
       if (url.startsWith("/")) {
         return `${baseUrl}${url}`;
       }
-      // If the URL is on the same origin, return it as-is
+
       if (new URL(url).origin === baseUrl) {
         return url;
       }
-      // Otherwise, return the baseUrl to prevent redirects to external domains
+
       return baseUrl;
     },
   },

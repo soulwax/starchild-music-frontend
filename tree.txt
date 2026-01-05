@@ -116,6 +116,9 @@ songbird-frontend
 │       ├───combined__2025-12-31_00-00-00.log
 │       ├───combined__2026-01-01_00-00-01.log
 │       ├───combined__2026-01-02_00-00-00.log
+│       ├───combined__2026-01-03_00-00-00.log
+│       ├───combined__2026-01-04_00-00-00.log
+│       ├───combined__2026-01-05_00-00-00.log
 │       ├───dev-combined.log
 │       ├───dev-error.log
 │       ├───dev-out.log
@@ -124,11 +127,16 @@ songbird-frontend
 │       ├───error__2025-12-31_00-00-00.log
 │       ├───error__2026-01-01_00-00-01.log
 │       ├───error__2026-01-02_00-00-00.log
+│       ├───error__2026-01-03_00-00-00.log
+│       ├───error__2026-01-04_00-00-00.log
+│       ├───error__2026-01-05_00-00-00.log
 │       ├───out.log
 │       ├───out__2025-12-30_00-00-00.log
 │       ├───out__2025-12-31_00-00-00.log
 │       ├───out__2026-01-01_00-00-01.log
-│       └───out__2026-01-02_00-00-00.log
+│       ├───out__2026-01-02_00-00-00.log
+│       ├───out__2026-01-03_00-00-00.log
+│       └───out__2026-01-04_00-00-00.log
 ├───public/
 │   ├───CHANGELOG.md
 │   ├───emily-the-strange.png
@@ -200,11 +208,16 @@ songbird-frontend
 │   ├───check-users.ts
 │   ├───create-signing-cert.ps1
 │   ├───create-test-cert.ps1
+│   ├───db-sync.cjs
+│   ├───db-sync.sh
 │   ├───download-node.js
 │   ├───ensure-build.js
 │   ├───gen-version.js
 │   ├───generate-ssl-cert.js
 │   ├───load-env-build.js
+│   ├───mark-migrations-applied.sql
+│   ├───mark-migrations-applied.ts
+│   ├───mark-migrations-simple.js
 │   ├───migrate-to-neon.ts
 │   ├───MIGRATION_README.md
 │   ├───populate-userhash.ts
@@ -271,7 +284,6 @@ songbird-frontend
     ├───components/
     │   ├───AddToPlaylistModal.tsx
     │   ├───AnimatedList.tsx
-    │   ├───AudioVisualizer.tsx
     │   ├───AutoQueueBadge.tsx
     │   ├───BottomSheet.tsx
     │   ├───Button.tsx
@@ -319,7 +331,6 @@ songbird-frontend
     │   ├───WelcomeHero.tsx
     │   └───visualizers/
     │       ├───FlowFieldRenderer.ts
-    │       ├───KaleidoscopeRenderer.ts
     │       ├───flowfieldPatterns/
     │       │   ├───patternIds.ts
     │       │   ├───renderHexGrid.ts

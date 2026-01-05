@@ -11,12 +11,12 @@ const baseUrl = getBaseUrl();
 
 async function getFirstTrackFromSearch(query: string): Promise<Track | null> {
   try {
-    // Use the API route - construct URL using baseUrl for server-side
+
     const baseUrl = getBaseUrl();
     const url = new URL("/api/music/search", baseUrl);
     url.searchParams.set("q", query);
     const res = await fetch(url.toString(), {
-      next: { revalidate: 60 }, // Cache for 60 seconds
+      next: { revalidate: 60 },
     });
     if (!res.ok) return null;
     const response = (await res.json()) as SearchResponse;
@@ -32,7 +32,6 @@ function getAlbumCoverImage(track: Track | null): string {
     return "";
   }
 
-  // Prefer larger images for Open Graph (cover_big or cover_xl)
   const coverImage =
     track.album.cover_xl ||
     track.album.cover_big ||
@@ -49,11 +48,10 @@ function getAlbumCoverImage(track: Track | null): string {
 
 function buildOgImageUrl(track: Track | null, baseUrl: string): string {
   if (!track) {
-    // Default Emily the Strange
+
     return `${baseUrl}/api/og`;
   }
 
-  // Dynamic track image with album art, title, artist, album
   const params = new URLSearchParams();
   params.set("title", track.title);
   params.set("artist", track.artist.name);
@@ -76,7 +74,6 @@ export async function generateMetadata({
   const params = await searchParams;
   const query = params?.q;
 
-  // Default metadata (no query parameter)
   const defaultOgImage = buildOgImageUrl(null, baseUrl);
   const defaultMetadata: Metadata = {
     title: "darkfloor.art",
@@ -107,16 +104,13 @@ export async function generateMetadata({
     },
   };
 
-  // If no query, return default metadata
   if (!query || query.trim().length === 0) {
     return defaultMetadata;
   }
 
-  // Fetch first track from search
   const firstTrack = await getFirstTrackFromSearch(query);
   const ogImage = buildOgImageUrl(firstTrack, baseUrl);
 
-  // Build dynamic metadata
   const trackTitle = firstTrack
     ? `${firstTrack.title} by ${firstTrack.artist.name}`
     : `Search: ${query}`;

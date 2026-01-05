@@ -1,5 +1,6 @@
 // File: src/app/layout.tsx
 
+// @ts-expect-error - CSS import
 import "@/styles/globals.css";
 
 import { type Metadata } from "next";
@@ -64,8 +65,7 @@ export const metadata: Metadata = {
     images: [`${baseUrl}/api/og`],
   },
   other: {
-    // Enhanced mobile meta tags
-    "format-detection": "telephone=no", // Prevent auto-linking phone numbers
+    "format-detection": "telephone=no",
   },
 };
 
@@ -82,7 +82,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={geist.variable} suppressHydrationWarning>
       <head>
-        {/* Preconnect to external resources for faster loading */}
+        {}
         <link rel="preconnect" href="https://cdn-images.dzcdn.net" />
         <link rel="dns-prefetch" href="https://api.deezer.com" />
       </head>
@@ -94,32 +94,32 @@ export default function RootLayout({
             <TRPCReactProvider>
               <ToastProvider>
                 <AudioPlayerProvider>
-                  {/* Dynamic window title based on playback state */}
+                  {}
                   <DynamicTitle />
                   <MenuProvider>
                     <TrackContextMenuProvider>
                       <PlaylistContextMenuProvider>
-                        {/* UI elements that can be hidden on desktop */}
+                        {}
                         <UIWrapper>
-                          {/* Desktop header (hidden on mobile) */}
+                          {}
                           <Header />
-                          {/* Mobile header with hamburger and search (hidden on desktop) */}
+                          {}
                           <MobileHeader />
-                          {/* Hamburger menu drawer */}
+                          {}
                           <HamburgerMenu />
-                          {/* Mobile content wrapper */}
+                          {}
                           <MobileContentWrapper>
-                            {/* Main content with padding for mobile header and player */}
+                            {}
                             <div className="pt-16 pb-24 md:pt-0 md:pb-24">
                               {children}
                             </div>
                           </MobileContentWrapper>
                         </UIWrapper>
-                        {/* Persistent player - stays on all pages */}
+                        {}
                         <PersistentPlayer />
-                        {/* Universal track context menu */}
+                        {}
                         <TrackContextMenu />
-                        {/* Universal playlist context menu */}
+                        {}
                         <PlaylistContextMenu />
                       </PlaylistContextMenuProvider>
                     </TrackContextMenuProvider>

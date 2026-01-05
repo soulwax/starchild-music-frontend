@@ -46,7 +46,6 @@ export default function ArtistPage({
         setIsLoading(true);
         setError(null);
 
-        // Fetch artist info and tracks in parallel
         const [artistResponse, tracksResponse] = await Promise.all([
           fetch(`/api/artist/${artistId}`),
           fetch(`/api/artist/${artistId}/tracks`),
@@ -75,7 +74,6 @@ export default function ArtistPage({
           total?: number;
         };
 
-        // Validate and filter tracks
         const validTracks = (tracksData.data || [])
           .map((track): Track | null => {
             if (typeof track !== "object" || track === null) {
@@ -84,7 +82,6 @@ export default function ArtistPage({
 
             const trackObj = track as Partial<Track> & Record<string, unknown>;
 
-            // Validate required properties
             if (
               typeof trackObj.id !== "number" ||
               typeof trackObj.title !== "string" ||
@@ -170,7 +167,7 @@ export default function ArtistPage({
 
   return (
     <div className="container mx-auto px-3 py-4 md:px-6 md:py-8">
-      {/* Artist Header */}
+      {}
       <div className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:gap-6">
         <div className="flex-shrink-0">
           <div className="relative aspect-square w-full max-w-[200px] overflow-hidden rounded-full md:max-w-[300px]">
@@ -222,7 +219,7 @@ export default function ArtistPage({
         </div>
       </div>
 
-      {/* Tracks List */}
+      {}
       {tracks.length > 0 ? (
         <div>
           <h2 className="mb-4 text-xl font-semibold text-[var(--color-text)]">

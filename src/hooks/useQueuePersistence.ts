@@ -8,7 +8,6 @@ import { localStorage } from "@/services/storage";
 import type { QueuedTrack, SmartQueueState, Track } from "@/types";
 import { useEffect, useRef } from "react";
 
-// V1 Schema (legacy - for migration)
 interface QueueStateV1 {
   queue: Track[];
   history: Track[];
@@ -18,7 +17,6 @@ interface QueueStateV1 {
   repeatMode: "none" | "one" | "all";
 }
 
-// V2 Schema (current - with smart queue support)
 interface QueueStateV2 {
   version: 2;
   queuedTracks: QueuedTrack[];
@@ -29,20 +27,17 @@ interface QueueStateV2 {
   repeatMode: "none" | "one" | "all";
 }
 
-// For backward compatibility
 export type QueueState = QueueStateV1 | QueueStateV2;
 
 export function useQueuePersistence(state: QueueState) {
   const persistTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Persist queue state on changes (debounced)
   useEffect(() => {
-    // Clear any pending timer
+
     if (persistTimerRef.current) {
       clearTimeout(persistTimerRef.current);
     }
 
-    // Set new timer
     persistTimerRef.current = setTimeout(() => {
       const result = localStorage.set(STORAGE_KEYS.QUEUE_STATE, state);
       if (!result.success) {
@@ -51,7 +46,6 @@ export function useQueuePersistence(state: QueueState) {
       persistTimerRef.current = null;
     }, AUDIO_CONSTANTS.QUEUE_PERSIST_DEBOUNCE_MS);
 
-    // Cleanup on unmount or before next effect
     return () => {
       if (persistTimerRef.current) {
         clearTimeout(persistTimerRef.current);
@@ -75,9 +69,8 @@ export function loadPersistedQueueState(): QueueState | null {
 
   const stored = result.data;
 
-  // Check if it's V2 format (has version field)
   if ('version' in stored && stored.version === 2) {
-    // Convert string dates back to Date objects
+
     const v2Data = stored as any;
     return {
       ...v2Data,
@@ -94,7 +87,6 @@ export function loadPersistedQueueState(): QueueState | null {
     } as QueueStateV2;
   }
 
-  // Migrate V1 to V2
   if ('queue' in stored && Array.isArray(stored.queue)) {
     const v1 = stored as QueueStateV1;
     console.log("[useQueuePersistence] 🔄 Migrating queue state from V1 to V2");
@@ -121,7 +113,6 @@ export function loadPersistedQueueState(): QueueState | null {
       repeatMode: v1.repeatMode,
     };
 
-    // Save migrated version
     localStorage.set(STORAGE_KEYS.QUEUE_STATE, v2);
 
     return v2;

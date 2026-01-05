@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
   const album = searchParams.get("album");
   const cover = searchParams.get("cover");
 
-  // Default: Show Emily the Strange
   if (!title || !artist) {
     const emilyImageUrl = `https://darkfloor.art/emily-the-strange.png`;
 
@@ -39,7 +38,7 @@ export async function GET(request: NextRequest) {
             justifyContent: "center",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {}
           <img
             src={emilyImageUrl}
             width={400}
@@ -84,7 +83,6 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Dynamic: Show album art with track info
   return new ImageResponse(
     <div
       style={{
@@ -98,7 +96,7 @@ export async function GET(request: NextRequest) {
         padding: "80px",
       }}
     >
-      {/* Album Art - Square, Left Side */}
+      {}
       <div
         style={{
           display: "flex",
@@ -112,7 +110,7 @@ export async function GET(request: NextRequest) {
         }}
       >
         {cover ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
+
           <img
             src={cover}
             width={470}
@@ -140,7 +138,7 @@ export async function GET(request: NextRequest) {
         )}
       </div>
 
-      {/* Track Info - Right Side */}
+      {}
       <div
         style={{
           display: "flex",
@@ -150,7 +148,7 @@ export async function GET(request: NextRequest) {
           maxWidth: 590,
         }}
       >
-        {/* Track Title */}
+        {}
         <div
           style={{
             fontSize: 56,
@@ -167,7 +165,7 @@ export async function GET(request: NextRequest) {
           {title}
         </div>
 
-        {/* Artist */}
+        {}
         <div
           style={{
             fontSize: 40,
@@ -183,7 +181,7 @@ export async function GET(request: NextRequest) {
           {artist}
         </div>
 
-        {/* Album */}
+        {}
         {album && (
           <div
             style={{
@@ -201,7 +199,7 @@ export async function GET(request: NextRequest) {
           </div>
         )}
 
-        {/* Play now CTA - simple and subtle */}
+        {}
         <div
           style={{
             marginTop: 32,

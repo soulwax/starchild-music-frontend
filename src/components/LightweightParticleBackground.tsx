@@ -4,10 +4,6 @@
 
 import { useEffect, useRef } from "react";
 
-/**
- * Lightweight particle background - resource-saving version
- * Based on the landing page particle system but optimized for performance
- */
 export function LightweightParticleBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement[]>([]);
@@ -26,7 +22,6 @@ export function LightweightParticleBackground() {
   const createParticles = () => {
     if (!containerRef.current) return;
 
-    // Clear existing particles
     particlesRef.current.forEach((particle) => {
       if (particle.parentNode) {
         particle.parentNode.removeChild(particle);
@@ -42,10 +37,10 @@ export function LightweightParticleBackground() {
       const particle = document.createElement("div");
       particle.className = "lightweight-particle";
 
-      const size = Math.random() * 8 + 6; // Smaller particles (6-14px)
+      const size = Math.random() * 8 + 6;
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      const duration = Math.random() * 20 + 25; // Slower animation (25-45s)
+      const duration = Math.random() * 20 + 25;
       const delay = Math.random() * 5;
       const floatX = (Math.random() * 80 - 40).toFixed(2);
       const floatYValue = -(Math.random() * 120 + 60);
@@ -90,7 +85,7 @@ export function LightweightParticleBackground() {
         clearTimeout(resizeTimeoutRef.current);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   return (

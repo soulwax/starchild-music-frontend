@@ -8,7 +8,7 @@ import { z } from "zod";
 const EqualizerBandSchema = z.number().min(-12).max(12);
 
 export const equalizerRouter = createTRPCRouter({
-  // Get current equalizer settings
+
   getPreferences: protectedProcedure.query(async ({ ctx }) => {
     const preferences = await ctx.db
       .select({
@@ -21,7 +21,7 @@ export const equalizerRouter = createTRPCRouter({
       .limit(1);
 
     if (!preferences.length) {
-      // Return defaults if no preferences exist
+
       return {
         enabled: false,
         preset: "Flat",
@@ -31,7 +31,7 @@ export const equalizerRouter = createTRPCRouter({
 
     const prefs = preferences[0];
     if (!prefs) {
-      // This should not be reachable due to the length check, but it satisfies TypeScript's strict null checks.
+
       return {
         enabled: false,
         preset: "Flat",
@@ -45,7 +45,6 @@ export const equalizerRouter = createTRPCRouter({
     };
   }),
 
-  // Update equalizer settings (supports partial updates)
   updatePreferences: protectedProcedure
     .input(
       z.object({
@@ -57,7 +56,6 @@ export const equalizerRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // Check if preferences exist
       const existing = await ctx.db
         .select({ id: userPreferences.id })
         .from(userPreferences)
@@ -81,7 +79,7 @@ export const equalizerRouter = createTRPCRouter({
       let result;
 
       if (existing.length > 0) {
-        // Update existing preferences
+
         result = await ctx.db
           .update(userPreferences)
           .set(updateData)
@@ -92,7 +90,7 @@ export const equalizerRouter = createTRPCRouter({
             bands: userPreferences.equalizerBands,
           });
       } else {
-        // Create new preferences with defaults
+
         result = await ctx.db
           .insert(userPreferences)
           .values({
@@ -123,7 +121,6 @@ export const equalizerRouter = createTRPCRouter({
       return result[0];
     }),
 
-  // Apply a preset and save it
   applyPreset: protectedProcedure
     .input(
       z.object({

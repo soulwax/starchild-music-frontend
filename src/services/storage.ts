@@ -1,22 +1,11 @@
 // File: src/services/storage.ts
 
-/**
- * Storage abstraction layer
- * Provides type-safe, error-handled access to localStorage and sessionStorage
- */
-
 import type { StorageKey } from "@/config/storage";
 
-/**
- * Storage operation result
- */
 type StorageResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
 
-/**
- * Check if storage is available in the current environment
- */
 function isStorageAvailable(type: "localStorage" | "sessionStorage"): boolean {
   if (typeof window === "undefined") return false;
 
@@ -31,9 +20,6 @@ function isStorageAvailable(type: "localStorage" | "sessionStorage"): boolean {
   }
 }
 
-/**
- * Storage service class
- */
 class StorageService {
   private storage: Storage | null = null;
   private readonly storageType: "localStorage" | "sessionStorage";
@@ -46,9 +32,6 @@ class StorageService {
     }
   }
 
-  /**
-   * Get an item from storage with type safety
-   */
   get<T>(key: StorageKey): StorageResult<T | null> {
     if (!this.storage) {
       return {
@@ -74,9 +57,6 @@ class StorageService {
     }
   }
 
-  /**
-   * Get an item from storage with a default value
-   */
   getOrDefault<T>(key: StorageKey, defaultValue: T): T {
     const result = this.get<T>(key);
     if (result.success && result.data !== null) {
@@ -85,9 +65,6 @@ class StorageService {
     return defaultValue;
   }
 
-  /**
-   * Set an item in storage with type safety
-   */
   set<T>(key: StorageKey, value: T): StorageResult<void> {
     if (!this.storage) {
       return {
@@ -103,7 +80,6 @@ class StorageService {
     } catch (error) {
       console.error(`Error writing to ${this.storageType}:`, error);
 
-      // Check for quota exceeded error
       if (
         error instanceof DOMException &&
         (error.code === 22 ||
@@ -115,15 +91,12 @@ class StorageService {
           `${this.storageType} quota exceeded, attempting to free space...`,
         );
 
-        // Try to free up space by removing old history data
-        // This is a safe item to remove as it's not critical
         try {
           this.storage.removeItem("queue_history");
         } catch {
-          // Ignore cleanup errors lol
+
         }
 
-        // Try again after cleanup
         try {
           const serialized = JSON.stringify(value);
           this.storage.setItem(key, serialized);
@@ -144,9 +117,6 @@ class StorageService {
     }
   }
 
-  /**
-   * Remove an item from storage
-   */
   remove(key: StorageKey): StorageResult<void> {
     if (!this.storage) {
       return {
@@ -167,9 +137,6 @@ class StorageService {
     }
   }
 
-  /**
-   * Clear all items from storage
-   */
   clear(): StorageResult<void> {
     if (!this.storage) {
       return {
@@ -190,9 +157,6 @@ class StorageService {
     }
   }
 
-  /**
-   * Check if a key exists in storage
-   */
   has(key: StorageKey): boolean {
     if (!this.storage) return false;
 
@@ -203,9 +167,6 @@ class StorageService {
     }
   }
 
-  /**
-   * Get all keys in storage
-   */
   keys(): string[] {
     if (!this.storage) return [];
 
@@ -216,9 +177,6 @@ class StorageService {
     }
   }
 
-  /**
-   * Get storage size estimate in bytes
-   */
   getSize(): number {
     if (!this.storage) return 0;
 
@@ -238,16 +196,12 @@ class StorageService {
     }
   }
 
-  /**
-   * Get storage usage information
-   * Returns estimated usage based on StorageEstimate API when available
-   */
   async getStorageInfo(): Promise<{
     used: number;
     total: number;
     percentage: number;
   }> {
-    // Try to use Storage Estimate API first (more accurate)
+
     if (
       typeof navigator !== "undefined" &&
       "storage" in navigator &&
@@ -261,13 +215,12 @@ class StorageService {
 
         return { used, total, percentage };
       } catch {
-        // Fall back to basic size estimation
+
       }
     }
 
-    // Fallback: estimate based on localStorage contents
     const estimatedUsed = this.getSize();
-    const estimatedTotal = 5 * 1024 * 1024; // Assume 5MB typical quota
+    const estimatedTotal = 5 * 1024 * 1024;
     const percentage = (estimatedUsed / estimatedTotal) * 100;
 
     return {
@@ -278,9 +231,7 @@ class StorageService {
   }
 }
 
-// Export singleton instances
 export const localStorage = new StorageService("localStorage");
 export const sessionStorage = new StorageService("sessionStorage");
 
-// Export for custom instances
 export { StorageService };

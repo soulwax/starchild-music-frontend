@@ -1,28 +1,17 @@
 // File: src/utils/electronStorage.ts
 
-/**
- * Electron Storage Bridge
- * Ensures localStorage persistence works correctly in Electron environment
- * Provides fallback mechanisms for data integrity
- */
-
 import { STORAGE_KEYS } from "@/config/storage";
 import { localStorage as storage } from "@/services/storage";
 
-// Check if running in Electron
 export const isElectron = (): boolean => {
   if (typeof window === "undefined") return false;
 
-  // Check for Electron-specific properties
   return !!(
     window.navigator.userAgent.includes("Electron") ||
     (window as Window & { electron?: unknown }).electron
   );
 };
 
-/**
- * Preference keys that should be persisted across sessions
- */
 export const PERSISTENT_PREFERENCES = [
   STORAGE_KEYS.VOLUME,
   STORAGE_KEYS.PLAYBACK_RATE,
@@ -41,10 +30,6 @@ export const PERSISTENT_PREFERENCES = [
   STORAGE_KEYS.LYRICS_ENABLED,
 ] as const;
 
-/**
- * Verify storage persistence on app startup
- * Returns true if storage is working correctly
- */
 export async function verifyStoragePersistence(): Promise<boolean> {
   if (!isElectron()) return true;
 
@@ -52,7 +37,6 @@ export async function verifyStoragePersistence(): Promise<boolean> {
     const testKey = "__electron_storage_test__" as const;
     const testValue = { timestamp: Date.now(), test: true };
 
-    // Try to write and read back
     storage.set(
       testKey as (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS],
       testValue,
@@ -63,7 +47,7 @@ export async function verifyStoragePersistence(): Promise<boolean> {
 
     if (result.success && result.data?.test === true) {
       console.log("[ElectronStorage] ✅ Storage persistence verified");
-      // Clean up test key
+
       storage.remove(
         testKey as (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS],
       );
@@ -78,9 +62,6 @@ export async function verifyStoragePersistence(): Promise<boolean> {
   }
 }
 
-/**
- * Export all preferences for backup
- */
 export function exportPreferences(): Record<string, unknown> {
   const preferences: Record<string, unknown> = {};
 
@@ -94,9 +75,6 @@ export function exportPreferences(): Record<string, unknown> {
   return preferences;
 }
 
-/**
- * Import preferences from backup
- */
 export function importPreferences(preferences: Record<string, unknown>): void {
   for (const [key, value] of Object.entries(preferences)) {
     if (
@@ -109,9 +87,6 @@ export function importPreferences(preferences: Record<string, unknown>): void {
   }
 }
 
-/**
- * Log current storage status (for debugging)
- */
 export async function logStorageStatus(): Promise<void> {
   if (!isElectron()) return;
 
@@ -134,23 +109,17 @@ export async function logStorageStatus(): Promise<void> {
   console.groupEnd();
 }
 
-/**
- * Initialize storage for Electron
- * Call this on app startup
- */
 export async function initializeElectronStorage(): Promise<void> {
   if (!isElectron()) return;
 
   console.log("[ElectronStorage] Initializing Electron storage...");
 
-  // Verify persistence
   const isWorking = await verifyStoragePersistence();
 
   if (!isWorking) {
     console.warn("[ElectronStorage] ⚠️ Storage may not persist correctly");
   }
 
-  // Log status in development
   if (process.env.NODE_ENV === "development") {
     await logStorageStatus();
   }

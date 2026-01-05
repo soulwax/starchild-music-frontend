@@ -7,9 +7,6 @@ import { springPresets } from "@/utils/spring-animations";
 import { hapticLight, hapticMedium } from "@/utils/haptics";
 import type { ReactNode } from "react";
 
-/**
- * Bouncy icon button with haptic feedback
- */
 export interface BouncyIconButtonProps {
   icon: ReactNode;
   onClick: () => void;
@@ -53,9 +50,6 @@ export function BouncyIconButton({
   );
 }
 
-/**
- * Ripple effect button
- */
 export interface RippleButtonProps {
   children: ReactNode;
   onClick: () => void;
@@ -95,9 +89,6 @@ export function RippleButton({
   );
 }
 
-/**
- * Floating action button with pulse effect
- */
 export interface FloatingActionButtonProps {
   icon: ReactNode;
   onClick: () => void;
@@ -134,9 +125,6 @@ export function FloatingActionButton({
   );
 }
 
-/**
- * Animated checkbox with spring physics
- */
 export interface AnimatedCheckboxProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
@@ -194,9 +182,6 @@ export function AnimatedCheckbox({
   );
 }
 
-/**
- * Progress indicator with smooth animation
- */
 export interface AnimatedProgressProps {
   value: number;
   max?: number;
@@ -224,9 +209,6 @@ export function AnimatedProgress({
   );
 }
 
-/**
- * Pulse notification badge
- */
 export interface PulseBadgeProps {
   count: number;
   className?: string;

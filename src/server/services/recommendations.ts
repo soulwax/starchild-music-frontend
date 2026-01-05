@@ -6,9 +6,6 @@ import {
 } from "@/config/features";
 import type { Track } from "@/types";
 
-/**
- * Deezer API Response Types
- */
 interface DeezerArtist {
   id: number;
   name: string;
@@ -51,32 +48,12 @@ interface DeezerTrackDetails {
   };
 }
 
-/**
- * Fetch recommendations from Deezer API
- *
- * Deezer API Endpoints:
- * 1. Track Radio: GET https://api.deezer.com/track/{id}/radio
- *    - Returns tracks similar to the seed track
- *    - Up to 40 tracks
- *
- * 2. Artist Radio: GET https://api.deezer.com/artist/{id}/radio
- *    - Returns tracks from similar artists
- *    - Up to 40 tracks
- *
- * 3. Related Artists: GET https://api.deezer.com/artist/{id}/related
- *    - Returns similar artists
- *
- * Usage:
- * ```typescript
- * const recommendations = await fetchDeezerRecommendations(trackId, 10);
- * ```
- */
 export async function fetchDeezerRecommendations(
   seedTrackId: number,
   limit = 20,
 ): Promise<Track[]> {
   try {
-    // Fetch track radio (similar tracks)
+
     const response = await fetch(
       `https://api.deezer.com/track/${seedTrackId}/radio?limit=${Math.min(limit, 40)}`,
     );
@@ -98,11 +75,6 @@ export async function fetchDeezerRecommendations(
   }
 }
 
-/**
- * Fetch artist-based recommendations from Deezer
- *
- * Gets tracks from the same artist and similar artists
- */
 export async function fetchArtistRecommendations(
   artistId: number,
   limit = 20,
@@ -129,9 +101,6 @@ export async function fetchArtistRecommendations(
   }
 }
 
-/**
- * Fetch related artists from Deezer
- */
 export async function fetchRelatedArtists(
   artistId: number,
   limit = 10,
@@ -158,9 +127,6 @@ export async function fetchRelatedArtists(
   }
 }
 
-/**
- * Fetch artist's top tracks from Deezer
- */
 export async function fetchArtistTopTracks(
   artistId: number,
   limit = 10,
@@ -187,9 +153,6 @@ export async function fetchArtistTopTracks(
   }
 }
 
-/**
- * Fetch track details including BPM and genre
- */
 export async function fetchTrackDetails(
   trackId: number,
 ): Promise<DeezerTrackDetails | null> {
@@ -207,9 +170,6 @@ export async function fetchTrackDetails(
   }
 }
 
-/**
- * Fetch genre chart tracks
- */
 export async function fetchGenreChart(
   genreId: number,
   limit = 20,
@@ -220,7 +180,7 @@ export async function fetchGenreChart(
     );
 
     if (!response.ok) {
-      // Try editorial/genre endpoint as fallback
+
       const editorialResponse = await fetch(
         `https://api.deezer.com/editorial/${genreId}/charts?limit=${limit}`,
       );
@@ -248,9 +208,6 @@ export async function fetchGenreChart(
   }
 }
 
-/**
- * Fetch album tracks (for same-album recommendations)
- */
 export async function fetchAlbumTracks(albumId: number): Promise<Track[]> {
   try {
     const response = await fetch(
@@ -274,26 +231,12 @@ export async function fetchAlbumTracks(albumId: number): Promise<Track[]> {
   }
 }
 
-/**
- * Calculate cache expiry date
- */
 export function getCacheExpiryDate(): Date {
   const expiry = new Date();
   expiry.setHours(expiry.getHours() + RECOMMENDATION_CACHE_HOURS);
   return expiry;
 }
 
-/**
- * Enhanced Smart Queue Recommendations
- *
- * Uses multiple strategies for better relevance:
- * 1. Track radio (core similar tracks)
- * 2. Related artist exploration
- * 3. Genre-based discovery
- * 4. Artist deep-dive (more from liked artists)
- *
- * Returns more diverse and relevant recommendations
- */
 export async function fetchEnhancedRecommendations(
   seedTrack: Track,
   options: {
@@ -317,7 +260,6 @@ export async function fetchEnhancedRecommendations(
   ]);
   const seenArtistCount = new Map<number, number>();
 
-  // Helper to add tracks while maintaining diversity
   const addTracks = (tracks: Track[], maxPerArtist = 3) => {
     for (const track of tracks) {
       if (seenTrackIds.has(track.id)) continue;
@@ -333,11 +275,10 @@ export async function fetchEnhancedRecommendations(
     }
   };
 
-  // Calculate allocation based on similarity level
   const allocation = getSimilarityAllocation(similarityLevel, limit);
 
   try {
-    // 1. CORE: Track Radio (most similar tracks)
+
     console.log(`[SmartQueue] Fetching track radio for ${seedTrack.title}...`);
     const trackRadio = await fetchDeezerRecommendations(
       seedTrack.id,
@@ -348,7 +289,6 @@ export async function fetchEnhancedRecommendations(
       `[SmartQueue] Track radio: ${trackRadio.length} tracks, added ${recommendations.length}`,
     );
 
-    // 2. ARTIST NETWORK: Related artists' top tracks
     if (recommendations.length < limit && allocation.relatedArtists > 0) {
       console.log(`[SmartQueue] Fetching related artists...`);
       const relatedArtists = await fetchRelatedArtists(seedTrack.artist.id, 5);
@@ -357,7 +297,7 @@ export async function fetchEnhancedRecommendations(
         if (recommendations.length >= limit) break;
 
         const artistTracks = await fetchArtistTopTracks(artist.id, 3);
-        // Prefer tracks from artists user already likes
+
         const isLikedArtist = userFavoriteArtistIds.includes(artist.id);
         addTracks(artistTracks, isLikedArtist ? 3 : 2);
       }
@@ -366,7 +306,6 @@ export async function fetchEnhancedRecommendations(
       );
     }
 
-    // 3. ARTIST DEEP-DIVE: More from the current artist (if user likes them)
     if (
       recommendations.length < limit &&
       userFavoriteArtistIds.includes(seedTrack.artist.id)
@@ -378,13 +317,12 @@ export async function fetchEnhancedRecommendations(
         seedTrack.artist.id,
         allocation.sameArtist,
       );
-      addTracks(artistTracks, 4); // Allow more from liked artist
+      addTracks(artistTracks, 4);
       console.log(
         `[SmartQueue] After artist deep-dive: ${recommendations.length} tracks`,
       );
     }
 
-    // 4. GENRE EXPLORATION: Tracks from the same genre
     if (recommendations.length < limit && allocation.genre > 0) {
       const trackDetails = await fetchTrackDetails(seedTrack.id);
       const genreId = trackDetails?.album?.genre_id;
@@ -392,20 +330,17 @@ export async function fetchEnhancedRecommendations(
       if (genreId) {
         console.log(`[SmartQueue] Fetching genre ${genreId} tracks...`);
         const genreTracks = await fetchGenreChart(genreId, allocation.genre);
-        // Filter to avoid very popular/overplayed tracks
-        // In Deezer, lower rank = more popular (like chart position), so we want higher rank values
-        // Exception: include tracks from artists the user already likes
+
         const filteredGenreTracks = genreTracks.filter(
           (t) => t.rank > 500000 || userFavoriteArtistIds.includes(t.artist.id),
         );
-        addTracks(filteredGenreTracks, 1); // Limit per artist for diversity
+        addTracks(filteredGenreTracks, 1);
         console.log(
           `[SmartQueue] After genre exploration: ${recommendations.length} tracks`,
         );
       }
     }
 
-    // 5. FALLBACK: Artist radio if still not enough
     if (recommendations.length < limit) {
       console.log(`[SmartQueue] Fallback: artist radio...`);
       const artistRadio = await fetchArtistRecommendations(
@@ -419,13 +354,9 @@ export async function fetchEnhancedRecommendations(
     console.error("[SmartQueue] Error in enhanced recommendations:", error);
   }
 
-  // Apply final shuffle with diversity
   return shuffleWithDiversity(recommendations.slice(0, limit));
 }
 
-/**
- * Get allocation of tracks per source based on similarity level
- */
 function getSimilarityAllocation(
   level: "strict" | "balanced" | "diverse",
   total: number,
@@ -437,7 +368,7 @@ function getSimilarityAllocation(
 } {
   switch (level) {
     case "strict":
-      // 80% from track radio, 20% from same artist, no genre exploration
+
       return {
         trackRadio: Math.ceil(total * 0.8),
         relatedArtists: 0,
@@ -445,7 +376,7 @@ function getSimilarityAllocation(
         genre: 0,
       };
     case "diverse":
-      // 40% track radio, 30% related artists, 10% same artist, 20% genre
+
       return {
         trackRadio: Math.ceil(total * 0.4),
         relatedArtists: Math.ceil(total * 0.3),
@@ -454,7 +385,7 @@ function getSimilarityAllocation(
       };
     case "balanced":
     default:
-      // 60% track radio, 20% related artists, 10% same artist, 10% genre
+
       return {
         trackRadio: Math.ceil(total * 0.6),
         relatedArtists: Math.ceil(total * 0.2),
@@ -464,23 +395,12 @@ function getSimilarityAllocation(
   }
 }
 
-/**
- * Hybrid recommendation strategy (legacy - for backward compatibility)
- *
- * Combines multiple sources:
- * 1. Track radio (Deezer similar tracks)
- * 2. Same artist tracks (if user likes the artist)
- * 3. User's listening history patterns
- * 4. Audio features matching (if enabled)
- *
- * Returns a diverse mix of recommendations
- */
 export async function fetchHybridRecommendations(
   seedTrack: Track,
   userTopArtistIds: number[],
   limit = 20,
 ): Promise<Track[]> {
-  // Use the new enhanced recommendations
+
   return fetchEnhancedRecommendations(seedTrack, {
     userFavoriteArtistIds: userTopArtistIds,
     similarityLevel: "balanced",
@@ -488,36 +408,25 @@ export async function fetchHybridRecommendations(
   });
 }
 
-/**
- * Multi-seed recommendations result with metadata
- */
 export interface MultiSeedRecommendationsResult {
   tracks: Track[];
   totalCandidates: number;
 }
 
-/**
- * Multi-seed recommendations
- *
- * Uses multiple seed tracks for more diverse recommendations
- * Great for "smart mix" features
- */
 export async function fetchMultiSeedRecommendations(
   seedTracks: Track[],
   options: {
     userFavoriteArtistIds?: number[];
     limit?: number;
-    diversityWeight?: number; // 0-1, higher = more diverse
+    diversityWeight?: number;
   } = {},
 ): Promise<MultiSeedRecommendationsResult> {
   const { limit = 30, diversityWeight = 0.5 } = options;
 
-  // Store tracks with their sorting scores separately to preserve original rank values
   const scoredTracks: Array<{ track: Track; score: number }> = [];
   const seenTrackIds = new Set<number>(seedTracks.map((t) => t.id));
   const artistScores = new Map<number, number>();
 
-  // Score artists based on seed tracks
   for (const track of seedTracks) {
     artistScores.set(
       track.artist.id,
@@ -525,7 +434,6 @@ export async function fetchMultiSeedRecommendations(
     );
   }
 
-  // Get recommendations for each seed
   const perSeedLimit = Math.ceil((limit * 1.5) / seedTracks.length);
 
   for (const seedTrack of seedTracks) {
@@ -533,38 +441,30 @@ export async function fetchMultiSeedRecommendations(
 
     for (const track of recs) {
       if (!seenTrackIds.has(track.id)) {
-        // Calculate sorting score based on artist familiarity and diversity
+
         const artistFamiliarity = artistScores.get(track.artist.id) ?? 0;
         const diversityBonus = artistFamiliarity === 0 ? diversityWeight : 0;
         const score =
           (track.rank ?? 0) + artistFamiliarity * 10000 + diversityBonus * 5000;
 
-        // Store track and score separately - don't modify the original Track object
         scoredTracks.push({ track, score });
         seenTrackIds.add(track.id);
       }
     }
   }
 
-  // Track total candidates before limiting
   const totalCandidates = scoredTracks.length;
 
-  // Sort by calculated score (higher = better match)
   scoredTracks.sort((a, b) => b.score - a.score);
 
-  // Extract original Track objects (with authentic rank values preserved)
   const sortedTracks = scoredTracks.slice(0, limit).map(({ track }) => track);
 
-  // Apply diversity shuffle
   return {
     tracks: shuffleWithDiversity(sortedTracks),
     totalCandidates,
   };
 }
 
-/**
- * Filter recommendations based on user preferences
- */
 export function filterRecommendations(
   tracks: Track[],
   options: {
@@ -575,22 +475,19 @@ export function filterRecommendations(
   },
 ): Track[] {
   return tracks.filter((track) => {
-    // Exclude specific tracks
+
     if (options.excludeTrackIds?.includes(track.id)) {
       return false;
     }
 
-    // Exclude specific artists
     if (options.excludeArtistIds?.includes(track.artist.id)) {
       return false;
     }
 
-    // Filter by rank (popularity)
     if (options.minRank && track.rank < options.minRank) {
       return false;
     }
 
-    // Filter explicit content
     if (options.maxExplicit === false && track.explicit_lyrics) {
       return false;
     }
@@ -599,10 +496,6 @@ export function filterRecommendations(
   });
 }
 
-/**
- * Shuffle recommendations with diversity in mind
- * Ensures no consecutive tracks from the same artist
- */
 export function shuffleWithDiversity(tracks: Track[]): Track[] {
   if (tracks.length <= 1) return tracks;
 
@@ -613,7 +506,6 @@ export function shuffleWithDiversity(tracks: Track[]): Track[] {
   while (pool.length > 0) {
     let foundDifferent = false;
 
-    // Try to find a track from a different artist
     for (let i = 0; i < pool.length; i++) {
       const track = pool[i];
       if (!track) continue;
@@ -627,7 +519,6 @@ export function shuffleWithDiversity(tracks: Track[]): Track[] {
       }
     }
 
-    // If all remaining tracks are from the same artist, just add them
     if (!foundDifferent && pool.length > 0) {
       const track = pool.shift();
       if (track) {
@@ -640,30 +531,6 @@ export function shuffleWithDiversity(tracks: Track[]): Track[] {
   return result;
 }
 
-/**
- * Audio Features Recommendations (Future - when Essentia is integrated)
- *
- * This function will be used when ENABLE_AUDIO_FEATURES is true
- * It will fetch recommendations based on audio similarity (BPM, key, energy, etc.)
- *
- * Requirements:
- * - Essentia microservice must be running
- * - Audio features must be pre-computed for tracks
- *
- * Implementation:
- * ```typescript
- * const essentiaUrl = process.env.ESSENTIA_API_URL;
- * const response = await fetch(`${essentiaUrl}/similar`, {
- *   method: 'POST',
- *   headers: { 'Content-Type': 'application/json' },
- *   body: JSON.stringify({
- *     trackId: seedTrackId,
- *     limit: limit,
- *     features: ['bpm', 'key', 'energy', 'danceability']
- *   })
- * });
- * ```
- */
 export async function fetchAudioFeatureRecommendations(
   seedTrackId: number,
   limit = 20,
@@ -675,8 +542,6 @@ export async function fetchAudioFeatureRecommendations(
     return fetchDeezerRecommendations(seedTrackId, limit);
   }
 
-  // TODO: Implement when Essentia is ready
-  // For now, fall back to Deezer
   console.log("Essentia integration pending, using Deezer recommendations");
   return fetchDeezerRecommendations(seedTrackId, limit);
 }

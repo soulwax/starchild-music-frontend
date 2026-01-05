@@ -21,7 +21,7 @@ export default function ChangelogModal({
 
   useEffect(() => {
     if (isOpen) {
-      // Fetch changelog content
+
       fetch("/CHANGELOG.md")
         .then((res) => res.text())
         .then((text) => {
@@ -36,7 +36,6 @@ export default function ChangelogModal({
     }
   }, [isOpen]);
 
-  // Parse markdown-style changelog into HTML-like structure
   const parseChangelog = (content: string) => {
     const lines = content.split("\n");
     const elements: React.ReactElement[] = [];
@@ -46,7 +45,6 @@ export default function ChangelogModal({
       const line = lines[i];
       if (!line) continue;
 
-      // Headers
       if (line.startsWith("## ")) {
         elements.push(
           <h2
@@ -75,7 +73,7 @@ export default function ChangelogModal({
           </h4>,
         );
       } else if (line.startsWith("- ")) {
-        // List items
+
         elements.push(
           <li
             key={key++}
@@ -85,7 +83,7 @@ export default function ChangelogModal({
           </li>,
         );
       } else if (line.startsWith("```")) {
-        // Code blocks
+
         const codeLines: string[] = [];
         i++;
         while (i < lines.length && !lines[i]!.startsWith("```")) {
@@ -103,7 +101,7 @@ export default function ChangelogModal({
           </pre>,
         );
       } else if (line.startsWith("# ")) {
-        // Main title
+
         elements.push(
           <h1
             key={key++}
@@ -113,14 +111,14 @@ export default function ChangelogModal({
           </h1>,
         );
       } else if (line.startsWith("**") && line.endsWith("**")) {
-        // Bold text
+
         elements.push(
           <p key={key++} className="mb-2 font-semibold text-[var(--color-text)]">
             {line.substring(2, line.length - 2)}
           </p>,
         );
       } else if (line.startsWith("---")) {
-        // Horizontal rule
+
         elements.push(
           <hr
             key={key++}
@@ -128,7 +126,7 @@ export default function ChangelogModal({
           />,
         );
       } else if (line.trim().length > 0) {
-        // Regular paragraph
+
         elements.push(
           <p
             key={key++}
@@ -147,7 +145,7 @@ export default function ChangelogModal({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -157,7 +155,7 @@ export default function ChangelogModal({
             onClick={onClose}
           />
 
-          {/* Modal */}
+          {}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -165,7 +163,7 @@ export default function ChangelogModal({
             transition={springPresets.gentle}
             className="fixed inset-4 z-[91] mx-auto my-auto flex max-h-[90vh] max-w-4xl flex-col overflow-hidden rounded-2xl border border-[rgba(244,178,102,0.2)] bg-[rgba(11,17,24,0.98)] shadow-2xl backdrop-blur-xl md:inset-8"
           >
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.1)] px-5 py-4 md:px-6">
               <h2 className="text-lg font-bold text-[var(--color-text)] md:text-xl">
                 Changelog
@@ -178,7 +176,7 @@ export default function ChangelogModal({
               </button>
             </div>
 
-            {/* Content */}
+            {}
             <div className="flex-1 overflow-y-auto px-5 py-4 md:px-6">
               {loading ? (
                 <div className="flex items-center justify-center py-12">

@@ -38,7 +38,7 @@ export default function MobileHeader() {
                  backdrop-blur-xl"
     >
       <div className="flex items-center gap-3 px-4 py-3">
-        {/* Hamburger Button */}
+        {}
         <motion.button
           onClick={() => {
             hapticMedium();
@@ -76,7 +76,7 @@ export default function MobileHeader() {
           </AnimatePresence>
         </motion.button>
 
-        {/* Search Bar */}
+        {}
         <div className="flex-1">
           <MobileSearchBar
             value={searchQuery}

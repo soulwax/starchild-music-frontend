@@ -28,7 +28,6 @@ export function FlowFieldBackground({
   const connectedAudioElementRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Track play/pause state via events
   useEffect(() => {
     if (!audioElement) {
       setIsPlaying(false);
@@ -44,7 +43,6 @@ export function FlowFieldBackground({
       setIsPlaying(false);
     };
 
-    // Set initial state
     setIsPlaying(!audioElement.paused);
 
     audioElement.addEventListener("play", handlePlay);
@@ -56,10 +54,9 @@ export function FlowFieldBackground({
     };
   }, [audioElement]);
 
-  // Initialize Web Audio API
   useEffect(() => {
     if (!audioElement) {
-      // Clean up refs when audio element is removed
+
       if (connectedAudioElementRef.current) {
         releaseAudioConnection(connectedAudioElementRef.current);
       }
@@ -70,7 +67,6 @@ export function FlowFieldBackground({
       return;
     }
 
-    // Get or create shared audio connection
     const connection = getOrCreateAudioConnection(audioElement);
     if (!connection) {
       sourceNodeRef.current = null;
@@ -80,7 +76,6 @@ export function FlowFieldBackground({
       return;
     }
 
-    // Create or reuse analyser
     let analyser = connection.analyser;
     if (!analyser) {
       analyser = connection.audioContext.createAnalyser();
@@ -94,10 +89,6 @@ export function FlowFieldBackground({
     sourceNodeRef.current = connection.sourceNode;
     connectedAudioElementRef.current = audioElement;
 
-    // Ensure connection chain is complete (critical for playback)
-    // Note: This is called when the component mounts/updates, which might be
-    // before or after the audio element starts playing. The chain will be
-    // verified again in useAudioPlayer.play() before playback.
     ensureConnectionChain(connection);
 
     console.log("[FlowFieldBackground] Audio connection setup complete", {
@@ -107,7 +98,7 @@ export function FlowFieldBackground({
     });
 
     return () => {
-      // Release connection reference (but don't cleanup if other components are using it)
+
       if (connectedAudioElementRef.current) {
         releaseAudioConnection(connectedAudioElementRef.current);
       }
@@ -118,13 +109,12 @@ export function FlowFieldBackground({
     };
   }, [audioElement]);
 
-  // Initialize renderer and handle resize
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const updateSize = () => {
-      // Use display size - renderer handles quality scaling internally
+
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
 
@@ -146,7 +136,6 @@ export function FlowFieldBackground({
     };
   }, [onRendererReady]);
 
-  // Animation loop
   useEffect(() => {
     console.log("[FlowFieldBackground] Animation loop check", {
       isPlaying,
@@ -175,7 +164,6 @@ export function FlowFieldBackground({
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    // Resume audio context if suspended
     if (audioContextRef.current?.state === "suspended") {
       void audioContextRef.current.resume();
     }
@@ -188,7 +176,7 @@ export function FlowFieldBackground({
         animationFrameRef.current = null;
       }
     };
-  }, [isPlaying]); // Re-run when play/pause state changes
+  }, [isPlaying]);
 
   return (
     <canvas

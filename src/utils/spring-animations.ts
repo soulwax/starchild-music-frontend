@@ -1,11 +1,7 @@
 // File: src/utils/spring-animations.ts
 
-/**
- * Spring animation presets for consistent, snappy mobile interactions
- */
-
 export const springPresets = {
-  // Ultra-snappy for buttons and small interactions
+
   snappy: {
     type: "spring" as const,
     stiffness: 500,
@@ -13,7 +9,6 @@ export const springPresets = {
     mass: 0.5,
   },
 
-  // Smooth and natural for cards and larger elements
   smooth: {
     type: "spring" as const,
     stiffness: 300,
@@ -21,7 +16,6 @@ export const springPresets = {
     mass: 0.8,
   },
 
-  // Bouncy for playful interactions
   bouncy: {
     type: "spring" as const,
     stiffness: 400,
@@ -29,7 +23,6 @@ export const springPresets = {
     mass: 0.6,
   },
 
-  // Gentle for sheets and panels
   gentle: {
     type: "spring" as const,
     stiffness: 200,
@@ -37,7 +30,6 @@ export const springPresets = {
     mass: 1,
   },
 
-  // Immediate for touch feedback
   immediate: {
     type: "spring" as const,
     stiffness: 700,
@@ -45,7 +37,6 @@ export const springPresets = {
     mass: 0.3,
   },
 
-  // Elastic for swipe actions
   elastic: {
     type: "spring" as const,
     stiffness: 350,
@@ -55,19 +46,15 @@ export const springPresets = {
 };
 
 export const easePresets = {
-  // Smooth ease out for exits
+
   easeOut: [0.4, 0, 0.2, 1],
 
-  // Quick ease in for entrances
   easeIn: [0.4, 0, 1, 1],
 
-  // Symmetric for bidirectional animations
   easeInOut: [0.4, 0, 0.2, 1],
 
-  // Sharp for snappy interactions
   sharp: [0.4, 0, 0.6, 1],
 
-  // Emphasized for important actions
   emphasized: [0.0, 0, 0.2, 1],
 };
 

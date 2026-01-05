@@ -36,7 +36,6 @@ export default function TrackCard({
   const { data: session } = useSession();
   const isAuthenticated = !!session;
 
-  // Favorite queries and mutations
   const { data: favoriteData } = api.music.isFavorite.useQuery(
     { trackId: track.id },
     { enabled: showActions && isAuthenticated },
@@ -135,7 +134,7 @@ export default function TrackCard({
 
       {showActions && (
         <div className="flex flex-shrink-0 items-center gap-1 md:gap-2">
-          {/* Favorite Button */}
+          {}
           <button
             onClick={toggleFavorite}
             className={`rounded-full p-2 transition-all ${
@@ -153,7 +152,7 @@ export default function TrackCard({
             />
           </button>
 
-          {/* Add to Queue Button */}
+          {}
           {onAddToQueue && (
             <button
               onClick={handleAddToQueue}
@@ -164,7 +163,7 @@ export default function TrackCard({
             </button>
           )}
 
-          {/* Add to Playlist Button */}
+          {}
           <button
             onClick={(e) => {
               e.stopPropagation();

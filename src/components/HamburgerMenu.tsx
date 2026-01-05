@@ -100,7 +100,6 @@ export default function HamburgerMenu() {
     },
   ];
 
-  // Add sign out if authenticated
   if (session) {
     menuItems.push({
       id: "signout",
@@ -118,7 +117,7 @@ export default function HamburgerMenu() {
     <AnimatePresence>
       {isMenuOpen && (
         <>
-          {/* Backdrop */}
+          {}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -133,7 +132,7 @@ export default function HamburgerMenu() {
             }}
           />
 
-          {/* Drawer */}
+          {}
           <motion.div
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
@@ -148,7 +147,7 @@ export default function HamburgerMenu() {
                        shadow-2xl
                        backdrop-blur-xl"
           >
-            {/* Header */}
+            {}
             <div className="border-b border-[rgba(244,178,102,0.12)] p-6">
               <div className="flex items-center gap-3">
                 <Image
@@ -172,7 +171,7 @@ export default function HamburgerMenu() {
               </div>
             </div>
 
-            {/* Menu Items */}
+            {}
             <nav className="p-4">
               {visibleItems.map((item, index) => (
                 <div key={item.id}>
@@ -235,7 +234,7 @@ export default function HamburgerMenu() {
               ))}
             </nav>
 
-            {/* Footer */}
+            {}
             <div className="border-t border-[rgba(244,178,102,0.12)] p-6">
               <p className="text-center text-xs text-[var(--color-muted)]">
                 darkfloor.art v1.0

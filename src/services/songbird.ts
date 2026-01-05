@@ -5,12 +5,6 @@ import { env } from "@/env";
 const SONGBIRD_API_URL = env.NEXT_PUBLIC_SONGBIRD_API_URL;
 const SONGBIRD_API_KEY = env.SONGBIRD_API_KEY;
 
-/**
- * Base request function for Songbird API
- * @param endpoint API endpoint (without base URL)
- * @param options Fetch options
- * @returns Promise with response data
- */
 async function songbirdRequest<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -47,22 +41,8 @@ async function songbirdRequest<T>(
   return (await response.json()) as T;
 }
 
-/**
- * Songbird API service
- *
- * This service will be expanded when the full API specification is available.
- * Currently prepared for future implementation.
- */
 export const songbird = {
-  /**
-   * Base request method for custom API calls
-   */
+
   request: songbirdRequest,
 
-  // Future methods will be added here when API specification is ready:
-  // - getRecommendations()
-  // - searchTracks()
-  // - getArtistInfo()
-  // - getAlbumInfo()
-  // - etc.
 };

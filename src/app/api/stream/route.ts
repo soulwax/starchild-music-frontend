@@ -3,7 +3,6 @@
 import { env } from "@/env";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Force dynamic rendering for streaming route
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -38,12 +37,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Normalize URL to avoid double slashes (apiUrl has trailing slash)
     const normalizedApiUrl = apiUrl.endsWith("/") ? apiUrl.slice(0, -1) : apiUrl;
     const url = new URL("music/stream", normalizedApiUrl);
     url.searchParams.set("key", streamingKey);
 
-    // Prioritize ID over query - ID is more specific and accurate
     if (id) {
       url.searchParams.set("id", id);
       console.log("[Stream API] Streaming by ID:", id);
@@ -66,8 +63,8 @@ export async function GET(req: NextRequest) {
       headers: {
         Range: req.headers.get("Range") ?? "",
       },
-      // Add timeout and better error handling
-      signal: AbortSignal.timeout(30000), // 30 second timeout
+
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!response.ok) {
@@ -95,7 +92,6 @@ export async function GET(req: NextRequest) {
         Object.fromEntries(response.headers.entries()),
       );
 
-      // Check for specific upstream error
       const isUpstreamError =
         (errorData.message?.includes("upstream error") ?? false) ||
         errorData.error === "ServiceUnavailableException";
@@ -129,7 +125,6 @@ export async function GET(req: NextRequest) {
     if (acceptRanges) headers["Accept-Ranges"] = acceptRanges;
     if (contentRange) headers["Content-Range"] = contentRange;
 
-    // Stream directly instead of buffering
     return new NextResponse(response.body, {
       status: response.status,
       headers,
@@ -137,7 +132,6 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("[Stream API] Streaming error:", error);
 
-    // Check if it's a timeout or network error
     if (error instanceof Error) {
       if (error.name === "AbortError" || error.message.includes("timeout")) {
         console.error(

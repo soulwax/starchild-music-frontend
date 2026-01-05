@@ -2,7 +2,6 @@
 
 declare module "*.css";
 
-// Electron types
 interface ElectronAPI {
   getAppVersion: () => Promise<string>;
   getPlatform: () => Promise<string>;

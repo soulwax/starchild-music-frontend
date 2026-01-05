@@ -44,7 +44,7 @@ export function WelcomeHero({ isVisible, onDismiss }: WelcomeHeroProps) {
               `,
             }}
           >
-            {/* Animated gradient border */}
+            {}
             <div className="absolute inset-0 overflow-hidden rounded-2xl opacity-40">
               <motion.div
                 animate={{
@@ -59,10 +59,10 @@ export function WelcomeHero({ isVisible, onDismiss }: WelcomeHeroProps) {
               />
             </div>
 
-            {/* Content */}
+            {}
             <div className="relative px-6 py-5 md:px-8 md:py-6">
               <div className="flex items-center gap-4">
-                {/* Icon with animated glow */}
+                {}
                 <motion.div
                   animate={{
                     scale: [1, 1.05, 1],
@@ -80,7 +80,7 @@ export function WelcomeHero({ isVisible, onDismiss }: WelcomeHeroProps) {
                   </div>
                 </motion.div>
 
-                {/* Text content */}
+                {}
                 <div className="flex-1 min-w-0">
                   <motion.div
                     initial={{ opacity: 0, x: -10 }}
@@ -115,7 +115,7 @@ export function WelcomeHero({ isVisible, onDismiss }: WelcomeHeroProps) {
                   </motion.p>
                 </div>
 
-                {/* Close button */}
+                {}
                 {onDismiss && (
                   <motion.button
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -140,7 +140,7 @@ export function WelcomeHero({ isVisible, onDismiss }: WelcomeHeroProps) {
                 )}
               </div>
 
-              {/* Hint with play icon */}
+              {}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -152,7 +152,7 @@ export function WelcomeHero({ isVisible, onDismiss }: WelcomeHeroProps) {
               </motion.div>
             </div>
 
-            {/* Bottom accent line with animation */}
+            {}
             <div className="relative h-1 overflow-hidden">
               <motion.div
                 initial={{ x: "-100%" }}

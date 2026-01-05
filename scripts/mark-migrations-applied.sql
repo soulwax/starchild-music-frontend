@@ -1,3 +1,5 @@
+-- File: scripts/mark-migrations-applied.sql
+
 -- Script to mark all existing migrations as applied
 -- Run this with: psql $DATABASE_URL -f scripts/mark-migrations-applied.sql
 -- Or copy-paste into your database client
@@ -31,4 +33,3 @@ ON CONFLICT (hash) DO NOTHING;
 
 -- Verify
 SELECT COUNT(*) as total_migrations FROM "__drizzle_migrations";
-

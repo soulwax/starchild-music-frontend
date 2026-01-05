@@ -14,7 +14,7 @@ export async function GET(
   }
 
   try {
-    // Fetch artist top tracks from Deezer API
+
     const deezerUrl = `https://api.deezer.com/artist/${artistId}/top?limit=50`;
     console.log(
       `[Artist Tracks API] Fetching tracks for artist ${artistId} from: ${deezerUrl}`,
@@ -24,7 +24,7 @@ export async function GET(
       headers: {
         Accept: "application/json",
       },
-      signal: AbortSignal.timeout(10000), // 10 second timeout
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {

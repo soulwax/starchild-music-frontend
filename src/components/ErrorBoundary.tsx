@@ -2,19 +2,14 @@
 
 "use client";
 
-/**
- * Error Boundary component
- * Catches JavaScript errors anywhere in the component tree and displays a fallback UI
- */
-
 import { Component, type ReactNode } from "react";
 
 export interface ErrorBoundaryProps {
-  /** Child components to render */
+
   children: ReactNode;
-  /** Optional custom fallback component */
+
   fallback?: ReactNode;
-  /** Optional error handler callback */
+
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
@@ -23,15 +18,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-/**
- * ErrorBoundary component
- * Provides error handling for React component tree
- *
- * @example
- * <ErrorBoundary fallback={<ErrorFallback />}>
- *   <YourComponent />
- * </ErrorBoundary>
- */
 export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
@@ -98,9 +84,6 @@ export class ErrorBoundary extends Component<
   }
 }
 
-/**
- * Default error fallback component
- */
 export function ErrorFallback({
   error,
   resetError,

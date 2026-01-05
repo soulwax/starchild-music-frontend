@@ -212,7 +212,6 @@ export class FlowFieldRenderer {
   private kaleidoscopeParticleDensity = 1.0;
   private kaleidoscopeColorShift = 1.0;
 
-  // Hydrogen Electron Orbitals state
   private hydrogenEnergyLevel = 1;
   private hydrogenEnergyLevelTimer = 0;
   private hydrogenEnergyLevelDuration = 300;
@@ -3319,7 +3318,7 @@ export class FlowFieldRenderer {
     this.initializeParticles();
     this.initializeBubbles();
     this.initializeStars();
-    this.hydrogenElectrons = []; // Reset electrons on resize
+    this.hydrogenElectrons = [];
     this.initializeMatrixColumns();
     this.initializeConstellationStars();
   }
@@ -7823,8 +7822,6 @@ export class FlowFieldRenderer {
     ctx.save();
     ctx.translate(this.centerX, this.centerY);
 
-    //
-
     const twoPi = FlowFieldRenderer.TWO_PI;
     const pi = Math.PI;
     const t = this.time | 0;
@@ -9258,8 +9255,6 @@ export class FlowFieldRenderer {
     const ctx = this.ctx;
     ctx.save();
     ctx.translate(this.centerX, this.centerY);
-
-    //
 
     const twoPi = FlowFieldRenderer.TWO_PI;
     const maxRadius = Math.min(this.width, this.height) * 0.45;
@@ -10981,11 +10976,11 @@ export class FlowFieldRenderer {
   }
 
   private initializeHydrogenElectrons(): void {
-    if (this.hydrogenElectrons.length > 0) return; // Already initialized
-    
+    if (this.hydrogenElectrons.length > 0) return;
+
     const electronCount = 50;
     const twoPi = FlowFieldRenderer.TWO_PI;
-    
+
     for (let i = 0; i < electronCount; i++) {
       this.hydrogenElectrons.push({
         x: 0,
@@ -11007,25 +11002,22 @@ export class FlowFieldRenderer {
     const ctx = this.ctx;
     const twoPi = FlowFieldRenderer.TWO_PI;
     const maxRadius = Math.min(this.width, this.height) * 0.4;
-    
-    // Initialize electrons if needed
+
     if (this.hydrogenElectrons.length === 0) {
       this.initializeHydrogenElectrons();
     }
-    
-    // Update energy level timer
+
     this.hydrogenEnergyLevelTimer += 1;
     const transitionSpeed = 1 + audioIntensity * 2;
     if (this.hydrogenEnergyLevelTimer >= this.hydrogenEnergyLevelDuration / transitionSpeed) {
       this.hydrogenEnergyLevelTimer = 0;
       this.hydrogenEnergyLevel = (this.hydrogenEnergyLevel % this.MAX_ENERGY_LEVEL) + 1;
     }
-    
+
     const n = this.hydrogenEnergyLevel;
     const baseRadius = maxRadius * 0.3;
     const orbitalRadius = baseRadius * n * n;
-    
-    // Draw nucleus
+
     ctx.save();
     ctx.translate(this.centerX, this.centerY);
     const nucleusRadius = 8 + bassIntensity * 12;
@@ -11042,11 +11034,10 @@ export class FlowFieldRenderer {
     ctx.arc(0, 0, 4, 0, twoPi);
     ctx.fill();
     ctx.restore();
-    
-    // Draw orbitals
+
     ctx.save();
     ctx.translate(this.centerX, this.centerY);
-    
+
     if (n === 1) {
       this.drawHydrogen1sOrbital(ctx, orbitalRadius, audioIntensity, trebleIntensity);
     } else if (n === 2) {
@@ -11063,8 +11054,7 @@ export class FlowFieldRenderer {
       }
     }
     ctx.restore();
-    
-    // Update and draw electrons
+
     this.updateHydrogenElectrons(n, orbitalRadius, audioIntensity, bassIntensity);
     this.drawHydrogenElectrons(ctx, n, audioIntensity, trebleIntensity);
   }
@@ -11078,7 +11068,7 @@ export class FlowFieldRenderer {
     const pulse = this.fastSin(this.time * 0.05) * (5 + trebleIntensity * 15);
     const currentRadius = radius + pulse;
     const twoPi = FlowFieldRenderer.TWO_PI;
-    
+
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, currentRadius);
     const hue = this.fastMod360(this.hueBase + 180);
     gradient.addColorStop(0, this.hsla(hue, 70, 60, 0.1 + audioIntensity * 0.2));
@@ -11104,7 +11094,7 @@ export class FlowFieldRenderer {
     const pulse = this.fastSin(this.time * 0.04) * (8 + trebleIntensity * 20);
     const currentRadius = radius + pulse;
     const twoPi = FlowFieldRenderer.TWO_PI;
-    
+
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, currentRadius);
     const hue = this.fastMod360(this.hueBase + 200);
     gradient.addColorStop(0, this.hsla(hue, 70, 60, 0.08 + audioIntensity * 0.15));
@@ -11130,7 +11120,7 @@ export class FlowFieldRenderer {
   ): void {
     const pulse = this.fastSin(this.time * 0.06) * (10 + midIntensity * 20);
     const currentRadius = radius + pulse;
-    
+
     this.drawHydrogenDumbbellOrbital(ctx, currentRadius, 0, audioIntensity, trebleIntensity);
     this.drawHydrogenDumbbellOrbital(ctx, currentRadius, Math.PI / 2, audioIntensity, trebleIntensity);
     this.drawHydrogenDumbbellOrbital(ctx, currentRadius * 0.7, Math.PI / 4, audioIntensity, trebleIntensity);
@@ -11145,7 +11135,7 @@ export class FlowFieldRenderer {
     const pulse = this.fastSin(this.time * 0.03) * (12 + trebleIntensity * 25);
     const currentRadius = radius + pulse;
     const twoPi = FlowFieldRenderer.TWO_PI;
-    
+
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, currentRadius);
     const hue = this.fastMod360(this.hueBase + 220);
     gradient.addColorStop(0, this.hsla(hue, 70, 60, 0.06 + audioIntensity * 0.12));
@@ -11172,7 +11162,7 @@ export class FlowFieldRenderer {
     const pulse = this.fastSin(this.time * 0.05) * (15 + midIntensity * 25);
     const currentRadius = radius + pulse;
     const rotation = this.time * 0.01;
-    
+
     this.drawHydrogenDumbbellOrbital(ctx, currentRadius, rotation, audioIntensity, trebleIntensity);
     this.drawHydrogenDumbbellOrbital(ctx, currentRadius, rotation + Math.PI / 2, audioIntensity, trebleIntensity);
     this.drawHydrogenDumbbellOrbital(ctx, currentRadius * 0.8, rotation + Math.PI / 4, audioIntensity, trebleIntensity);
@@ -11190,7 +11180,7 @@ export class FlowFieldRenderer {
     const currentRadius = radius + pulse;
     const rotation = this.time * 0.008;
     const twoPi = FlowFieldRenderer.TWO_PI;
-    
+
     for (let i = 0; i < 5; i++) {
       const angle = (i * twoPi) / 5 + rotation;
       this.drawHydrogenCloverleafOrbital(ctx, currentRadius, angle, audioIntensity, trebleIntensity);
@@ -11206,13 +11196,12 @@ export class FlowFieldRenderer {
   ): void {
     ctx.save();
     ctx.rotate(angle);
-    
+
     const lobeSize = radius * 0.4;
     const lobeDistance = radius * 0.6;
     const twoPi = FlowFieldRenderer.TWO_PI;
     const hue = this.fastMod360(this.hueBase + 160);
-    
-    // Left lobe
+
     const gradient1 = ctx.createRadialGradient(-lobeDistance, 0, 0, -lobeDistance, 0, lobeSize);
     gradient1.addColorStop(0, this.hsla(hue, 70, 60, 0.3 + audioIntensity * 0.3));
     gradient1.addColorStop(1, this.hsla(hue, 70, 60, 0));
@@ -11220,8 +11209,7 @@ export class FlowFieldRenderer {
     ctx.beginPath();
     ctx.arc(-lobeDistance, 0, lobeSize, 0, twoPi);
     ctx.fill();
-    
-    // Right lobe
+
     const gradient2 = ctx.createRadialGradient(lobeDistance, 0, 0, lobeDistance, 0, lobeSize);
     gradient2.addColorStop(0, this.hsla(hue, 70, 60, 0.3 + audioIntensity * 0.3));
     gradient2.addColorStop(1, this.hsla(hue, 70, 60, 0));
@@ -11229,14 +11217,14 @@ export class FlowFieldRenderer {
     ctx.beginPath();
     ctx.arc(lobeDistance, 0, lobeSize, 0, twoPi);
     ctx.fill();
-    
+
     ctx.strokeStyle = this.hsla(hue, 70, 60, 0.2 + audioIntensity * 0.2);
     ctx.lineWidth = 1 + trebleIntensity * 2;
     ctx.beginPath();
     ctx.moveTo(-lobeDistance, 0);
     ctx.lineTo(lobeDistance, 0);
     ctx.stroke();
-    
+
     ctx.restore();
   }
 
@@ -11249,17 +11237,17 @@ export class FlowFieldRenderer {
   ): void {
     ctx.save();
     ctx.rotate(angle);
-    
+
     const lobeSize = radius * 0.25;
     const lobeDistance = radius * 0.7;
     const twoPi = FlowFieldRenderer.TWO_PI;
     const hue = this.fastMod360(this.hueBase + 240);
-    
+
     for (let i = 0; i < 4; i++) {
       const lobeAngle = (i * twoPi) / 4;
       const x = this.fastCos(lobeAngle) * lobeDistance;
       const y = this.fastSin(lobeAngle) * lobeDistance;
-      
+
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, lobeSize);
       gradient.addColorStop(0, this.hsla(hue, 70, 60, 0.25 + audioIntensity * 0.25));
       gradient.addColorStop(1, this.hsla(hue, 70, 60, 0));
@@ -11268,7 +11256,7 @@ export class FlowFieldRenderer {
       ctx.arc(x, y, lobeSize, 0, twoPi);
       ctx.fill();
     }
-    
+
     ctx.restore();
   }
 
@@ -11283,7 +11271,7 @@ export class FlowFieldRenderer {
     const currentRadius = radius + pulse;
     const twoPi = FlowFieldRenderer.TWO_PI;
     const hue = this.fastMod360(this.hueBase + shell * 60 + this.time * 0.5);
-    
+
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, currentRadius);
     gradient.addColorStop(0, this.hsla(hue, 70, 60, 0.05 + audioIntensity * 0.1));
     gradient.addColorStop(1, this.hsla(hue, 70, 60, 0));
@@ -11305,12 +11293,12 @@ export class FlowFieldRenderer {
     bassIntensity: number,
   ): void {
     const twoPi = FlowFieldRenderer.TWO_PI;
-    
+
     this.hydrogenElectrons.forEach((electron) => {
       const speed = electron.speed * (1 + audioIntensity * 2 + bassIntensity);
       electron.angle += speed / (n * n);
       electron.phase += speed * 0.5;
-      
+
       const radius = orbitalRadius * (0.8 + this.fastSin(electron.phase) * 0.2);
       electron.x = this.fastCos(electron.angle) * radius;
       electron.y = this.fastSin(electron.angle) * radius;
@@ -11326,14 +11314,14 @@ export class FlowFieldRenderer {
   ): void {
     ctx.save();
     ctx.translate(this.centerX, this.centerY);
-    
+
     const twoPi = FlowFieldRenderer.TWO_PI;
-    
+
     this.hydrogenElectrons.forEach((electron) => {
       const size = (3 + trebleIntensity * 5) / n;
       const alpha = 0.6 + audioIntensity * 0.4;
       const hue = this.fastMod360(n * 40 + this.time * 2);
-      
+
       const gradient = ctx.createRadialGradient(
         electron.x, electron.y, 0,
         electron.x, electron.y, size * 2
@@ -11345,13 +11333,13 @@ export class FlowFieldRenderer {
       ctx.beginPath();
       ctx.arc(electron.x, electron.y, size * 2, 0, twoPi);
       ctx.fill();
-      
+
       ctx.fillStyle = this.hsla(hue, 100, 90, alpha);
       ctx.beginPath();
       ctx.arc(electron.x, electron.y, size, 0, twoPi);
       ctx.fill();
     });
-    
+
     ctx.restore();
   }
 

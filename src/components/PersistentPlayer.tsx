@@ -7,8 +7,7 @@ import { useGlobalPlayer } from "@/contexts/AudioPlayerContext";
 import { useEqualizer } from "@/hooks/useEqualizer";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { api } from "@/trpc/react";
-// import { extractColorsFromImage, type ColorPalette } from "@/utils/colorExtractor";
-// import { getCoverImage } from "@/utils/images";
+
 import { useAudioReactiveBackground } from "@/hooks/useAudioReactiveBackground";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -39,7 +38,6 @@ export default function PersistentPlayer() {
   const { data: session } = useSession();
   const isAuthenticated = !!session?.user;
 
-  // Fetch user preferences for visualizer settings and panel visibility
   const { data: preferences } = api.music.getUserPreferences.useQuery(
     undefined,
     {
@@ -47,20 +45,16 @@ export default function PersistentPlayer() {
     },
   );
 
-  // Mutation to update preferences
   const updatePreferences = api.music.updatePreferences.useMutation();
 
-  // Initialize equalizer hook (persists across panel open/close)
   const equalizer = useEqualizer(player.audioElement);
 
-  // Initialize state from database preferences, with fallback to false
   const [showQueue, setShowQueue] = useState(false);
   const [showEqualizer, setShowEqualizer] = useState(false);
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
   const [showPatternControls, setShowPatternControls] = useState(false);
   const [renderer, setRenderer] = useState<FlowFieldRenderer | null>(null);
 
-  // Sync state with database preferences when they load
   useEffect(() => {
     if (preferences) {
       setShowQueue(preferences.queuePanelOpen ?? false);
@@ -69,9 +63,8 @@ export default function PersistentPlayer() {
     }
   }, [preferences]);
 
-  // Load visualizer preference from localStorage when not authenticated
   useEffect(() => {
-    if (isAuthenticated) return; // Skip if authenticated (preferences come from DB)
+    if (isAuthenticated) return;
     if (typeof window === "undefined") return;
 
     const stored = window.localStorage.getItem(STORAGE_KEYS.VISUALIZER_ENABLED);
@@ -80,35 +73,18 @@ export default function PersistentPlayer() {
         const parsed: unknown = JSON.parse(stored);
         setVisualizerEnabled(parsed === true);
       } catch {
-        // Fallback for old format
+
         setVisualizerEnabled(stored === "true");
       }
     }
-  }, [isAuthenticated]); // Only run when auth status changes or on mount
+  }, [isAuthenticated]);
 
-  // Audio-reactive background effects (only when visualizer enabled)
   useAudioReactiveBackground(
     player.audioElement,
     player.isPlaying,
     visualizerEnabled,
   );
 
-  // Extract colors from album art when track changes - DISABLED (visualizer is disabled)
-  // useEffect(() => {
-  //   if (player.currentTrack) {
-  //     const coverUrl = getCoverImage(player.currentTrack, "medium");
-  //     extractColorsFromImage(coverUrl)
-  //       .then(setAlbumColorPalette)
-  //       .catch((error) => {
-  //         console.error("Failed to extract colors from album art:", error);
-  //         setAlbumColorPalette(null);
-  //       });
-  //   } else {
-  //     setAlbumColorPalette(null);
-  //   }
-  // }, [player.currentTrack]);
-
-  // Persist queue panel state to database
   useEffect(() => {
     if (
       isAuthenticated &&
@@ -117,10 +93,9 @@ export default function PersistentPlayer() {
     ) {
       updatePreferences.mutate({ queuePanelOpen: showQueue });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [showQueue]);
 
-  // Persist equalizer panel state to database
   useEffect(() => {
     if (
       isAuthenticated &&
@@ -129,7 +104,7 @@ export default function PersistentPlayer() {
     ) {
       updatePreferences.mutate({ equalizerPanelOpen: showEqualizer });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [showEqualizer]);
 
   const persistVisualizerPreference = useCallback(
@@ -150,10 +125,7 @@ export default function PersistentPlayer() {
   const handleVisualizerToggle = useCallback(() => {
     const next = !visualizerEnabled;
     persistVisualizerPreference(next);
-    // Visualizer is disabled - token setting removed
-    // if (next) {
-    //   setVisualizerEnsureToken(Date.now());
-    // }
+
   }, [persistVisualizerPreference, visualizerEnabled]);
 
   const playerProps = {
@@ -190,7 +162,7 @@ export default function PersistentPlayer() {
 
   return (
     <>
-      {/* Desktop Player - Always render on desktop, hidden on mobile */}
+      {}
       {!isMobile && (
         <>
           <div className="fixed inset-x-0 bottom-0 z-50">
@@ -201,7 +173,7 @@ export default function PersistentPlayer() {
             </div>
           </div>
 
-          {/* Enhanced Queue Panel - Desktop only */}
+          {}
           {showQueue && (
             <EnhancedQueue
               queue={player.queue}
@@ -222,10 +194,10 @@ export default function PersistentPlayer() {
         </>
       )}
 
-      {/* Mobile Player */}
+      {}
       {isMobile && player.currentTrack && (
         <>
-          {/* Mini Player - Always visible at bottom */}
+          {}
           <MiniPlayer
             currentTrack={player.currentTrack}
             isPlaying={player.isPlaying}
@@ -239,7 +211,7 @@ export default function PersistentPlayer() {
             onTap={() => player.setShowMobilePlayer(true)}
           />
 
-          {/* Full Mobile Player Modal */}
+          {}
           {player.showMobilePlayer && (
             <MobilePlayer
               currentTrack={player.currentTrack}
@@ -270,7 +242,7 @@ export default function PersistentPlayer() {
             />
           )}
 
-          {/* Queue Panel on Mobile */}
+          {}
           {showQueue && (
             <EnhancedQueue
               queue={player.queue}
@@ -291,7 +263,7 @@ export default function PersistentPlayer() {
         </>
       )}
 
-      {/* Equalizer Panel */}
+      {}
       {showEqualizer && (
         <Equalizer
           equalizer={equalizer}
@@ -299,7 +271,7 @@ export default function PersistentPlayer() {
         />
       )}
 
-      {/* Fullscreen Flow Field Background */}
+      {}
       {player.currentTrack && visualizerEnabled && (
         <FlowFieldBackground
           audioElement={player.audioElement}
@@ -307,7 +279,7 @@ export default function PersistentPlayer() {
         />
       )}
 
-      {/* Pattern Controls Panel - Desktop only */}
+      {}
       {!isMobile && showPatternControls && (
         <PatternControls
           renderer={renderer}
@@ -315,7 +287,7 @@ export default function PersistentPlayer() {
         />
       )}
 
-      {/* Lightweight particle background when visualizer is disabled */}
+      {}
       {!visualizerEnabled && <LightweightParticleBackground />}
     </>
   );

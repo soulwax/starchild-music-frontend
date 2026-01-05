@@ -82,7 +82,7 @@ export default function EnhancedPlayer({
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const vol = parseFloat(e.target.value);
-    // Clamp volume between 0 and 1 to prevent crashes
+
     const clampedVol = Math.max(0, Math.min(1, vol));
     setVolume(clampedVol);
     if (audioRef.current) {
@@ -111,7 +111,7 @@ export default function EnhancedPlayer({
         onPause={() => setIsPlaying(false)}
       />
 
-      {/* Progress Bar */}
+      {}
       <input
         type="range"
         min={0}
@@ -125,7 +125,7 @@ export default function EnhancedPlayer({
       />
 
       <div className="flex items-center justify-between gap-4 px-4 py-3">
-        {/* Track Info */}
+        {}
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <Image
             src={currentTrack.album.cover_small}
@@ -144,7 +144,7 @@ export default function EnhancedPlayer({
           </div>
         </div>
 
-        {/* Playback Controls */}
+        {}
         <div className="flex flex-shrink-0 items-center gap-4">
           <button
             onClick={onPrevious}
@@ -194,12 +194,12 @@ export default function EnhancedPlayer({
           </button>
         </div>
 
-        {/* Time Display */}
+        {}
         <div className="hidden flex-shrink-0 text-sm text-gray-400 sm:block">
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
 
-        {/* Volume Control */}
+        {}
         <div className="flex hidden flex-shrink-0 items-center gap-2 md:flex">
           <button
             onClick={() => setIsMuted(!isMuted)}
@@ -242,7 +242,7 @@ export default function EnhancedPlayer({
           />
         </div>
 
-        {/* Queue indicator */}
+        {}
         {queue.length > 0 && (
           <div className="hidden flex-shrink-0 text-sm text-gray-400 lg:block">
             {queue.length} in queue

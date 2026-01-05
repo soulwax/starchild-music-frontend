@@ -63,16 +63,16 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
 
   return (
     <>
-      {/* Backdrop with blur */}
+      {}
       <div
         className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={handleClose}
       />
 
-      {/* Compact Floating Panel */}
+      {}
       <div className="animate-in slide-in-from-left fixed top-4 left-4 z-50 max-h-[calc(100vh-180px)] w-full max-w-md duration-300 sm:top-20 sm:left-6 sm:max-w-lg">
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[rgba(244,178,102,0.16)] bg-[rgba(10,16,24,0.95)] shadow-[0_28px_60px_rgba(5,10,18,0.65)] backdrop-blur-xl">
-          {/* Magical glow effect when enabled */}
+          {}
           {equalizer.isEnabled && (
             <div className="pointer-events-none absolute inset-0 opacity-20">
               <div className="absolute top-0 left-1/2 h-full w-1/2 -translate-x-1/2 bg-[radial-gradient(circle_at_top,rgba(244,178,102,0.4),rgba(88,198,177,0.25),transparent_75%)] blur-3xl" />
@@ -80,7 +80,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
           )}
 
           <div className="flex h-full flex-col overflow-hidden">
-            {/* Header */}
+            {}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[rgba(244,178,102,0.12)] bg-black/30 px-4 py-3 backdrop-blur-sm">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,var(--color-accent),var(--color-accent-strong))] shadow-lg shadow-[rgba(244,178,102,0.3)]">
@@ -138,7 +138,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                 </div>
               ) : (
                 <>
-                  {/* Presets Dropdown */}
+                  {}
                   <div className="relative border-b border-[rgba(244,178,102,0.12)] bg-black/15 p-4">
                     <label className="mb-2 block text-xs font-medium tracking-wider text-[var(--color-subtext)] uppercase">
                       Preset
@@ -168,7 +168,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                     </select>
                   </div>
 
-                  {/* Compact Frequency Bands */}
+                  {}
                   <div className="relative p-4 sm:p-6">
                     <div className="flex items-end justify-between gap-1.5 sm:gap-2 md:gap-3">
                       {equalizer.bands.map((band, index) => {
@@ -183,7 +183,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                             onMouseEnter={() => setHoveredBand(index)}
                             onMouseLeave={() => setHoveredBand(null)}
                           >
-                            {/* Gain value with glow */}
+                            {}
                             <div className="relative">
                               <span
                                 className={`text-[10px] font-bold transition-all duration-200 sm:text-xs ${
@@ -203,7 +203,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                               )}
                             </div>
 
-                            {/* Compact Slider - reduced height */}
+                            {}
                             <div className="relative h-32 w-6 sm:w-7 md:w-8">
                               <input
                                 type="range"
@@ -228,7 +228,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                                 }}
                               />
 
-                              {/* Visual slider track with magical effects */}
+                              {}
                               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                                 <div
                                   className={`relative h-full w-1.5 overflow-hidden rounded-full ${
@@ -237,7 +237,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                                       : "bg-[rgba(255,255,255,0.05)]"
                                   } ${isAnimating ? "animate-pulse" : ""}`}
                                 >
-                                  {/* Glow effect behind slider */}
+                                  {}
                                   {equalizer.isEnabled && band.gain !== 0 && (
                                     <div
                                       className="absolute inset-x-0 blur-md"
@@ -255,7 +255,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                                     />
                                   )}
 
-                                  {/* Filled portion with gradient */}
+                                  {}
                                   <div
                                     className={`absolute inset-x-0 transition-all duration-300 ${
                                       !equalizer.isEnabled
@@ -269,10 +269,10 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                                     }}
                                   />
 
-                                  {/* Center indicator line */}
+                                  {}
                                   <div className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 bg-white/30" />
 
-                                  {/* Hover indicator */}
+                                  {}
                                   {isHovered && (
                                     <div
                                       className="absolute inset-x-0 h-1 bg-white/50 transition-all duration-200"
@@ -292,7 +292,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                               </div>
                             </div>
 
-                            {/* Frequency label */}
+                            {}
                             <span
                               className={`text-[10px] font-medium transition-all duration-200 sm:text-xs ${
                                 isHovered
@@ -307,7 +307,7 @@ export function Equalizer({ equalizer, onClose }: EqualizerProps) {
                       })}
                     </div>
 
-                    {/* Subtle instructions */}
+                    {}
                     <div className="mt-6 text-center">
                       <p className="text-xs text-[var(--color-muted)]">
                         Drag sliders to adjust • Range: -12dB to +12dB

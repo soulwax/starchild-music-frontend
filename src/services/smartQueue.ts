@@ -1,15 +1,9 @@
 // File: src/services/smartQueue.ts
 
-/**
- * Smart Queue Service
- * Integrates with the darkfloor.art backend for intelligent track recommendations
- */
-
 import { isTrack, type Track } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3222";
 
-// Log configuration on module load (client-side only)
 if (typeof window !== "undefined") {
   console.log("[SmartQueue] 🔧 Service initialized with config:", {
     apiBaseUrl: API_BASE_URL,
@@ -17,30 +11,21 @@ if (typeof window !== "undefined") {
   });
 }
 
-/**
- * Get authentication token from session storage or localStorage
- */
 function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
 
-  // Try to get from next-auth session first
   const sessionData = localStorage.getItem("next-auth.session-token");
   if (sessionData) return sessionData;
 
-  // Fallback to direct token storage
   return localStorage.getItem("auth_token");
 }
 
-/**
- * Make authenticated API request
- */
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
   const token = getAuthToken();
 
-  // Normalize URL to avoid double slashes (API_BASE_URL has trailing slash)
   const baseUrl = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
   const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const url = `${baseUrl}${normalizedEndpoint}`;
@@ -84,21 +69,18 @@ async function apiRequest<T>(
   return data;
 }
 
-/**
- * Spotify Track Analysis Response
- */
 interface SpotifyAudioFeatures {
-  danceability: number; // 0-1
-  energy: number; // 0-1
-  key: number; // 0-11 (C, C#, D, etc.)
-  loudness: number; // dB
-  mode: number; // 0 (minor) or 1 (major)
-  speechiness: number; // 0-1
-  acousticness: number; // 0-1
-  instrumentalness: number; // 0-1
-  liveness: number; // 0-1
-  valence: number; // 0-1 (happiness)
-  tempo: number; // BPM
+  danceability: number;
+  energy: number;
+  key: number;
+  loudness: number;
+  mode: number;
+  speechiness: number;
+  acousticness: number;
+  instrumentalness: number;
+  liveness: number;
+  valence: number;
+  tempo: number;
   time_signature: number;
 }
 
@@ -111,9 +93,6 @@ interface TrackAnalysis {
   energy?: number;
 }
 
-/**
- * HexMusic Recommendation Response
- */
 interface HexMusicTrack {
   name: string;
   artist: string;
@@ -124,9 +103,6 @@ interface HexMusicTrack {
   deezer_id?: string;
 }
 
-/**
- * Analyze a track using Spotify's audio analysis
- */
 export async function analyzeTrack(
   spotifyTrackId: string,
 ): Promise<TrackAnalysis | null> {
@@ -146,9 +122,6 @@ export async function analyzeTrack(
   }
 }
 
-/**
- * Analyze multiple tracks in batch
- */
 export async function analyzeBatch(
   spotifyTrackIds: string[],
 ): Promise<TrackAnalysis[]> {
@@ -168,9 +141,6 @@ export async function analyzeBatch(
   }
 }
 
-/**
- * Get audio features for a Spotify track
- */
 export async function getAudioFeatures(
   spotifyTrackId: string,
 ): Promise<SpotifyAudioFeatures | null> {
@@ -186,9 +156,6 @@ export async function getAudioFeatures(
   }
 }
 
-/**
- * Search for tracks in HexMusic system
- */
 export async function searchHexMusicTracks(
   query: string,
   limit = 20,
@@ -217,9 +184,6 @@ export async function searchHexMusicTracks(
   }
 }
 
-/**
- * Get recommendations from a playlist
- */
 export async function getRecommendationsFromPlaylist(
   playlistId: string,
 ): Promise<HexMusicTrack[]> {
@@ -235,9 +199,6 @@ export async function getRecommendationsFromPlaylist(
   }
 }
 
-/**
- * Get playlist recommendations based on query
- */
 export async function getPlaylistRecommendations(
   query: string,
 ): Promise<HexMusicTrack[]> {
@@ -253,14 +214,6 @@ export async function getPlaylistRecommendations(
   }
 }
 
-/**
- * Deezer Recommendation Response from HexMusic API
- */
-
-/**
- * Get Deezer recommendations based on track names using HexMusic API
- * This uses the intelligent recommendation engine
- */
 export async function getDeezerRecommendations(
   trackNames: string[],
   count = 10,
@@ -272,7 +225,7 @@ export async function getDeezerRecommendations(
   });
 
   try {
-    // Normalize URL to avoid double slashes (API_BASE_URL has trailing slash)
+
     const baseUrl = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
     const response = await fetch(
       `${baseUrl}/hexmusic/recommendations/deezer`,
@@ -328,10 +281,6 @@ export async function getDeezerRecommendations(
   }
 }
 
-/**
- * Convert HexMusic track to internal Track format
- * This attempts to match HexMusic tracks with Deezer tracks
- */
 export async function convertHexMusicToTracks(
   hexMusicTracks: HexMusicTrack[],
 ): Promise<Track[]> {
@@ -339,7 +288,7 @@ export async function convertHexMusicToTracks(
 
   for (const hexTrack of hexMusicTracks) {
     try {
-      // If we have a deezer_id, use it directly
+
       if (hexTrack.deezer_id) {
         const deezerTrack = await fetchDeezerTrack(hexTrack.deezer_id);
         if (deezerTrack) {
@@ -348,7 +297,6 @@ export async function convertHexMusicToTracks(
         }
       }
 
-      // Otherwise, search Deezer for a match
       const searchQuery = `${hexTrack.artist} ${hexTrack.name}`;
       const searchResults = await searchDeezerTrack(searchQuery);
 
@@ -363,9 +311,6 @@ export async function convertHexMusicToTracks(
   return tracks;
 }
 
-/**
- * Fetch a single track from Deezer by ID
- */
 async function fetchDeezerTrack(trackId: string): Promise<Track | null> {
   try {
     const response = await fetch(`https://api.deezer.com/track/${trackId}`);
@@ -379,9 +324,6 @@ async function fetchDeezerTrack(trackId: string): Promise<Track | null> {
   }
 }
 
-/**
- * Search Deezer for a track
- */
 async function searchDeezerTrack(query: string): Promise<Track[]> {
   try {
     const response = await fetch(
@@ -398,9 +340,6 @@ async function searchDeezerTrack(query: string): Promise<Track[]> {
   }
 }
 
-/**
- * Recommendation result with metadata for logging
- */
 export interface RecommendationResult {
   tracks: Track[];
   source: "hexmusic-api" | "deezer-fallback" | "artist-radio" | "cached";
@@ -409,10 +348,6 @@ export interface RecommendationResult {
   errorMessage?: string;
 }
 
-/**
- * Get smart queue recommendations based on current track
- * This is the main function that ties everything together
- */
 export async function getSmartQueueRecommendations(
   currentTrack: Track,
   options: {
@@ -438,7 +373,7 @@ export async function getSmartQueueRecommendations(
   const startTime = performance.now();
 
   try {
-    // Try the intelligent HexMusic Deezer recommendations API first
+
     console.log(
       "[SmartQueue] 🧠 Attempting intelligent recommendations from HexMusic API...",
     );
@@ -451,7 +386,6 @@ export async function getSmartQueueRecommendations(
     if (intelligentTracks.length > 0) {
       console.log("[SmartQueue] ✅ Got recommendations from HexMusic API");
 
-      // Filter out the current track
       const filteredTracks = intelligentTracks.filter(
         (track) => track.id !== currentTrack.id,
       );
@@ -460,7 +394,6 @@ export async function getSmartQueueRecommendations(
         after: filteredTracks.length,
       });
 
-      // Apply similarity level filtering
       console.log(
         "[SmartQueue] 🎚️ Applying similarity filter:",
         similarityLevel,
@@ -491,12 +424,11 @@ export async function getSmartQueueRecommendations(
       };
     }
 
-    // Fallback to direct Deezer API
     console.log("[SmartQueue] 🔄 Falling back to direct Deezer API...");
     const tracks = await fetchDeezerRadio(currentTrack.id, count * 2);
 
     if (tracks.length > 0) {
-      // Filter out the current track
+
       const filteredTracks = tracks.filter(
         (track) => track.id !== currentTrack.id,
       );
@@ -505,7 +437,6 @@ export async function getSmartQueueRecommendations(
         after: filteredTracks.length,
       });
 
-      // Apply similarity level filtering
       console.log(
         "[SmartQueue] 🎚️ Applying similarity filter:",
         similarityLevel,
@@ -561,10 +492,6 @@ export async function getSmartQueueRecommendations(
   }
 }
 
-/**
- * Fetch similar tracks using Deezer artist recommendations (fallback)
- * Uses artist top tracks and related artists since radio endpoint is deprecated
- */
 async function fetchDeezerRadio(
   trackId: number,
   limit: number,
@@ -575,7 +502,7 @@ async function fetchDeezerRadio(
   });
 
   try {
-    // First, fetch the track to get the artist ID
+
     const trackResponse = await fetch(
       `https://api.deezer.com/track/${trackId}`,
     );
@@ -593,7 +520,6 @@ async function fetchDeezerRadio(
       artistName: trackData.artist.name,
     });
 
-    // Fetch artist's top tracks
     const topTracksResponse = await fetch(
       `https://api.deezer.com/artist/${artistId}/top?limit=${Math.min(limit, 50)}`,
     );
@@ -606,7 +532,6 @@ async function fetchDeezerRadio(
     const topTracksData = (await topTracksResponse.json()) as { data: Track[] };
     let tracks = topTracksData.data ?? [];
 
-    // Filter out the current track
     tracks = tracks.filter((t) => t.id !== trackId);
 
     console.log("[SmartQueue] ✅ Deezer recommendations received:", {
@@ -614,7 +539,6 @@ async function fetchDeezerRadio(
       tracks: tracks.slice(0, 3).map((t) => `${t.title} - ${t.artist.name}`),
     });
 
-    // If we need more tracks, fetch from related artists
     if (tracks.length < limit) {
       console.log(
         "[SmartQueue] 🔍 Fetching related artists for more variety...",
@@ -630,7 +554,6 @@ async function fetchDeezerRadio(
         };
         const relatedArtists = relatedData.data ?? [];
 
-        // Get top tracks from first related artist
         if (relatedArtists[0]) {
           const relatedTracksResponse = await fetch(
             `https://api.deezer.com/artist/${relatedArtists[0].id}/top?limit=${limit - tracks.length}`,
@@ -662,19 +585,16 @@ async function fetchDeezerRadio(
   }
 }
 
-/**
- * Apply similarity filtering based on user preference
- */
 function applySimilarityFilter(
   tracks: Track[],
   seedTrack: Track,
   level: "strict" | "balanced" | "diverse",
 ): Track[] {
   if (level === "strict") {
-    // Only same artist or same genre
+
     return tracks.filter((track) => track.artist.id === seedTrack.artist.id);
   } else if (level === "diverse") {
-    // Mix it up - prefer different artists
+
     const diverseTracks: Track[] = [];
     const artistIds = new Set<number>();
 
@@ -691,13 +611,9 @@ function applySimilarityFilter(
     return diverseTracks;
   }
 
-  // Balanced - return as-is
   return tracks;
 }
 
-/**
- * Generate a smart mix from multiple seed tracks
- */
 export async function generateSmartMix(
   seedTracks: Track[],
   count = 20,
@@ -714,7 +630,7 @@ export async function generateSmartMix(
   }
 
   try {
-    // Get recommendations for each seed track
+
     const allRecommendations: Track[] = [];
     const tracksPerSeed = Math.ceil(count / seedTracks.length);
 
@@ -747,7 +663,6 @@ export async function generateSmartMix(
       allRecommendations.length,
     );
 
-    // Remove duplicates
     const uniqueTracks = Array.from(
       new Map(allRecommendations.map((track) => [track.id, track])).values(),
     );
@@ -757,7 +672,6 @@ export async function generateSmartMix(
       after: uniqueTracks.length,
     });
 
-    // Shuffle for variety
     const shuffled = shuffleArray(uniqueTracks).slice(0, count);
     console.log("[SmartQueue] ✅ Returning smart mix:", {
       count: shuffled.length,
@@ -771,9 +685,6 @@ export async function generateSmartMix(
   }
 }
 
-/**
- * Shuffle array helper
- */
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {

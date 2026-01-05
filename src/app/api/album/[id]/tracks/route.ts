@@ -14,7 +14,7 @@ export async function GET(
   }
 
   try {
-    // Fetch both album info and tracks in parallel
+
     const [albumResponse, tracksResponse] = await Promise.all([
       fetch(`https://api.deezer.com/album/${albumId}`, {
         headers: { Accept: "application/json" },
@@ -60,7 +60,6 @@ export async function GET(
     };
     let albumData: AlbumData | null = null;
 
-    // Try to get album info if available
     if (albumResponse.ok) {
       try {
         albumData = (await albumResponse.json()) as AlbumData;
@@ -69,12 +68,9 @@ export async function GET(
       }
     }
 
-    // Extract album info values for type safety
     const albumIdValue = albumData?.id;
     const albumTitleValue = albumData?.title;
 
-    // Try to create album info if we have the required data
-    // If album data is missing, we'll still return tracks but they may not have album info enriched
     let albumInfo: {
       id: number;
       title: string;
@@ -93,7 +89,7 @@ export async function GET(
       typeof albumIdValue === "number" &&
       typeof albumTitleValue === "string"
     ) {
-      // Create album info object once for reuse
+
       albumInfo = {
         id: albumIdValue,
         title: String(albumTitleValue),
@@ -112,8 +108,6 @@ export async function GET(
       );
     }
 
-    // Enrich tracks with album info if available, otherwise return tracks as-is
-    // Note: Tracks from Deezer API may already have album info, so we preserve it if present
     const enrichedTracks = (tracksData.data || [])
       .map((track: unknown) => {
         if (typeof track !== "object" || track === null) {
@@ -123,13 +117,10 @@ export async function GET(
 
         const trackObj = track as { album?: unknown; [key: string]: unknown };
 
-        // If we have album info and the track doesn't have it, add it
-        // If track already has album info, preserve it (it might be more complete)
         if (albumInfo && !trackObj.album) {
           return { ...trackObj, album: albumInfo };
         }
 
-        // Return track as-is (either has album info already, or we couldn't enrich it)
         return trackObj;
       })
       .filter((track): track is NonNullable<typeof track> => track !== null);
@@ -138,7 +129,6 @@ export async function GET(
       `[Album Tracks API] Successfully fetched ${enrichedTracks.length} tracks for album ${albumId}`,
     );
 
-    // Return the enriched data with proper CORS headers
     return NextResponse.json(
       {
         data: enrichedTracks,
@@ -155,7 +145,6 @@ export async function GET(
   } catch (error) {
     console.error("[Album Tracks API] Error fetching album tracks:", error);
 
-    // Provide more detailed error information
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     const isTimeout =

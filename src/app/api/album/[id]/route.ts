@@ -14,7 +14,7 @@ export async function GET(
   }
 
   try {
-    // Proxy the request to Deezer API
+
     const deezerUrl = `https://api.deezer.com/album/${albumId}`;
     console.log(
       `[Album API] Fetching album info for ${albumId} from: ${deezerUrl}`,
@@ -24,7 +24,7 @@ export async function GET(
       headers: {
         Accept: "application/json",
       },
-      signal: AbortSignal.timeout(10000), // 10 second timeout
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {

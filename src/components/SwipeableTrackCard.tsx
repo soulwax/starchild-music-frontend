@@ -58,7 +58,6 @@ export default function SwipeableTrackCard({
 
   const x = useMotionValue(0);
 
-  // Transform values for visual feedback
   const leftActionOpacity = useTransform(
     x,
     [-SWIPE_CONFIRM_THRESHOLD, -SWIPE_THRESHOLD, 0],
@@ -161,18 +160,17 @@ export default function SwipeableTrackCard({
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
-    // Check for swipe actions
     if (
       offset < -SWIPE_CONFIRM_THRESHOLD ||
       (offset < -SWIPE_THRESHOLD && velocity < -500)
     ) {
-      // Swipe left -> Add to queue
+
       handleAddToQueue();
     } else if (
       offset > SWIPE_CONFIRM_THRESHOLD ||
       (offset > SWIPE_THRESHOLD && velocity > 500)
     ) {
-      // Swipe right -> Toggle favorite
+
       toggleFavorite();
     }
   };
@@ -187,9 +185,9 @@ export default function SwipeableTrackCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springPresets.smooth, delay: index * 0.03 }}
     >
-      {/* Swipe Action Backgrounds */}
+      {}
       <div className="absolute inset-0 flex overflow-hidden rounded-xl">
-        {/* Right action (favorite) - shows when swiping right */}
+        {}
         <motion.div
           style={{ opacity: rightActionOpacity }}
           className={`flex flex-1 items-center justify-start bg-gradient-to-r px-6 ${
@@ -215,7 +213,7 @@ export default function SwipeableTrackCard({
           </motion.div>
         </motion.div>
 
-        {/* Left action (add to queue) - shows when swiping left */}
+        {}
         <motion.div
           style={{ opacity: leftActionOpacity }}
           className="flex flex-1 items-center justify-end bg-gradient-to-l from-[rgba(88,198,177,0.25)] to-transparent px-6"
@@ -232,7 +230,7 @@ export default function SwipeableTrackCard({
         </motion.div>
       </div>
 
-      {/* Main Card Content */}
+      {}
       <motion.div
         style={{ x, scale: cardScale }}
         drag="x"
@@ -243,7 +241,7 @@ export default function SwipeableTrackCard({
         whileTap={{ cursor: "grabbing" }}
         className="relative flex items-center gap-4 rounded-xl bg-[linear-gradient(145deg,rgba(18,27,37,0.98),rgba(11,17,24,0.98))] p-4 transition-shadow md:gap-5"
       >
-        {/* Album Art with Play Button */}
+        {}
         <div className="relative flex-shrink-0">
           <Image
             src={coverImage}
@@ -264,7 +262,7 @@ export default function SwipeableTrackCard({
           </motion.button>
         </div>
 
-        {/* Track Info */}
+        {}
         <div
           className="min-w-0 flex-1 space-y-1"
           onClick={!onArtistClick && !onAlbumClick ? handlePlay : undefined}
@@ -321,10 +319,10 @@ export default function SwipeableTrackCard({
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {}
         {showActions && (
           <div className="flex flex-shrink-0 items-center gap-0.5 md:gap-1">
-            {/* Favorite Button */}
+            {}
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
@@ -346,7 +344,7 @@ export default function SwipeableTrackCard({
               />
             </motion.button>
 
-            {/* Add to Queue */}
+            {}
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
@@ -360,7 +358,7 @@ export default function SwipeableTrackCard({
               <ListPlus className="h-5 w-5 md:h-[18px] md:w-[18px]" />
             </motion.button>
 
-            {/* Share */}
+            {}
             {isShareSupported && (
               <motion.button
                 onClick={handleShare}
@@ -373,7 +371,7 @@ export default function SwipeableTrackCard({
               </motion.button>
             )}
 
-            {/* More Options */}
+            {}
             <div className="relative">
               <motion.button
                 onClick={(e) => {
@@ -442,7 +440,7 @@ export default function SwipeableTrackCard({
         />
       </motion.div>
 
-      {/* Swipe Hints - visible on first few cards */}
+      {}
       {index < 2 && (
         <motion.div
           initial={{ opacity: 1 }}

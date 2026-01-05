@@ -103,7 +103,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     persistLocalPreferences(mergedBands, preset.name, storedEnabled);
   }, [persistLocalPreferences]);
 
-  // Fetch preferences from server
   const { data: preferences, error: preferencesError } =
     api.equalizer.getPreferences.useQuery(undefined, {
       refetchOnWindowFocus: false,
@@ -111,7 +110,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
       enabled: isAuthenticated,
     });
 
-  // Mutations for persisting to database
   const updatePreferencesMutation = api.equalizer.updatePreferences.useMutation(
     {
       onError: (error) => {
@@ -126,7 +124,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     },
   });
 
-  // Load saved EQ settings from server
   useEffect(() => {
     if (preferences && isAuthenticated) {
       const nextBands = DEFAULT_BANDS.map((band, index) => ({
@@ -150,7 +147,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     }
   }, [preferences, preferencesError, isAuthenticated, persistLocalPreferences]);
 
-  // Cleanup debounce timer on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -169,20 +165,17 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     }
   }, [isAuthenticated, status, loadLocalPreferences]);
 
-  // Initialize equalizer
   const initialize = useCallback(() => {
     if (!audioElement || isInitialized || audioContextRef.current) return;
 
     try {
-      // Get or create shared audio connection
+
       const connection = getOrCreateAudioConnection(audioElement);
       if (!connection) {
-        // Audio element is already connected elsewhere - this is expected
-        // and not an error. The component will simply not initialize audio features.
+
         return;
       }
 
-      // Create filter nodes for each band
       const filters = bands.map((band) => {
         const filter = connection.audioContext.createBiquadFilter();
         filter.type = band.type;
@@ -198,7 +191,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
       audioContextRef.current = connection.audioContext;
       sourceRef.current = connection.sourceNode;
 
-      // Ensure connection chain is complete (critical for playback)
       ensureConnectionChain(connection);
 
       setIsInitialized(true);
@@ -207,7 +199,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     }
   }, [audioElement, isInitialized, bands]);
 
-  // Update a single band (debounced database save)
   const updateBand = useCallback(
     (index: number, gain: number) => {
       if (index < 0 || index >= bands.length) return;
@@ -216,20 +207,16 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
         idx === index ? { ...band, gain } : band,
       );
 
-      // Update state for immediate UI feedback
       setBands(updatedBands);
 
-      // Update filter node immediately
       const filter = filtersRef.current[index];
       if (filter) {
         filter.gain.value = gain;
       }
 
-      // Mark as custom preset
       setCurrentPreset("Custom");
       persistLocalPreferences(updatedBands, "Custom", isEnabled);
 
-      // Debounce the database save (1 second after user stops dragging)
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
@@ -255,7 +242,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     ],
   );
 
-  // Apply preset and save to database
   const applyPreset = useCallback(
     (presetName: string) => {
       const preset = PRESETS.find((p) => p.name === presetName);
@@ -269,12 +255,10 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
       setBands(newBands);
       setCurrentPreset(presetName);
 
-      // Update filter nodes immediately
       filtersRef.current.forEach((filter, index) => {
         filter.gain.value = preset.bands[index] ?? 0;
       });
 
-      // Save preset to database
       persistLocalPreferences(newBands, presetName, isEnabled);
 
       if (isAuthenticated) {
@@ -299,24 +283,21 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     ],
   );
 
-  // Reset all bands to 0
   const reset = useCallback(() => {
     applyPreset("Flat");
   }, [applyPreset]);
 
-  // Toggle equalizer on/off and persist to database
   const toggle = useCallback(() => {
     setIsEnabled((prev) => {
       const newState = !prev;
 
-      // Disconnect/reconnect nodes
       if (sourceRef.current && filtersRef.current.length > 0) {
         if (newState) {
-          // Re-enable: source -> filters -> destination
+
           sourceRef.current.disconnect();
           sourceRef.current.connect(filtersRef.current[0]!);
         } else {
-          // Disable: source -> destination (bypass filters)
+
           sourceRef.current.disconnect();
           if (audioContextRef.current) {
             sourceRef.current.connect(audioContextRef.current.destination);
@@ -344,7 +325,6 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     isAuthenticated,
   ]);
 
-  // Initialize when audio element is available
   useEffect(() => {
     if (audioElement && !isInitialized) {
       const handleInteraction = () => {
@@ -360,10 +340,9 @@ export function useEqualizer(audioElement: HTMLAudioElement | null) {
     }
   }, [audioElement, isInitialized, initialize]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      // Release audio connection (but don't cleanup if other components are using it)
+
       if (audioElement) {
         releaseAudioConnection(audioElement);
       }

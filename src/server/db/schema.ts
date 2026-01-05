@@ -50,7 +50,7 @@ export const users = createTable("user", (d) => ({
     .varchar({ length: 32 })
     .unique()
     .$defaultFn(() => {
-      // Generate a short, URL-friendly hash from UUID
+
       return crypto.randomUUID().replace(/-/g, "").substring(0, 16);
     }),
   profilePublic: d.boolean().default(true).notNull(),
@@ -88,10 +88,6 @@ export const verificationTokens = createTable(
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
 
-// ============================================
-// MUSIC LIBRARY TABLES
-// ============================================
-
 export const favorites = createTable(
   "favorite",
   (d) => ({
@@ -101,7 +97,7 @@ export const favorites = createTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     trackId: d.bigint({ mode: "number" }).notNull(),
-    trackData: d.jsonb().notNull(), // Store full track object for offline access
+    trackData: d.jsonb().notNull(),
     createdAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -176,7 +172,7 @@ export const listeningHistory = createTable(
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    duration: d.integer(), // seconds actually played
+    duration: d.integer(),
   }),
   (t) => [
     index("history_user_idx").on(t.userId),
@@ -205,10 +201,6 @@ export const searchHistory = createTable(
   ],
 );
 
-// ============================================
-// PLAYER & PREFERENCES TABLES
-// ============================================
-
 export const userPreferences = createTable(
   "user_preferences",
   (d) => ({
@@ -220,7 +212,7 @@ export const userPreferences = createTable(
       .references(() => users.id, { onDelete: "cascade" }),
     volume: d.real().default(0.7).notNull(),
     playbackRate: d.real().default(1.0).notNull(),
-    repeatMode: d.varchar({ length: 20 }).default("none").notNull(), // 'none' | 'one' | 'all'
+    repeatMode: d.varchar({ length: 20 }).default("none").notNull(),
     shuffleEnabled: d.boolean().default(false).notNull(),
     equalizerEnabled: d.boolean().notNull().default(false),
     equalizerPreset: d.varchar({ length: 255 }).notNull().default("Flat"),
@@ -233,13 +225,13 @@ export const userPreferences = createTable(
     visualizerType: d.varchar({ length: 30 }).default("flowfield"),
     visualizerEnabled: d.boolean().default(true).notNull(),
     compactMode: d.boolean().default(false).notNull(),
-    theme: d.varchar({ length: 20 }).default("dark"), // 'dark' | 'light'
-    // Smart Queue Settings
+    theme: d.varchar({ length: 20 }).default("dark"),
+
     autoQueueEnabled: d.boolean().default(false).notNull(),
-    autoQueueThreshold: d.integer().default(3).notNull(), // Add tracks when queue has <= N tracks
-    autoQueueCount: d.integer().default(5).notNull(), // Number of tracks to add
-    smartMixEnabled: d.boolean().default(true).notNull(), // Use smart recommendations
-    similarityPreference: d.varchar({ length: 20 }).default("balanced"), // 'strict' | 'balanced' | 'diverse'
+    autoQueueThreshold: d.integer().default(3).notNull(),
+    autoQueueCount: d.integer().default(5).notNull(),
+    smartMixEnabled: d.boolean().default(true).notNull(),
+    similarityPreference: d.varchar({ length: 20 }).default("balanced"),
     queueState: d
       .jsonb()
       .$type<{
@@ -260,7 +252,7 @@ export const userPreferences = createTable(
         isShuffled: boolean;
         repeatMode: "none" | "one" | "all";
       } | null>()
-      .default(sql`NULL`), // Queue state for logged-in users
+      .default(sql`NULL`),
     createdAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -310,13 +302,13 @@ export const playbackState = createTable(
     sessionId: d
       .integer()
       .references(() => playerSessions.id, { onDelete: "set null" }),
-    currentTrack: d.jsonb(), // Track object
-    currentPosition: d.integer().default(0), // seconds
-    queue: d.jsonb(), // Array of Track objects
-    history: d.jsonb(), // Array of Track objects
+    currentTrack: d.jsonb(),
+    currentPosition: d.integer().default(0),
+    queue: d.jsonb(),
+    history: d.jsonb(),
     isShuffled: d.boolean().default(false).notNull(),
     repeatMode: d.varchar({ length: 20 }).default("none").notNull(),
-    originalQueueOrder: d.jsonb(), // For unshuffle
+    originalQueueOrder: d.jsonb(),
     lastUpdated: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -346,12 +338,12 @@ export const listeningAnalytics = createTable(
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    duration: d.integer(), // seconds actually played
-    totalDuration: d.integer(), // track total length
-    completionPercentage: d.real(), // 0-100
+    duration: d.integer(),
+    totalDuration: d.integer(),
+    completionPercentage: d.real(),
     skipped: d.boolean().default(false).notNull(),
-    playContext: d.varchar({ length: 50 }), // 'playlist', 'search', 'favorites', 'queue', 'album', 'artist'
-    contextId: d.integer(), // playlist ID, album ID, etc.
+    playContext: d.varchar({ length: 50 }),
+    contextId: d.integer(),
     deviceId: d.varchar({ length: 255 }),
   }),
   (t) => [
@@ -364,23 +356,19 @@ export const listeningAnalytics = createTable(
   ],
 );
 
-// ============================================
-// SMART QUEUE & RECOMMENDATIONS
-// ============================================
-
 export const recommendationCache = createTable(
   "recommendation_cache",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     seedTrackId: d.bigint({ mode: "number" }).notNull(),
-    recommendedTrackIds: d.jsonb().notNull(), // Array of track IDs
-    recommendedTracksData: d.jsonb().notNull(), // Array of full track objects
-    source: d.varchar({ length: 50 }).default("deezer").notNull(), // 'deezer', 'custom', 'ml'
+    recommendedTrackIds: d.jsonb().notNull(),
+    recommendedTracksData: d.jsonb().notNull(),
+    source: d.varchar({ length: 50 }).default("deezer").notNull(),
     createdAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    expiresAt: d.timestamp({ withTimezone: true }).notNull(), // Cache expiry (24-48 hours)
+    expiresAt: d.timestamp({ withTimezone: true }).notNull(),
   }),
   (t) => [
     index("rec_cache_seed_idx").on(t.seedTrackId),
@@ -389,7 +377,6 @@ export const recommendationCache = createTable(
   ],
 );
 
-// Recommendation logs for analytics and debugging
 export const recommendationLogs = createTable(
   "recommendation_log",
   (d) => ({
@@ -397,16 +384,16 @@ export const recommendationLogs = createTable(
     userId: d
       .varchar({ length: 255 })
       .references(() => users.id, { onDelete: "set null" }),
-    seedTrackIds: d.jsonb().notNull(), // Array of track IDs used as seeds
-    seedTrackData: d.jsonb().notNull(), // Full track objects for seeds
-    recommendedTrackIds: d.jsonb().notNull(), // Array of recommended track IDs
-    recommendedTracksData: d.jsonb().notNull(), // Full track objects returned
-    source: d.varchar({ length: 50 }).notNull(), // 'hexmusic-api', 'deezer-fallback', 'artist-radio'
-    requestParams: d.jsonb(), // { count, similarityLevel, useAudioFeatures }
-    responseTime: d.integer(), // milliseconds
+    seedTrackIds: d.jsonb().notNull(),
+    seedTrackData: d.jsonb().notNull(),
+    recommendedTrackIds: d.jsonb().notNull(),
+    recommendedTracksData: d.jsonb().notNull(),
+    source: d.varchar({ length: 50 }).notNull(),
+    requestParams: d.jsonb(),
+    responseTime: d.integer(),
     success: d.boolean().notNull(),
     errorMessage: d.text(),
-    context: d.varchar({ length: 50 }), // 'auto-queue', 'smart-mix', 'manual', 'similar-tracks'
+    context: d.varchar({ length: 50 }),
     createdAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -421,29 +408,27 @@ export const recommendationLogs = createTable(
   ],
 );
 
-// Audio features from Essentia analysis (future integration)
-// Feature flagged - only populated when ENABLE_AUDIO_FEATURES=true
 export const audioFeatures = createTable(
   "audio_features",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     trackId: d.bigint({ mode: "number" }).notNull().unique(),
-    bpm: d.real(), // Beats per minute
-    key: d.varchar({ length: 10 }), // Musical key (e.g., "C", "Am")
-    energy: d.real(), // 0-1 energy level
-    danceability: d.real(), // 0-1 danceability score
-    valence: d.real(), // 0-1 mood/positivity
-    acousticness: d.real(), // 0-1 acoustic vs electronic
-    instrumentalness: d.real(), // 0-1 instrumental content
-    liveness: d.real(), // 0-1 live performance probability
-    speechiness: d.real(), // 0-1 spoken word content
-    loudness: d.real(), // Loudness in dB
-    spectralCentroid: d.real(), // Brightness of sound
+    bpm: d.real(),
+    key: d.varchar({ length: 10 }),
+    energy: d.real(),
+    danceability: d.real(),
+    valence: d.real(),
+    acousticness: d.real(),
+    instrumentalness: d.real(),
+    liveness: d.real(),
+    speechiness: d.real(),
+    loudness: d.real(),
+    spectralCentroid: d.real(),
     analyzedAt: d
       .timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    source: d.varchar({ length: 50 }).default("essentia"), // 'essentia', 'spotify', etc.
+    source: d.varchar({ length: 50 }).default("essentia"),
   }),
   (t) => [
     index("audio_features_track_idx").on(t.trackId),
@@ -453,7 +438,6 @@ export const audioFeatures = createTable(
   ],
 );
 
-// Relations
 export const favoritesRelations = relations(favorites, ({ one }) => ({
   user: one(users, { fields: [favorites.userId], references: [users.id] }),
 }));
@@ -565,12 +549,12 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const recommendationCacheRelations = relations(
   recommendationCache,
   () => ({
-    // No direct user relation as recommendations are shared across users
+
   }),
 );
 
 export const audioFeaturesRelations = relations(audioFeatures, () => ({
-  // Track ID references Deezer API, no direct DB relation
+
 }));
 
 export const recommendationLogsRelations = relations(

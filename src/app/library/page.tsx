@@ -17,7 +17,6 @@ type TabType = "favorites" | "history";
 export default function LibraryPage() {
   const [activeTab, setActiveTab] = useState<TabType>("favorites");
 
-  // Use global player instead of local state
   const player = useGlobalPlayer();
 
   const { data: favorites, isLoading: favoritesLoading } =
@@ -34,12 +33,12 @@ export default function LibraryPage() {
 
   return (
     <div className="container mx-auto flex min-h-screen flex-col px-3 py-4 md:px-6 md:py-8">
-      {/* Page Title */}
+      {}
       <h1 className="mb-6 text-2xl font-bold text-[var(--color-text)] md:mb-8 md:text-3xl">
         Your Library
       </h1>
 
-      {/* Mobile-Optimized Tabs */}
+      {}
       <div className="mb-6 flex gap-2 border-b border-[rgba(244,178,102,0.14)] md:mb-8 md:gap-4">
         <button
           onClick={() => setActiveTab("favorites")}
@@ -71,7 +70,7 @@ export default function LibraryPage() {
         </button>
       </div>
 
-      {/* Content */}
+      {}
       {activeTab === "favorites" && (
         <div className="fade-in">
           {favoritesLoading ? (

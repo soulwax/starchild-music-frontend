@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+# File: scripts/db-sync.cjs
+
 // Cross-platform script to handle database migration/push in prebuild
 // Tries db:migrate first, falls back to db:push if migrate fails
 
@@ -62,4 +64,3 @@ if (pushResult.success) {
   console.log('\n❌ Both db:migrate and db:push failed');
   process.exit(1);
 }
-

@@ -119,9 +119,6 @@ export function useSwipeGesture(config: SwipeGestureConfig) {
   };
 }
 
-/**
- * Hook for swipeable list items with action reveal
- */
 export function useSwipeableItem(config: {
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
@@ -167,7 +164,6 @@ export function useSwipeableItem(config: {
         elementRef.current.style.transform = `translateX(${diffX}px)`;
       }
 
-      // Provide haptic feedback at threshold
       if (Math.abs(diffX) >= threshold && hapticFeedback) {
         hapticLight();
       }

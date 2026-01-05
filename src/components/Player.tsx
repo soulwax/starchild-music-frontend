@@ -85,7 +85,6 @@ export default function MaturePlayer({
   const { data: session } = useSession();
   const isAuthenticated = !!session;
 
-  // Favorite queries and mutations
   const { data: favoriteData } = api.music.isFavorite.useQuery(
     { trackId: currentTrack?.id ?? 0 },
     { enabled: !!currentTrack && isAuthenticated },
@@ -123,7 +122,6 @@ export default function MaturePlayer({
     setTimeout(() => setIsHeartAnimating(false), 600);
   };
 
-  // Wrapper functions with haptic feedback
   const handlePlayPause = () => {
     hapticMedium();
     onPlayPause();
@@ -185,7 +183,7 @@ export default function MaturePlayer({
 
   return (
     <div className="w-full">
-      {/* Progress Bar */}
+      {}
       <div
         ref={progressRef}
         className="group relative h-1.5 w-full cursor-pointer rounded-full bg-[rgba(255,255,255,0.12)] transition-all hover:h-2"
@@ -211,7 +209,7 @@ export default function MaturePlayer({
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-4">
-        {/* Track Info */}
+        {}
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <div className="relative flex-shrink-0">
             {currentTrack.album.cover_small ? (
@@ -244,7 +242,7 @@ export default function MaturePlayer({
             </p>
           </div>
 
-          {/* Add to Playlist Button */}
+          {}
           <button
             onClick={() => {
               hapticLight();
@@ -256,7 +254,7 @@ export default function MaturePlayer({
             <ListPlus className="h-5 w-5" />
           </button>
 
-          {/* Favorite Button */}
+          {}
           <button
             onClick={toggleFavorite}
             disabled={addFavorite.isPending || removeFavorite.isPending}
@@ -275,10 +273,10 @@ export default function MaturePlayer({
           </button>
         </div>
 
-        {/* Main Controls */}
+        {}
         <div className="flex flex-col items-center gap-2">
           <div className="flex items-center gap-2">
-            {/* Shuffle */}
+            {}
             <button
               onClick={handleToggleShuffle}
               className={`rounded p-2 transition ${
@@ -297,7 +295,7 @@ export default function MaturePlayer({
               </svg>
             </button>
 
-            {/* Previous */}
+            {}
             <button
               onClick={handlePrevious}
               className="text-[var(--color-subtext)] transition hover:text-[var(--color-text)]"
@@ -308,7 +306,7 @@ export default function MaturePlayer({
               </svg>
             </button>
 
-            {/* Skip Backward */}
+            {}
             <button
               onClick={onSkipBackward}
               className="text-[var(--color-subtext)] transition hover:text-[var(--color-text)]"
@@ -329,7 +327,7 @@ export default function MaturePlayer({
               </svg>
             </button>
 
-            {/* Play/Pause */}
+            {}
             <button
               onClick={handlePlayPause}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-text)] text-[#0f141d] shadow-[0_10px_28px_rgba(244,178,102,0.35)] transition hover:scale-105 active:scale-95"
@@ -362,7 +360,7 @@ export default function MaturePlayer({
               )}
             </button>
 
-            {/* Skip Forward */}
+            {}
             <button
               onClick={onSkipForward}
               className="text-[var(--color-subtext)] transition hover:text-[var(--color-text)]"
@@ -383,7 +381,7 @@ export default function MaturePlayer({
               </svg>
             </button>
 
-            {/* Next */}
+            {}
             <button
               onClick={handleNext}
               className="text-[var(--color-subtext)] transition hover:text-[var(--color-text)]"
@@ -395,7 +393,7 @@ export default function MaturePlayer({
               </svg>
             </button>
 
-            {/* Repeat */}
+            {}
             <button
               onClick={handleCycleRepeat}
               className={`rounded p-2 transition ${
@@ -446,7 +444,7 @@ export default function MaturePlayer({
             </button>
           </div>
 
-          {/* Time Display */}
+          {}
           <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-subtext)]">
             <span>{formatTime(currentTime)}</span>
             <span className="text-[var(--color-muted)]">/</span>
@@ -454,16 +452,16 @@ export default function MaturePlayer({
           </div>
         </div>
 
-        {/* Right Controls */}
+        {}
         <div className="flex flex-1 items-center justify-end gap-3">
-          {/* Queue indicator */}
+          {}
           {queue.length > 0 && (
             <span className="hidden text-sm text-[var(--color-subtext)] lg:block">
               {queue.length} in queue
             </span>
           )}
 
-          {/* Playback Speed */}
+          {}
           <div className="relative hidden md:block">
             <button
               onClick={() => setShowSpeedMenu(!showSpeedMenu)}
@@ -499,7 +497,7 @@ export default function MaturePlayer({
             )}
           </div>
 
-          {/* Volume Control */}
+          {}
           <div className="relative hidden items-center gap-2 md:flex">
             <button
               onClick={onToggleMute}
@@ -558,7 +556,7 @@ export default function MaturePlayer({
             </div>
           </div>
 
-          {/* Queue Button */}
+          {}
           {onToggleQueue && (
             <button
               onClick={onToggleQueue}
@@ -581,7 +579,7 @@ export default function MaturePlayer({
             </button>
           )}
 
-          {/* Equalizer Button */}
+          {}
           {onToggleEqualizer && (
             <button
               onClick={onToggleEqualizer}
@@ -604,7 +602,7 @@ export default function MaturePlayer({
             </button>
           )}
 
-          {/* Visualizer Toggle */}
+          {}
           {onToggleVisualizer && (
             <button
               onClick={onToggleVisualizer}
@@ -641,7 +639,7 @@ export default function MaturePlayer({
             </button>
           )}
 
-          {/* Pattern Controls Button - Only show when visualizer is enabled */}
+          {}
           {onTogglePatternControls && visualizerEnabled && (
             <button
               onClick={onTogglePatternControls}
@@ -652,7 +650,7 @@ export default function MaturePlayer({
             </button>
           )}
 
-          {/* Hide UI Button - Desktop only */}
+          {}
           <button
             onClick={() => {
               hapticLight();
@@ -675,7 +673,7 @@ export default function MaturePlayer({
         </div>
       </div>
 
-      {/* Add to Playlist Modal */}
+      {}
       <AddToPlaylistModal
         isOpen={showAddToPlaylistModal}
         onClose={() => setShowAddToPlaylistModal(false)}

@@ -45,12 +45,6 @@ import {
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Dynamic import for visualizer - DISABLED (keeping for future use)
-// const AudioVisualizer = dynamic(
-//   () => import("./AudioVisualizer").then((mod) => mod.AudioVisualizer),
-//   { ssr: false },
-// );
-
 interface MobilePlayerProps {
   currentTrack: Track | null;
   queue: Track[];
@@ -109,10 +103,8 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     forceExpanded = false,
   } = props;
 
-  // Get audio element from context
   const { audioElement: contextAudioElement } = useGlobalPlayer();
 
-  // Get session and preferences for visualizer state
   const { data: session } = useSession();
   const isAuthenticated = !!session?.user;
   const { data: preferences } = api.music.getUserPreferences.useQuery(
@@ -140,13 +132,11 @@ export default function MobilePlayer(props: MobilePlayerProps) {
   const progressRef = useRef<HTMLDivElement>(null);
   const artworkRef = useRef<HTMLDivElement>(null);
 
-  // Get user's playlists
   const { data: playlists, refetch: refetchPlaylists } =
     api.music.getPlaylists.useQuery(undefined, {
       enabled: isAuthenticated,
     });
 
-  // Add to playlist mutation
   const addToPlaylist = api.music.addToPlaylist.useMutation({
     onSuccess: () => {
       hapticMedium();
@@ -159,12 +149,10 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     },
   });
 
-  // Motion values for smooth drag interactions
   const dragY = useMotionValue(0);
   const opacity = useTransform(dragY, [0, 100], [1, 0.7]);
   const artworkScale = useTransform(dragY, [0, 100], [1, 0.9]);
 
-  // Gesture seeking motion values
   const seekX = useMotionValue(0);
 
   const shouldIgnoreTouch = (target: EventTarget | null) => {
@@ -177,7 +165,6 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     );
   };
 
-  // Wrapper functions with haptic feedback
   const handlePlayPause = () => {
     hapticMedium();
     onPlayPause();
@@ -214,7 +201,6 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     };
   }, [isExpanded]);
 
-  // Extract colors from album art when track changes
   useEffect(() => {
     if (currentTrack) {
       const coverUrl = getCoverImage(currentTrack, "big");
@@ -229,9 +215,8 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     }
   }, [currentTrack]);
 
-  // Get audio element from context or DOM
   useEffect(() => {
-    // Prefer context audio element, fall back to DOM query
+
     if (contextAudioElement) {
       setAudioElement(contextAudioElement);
     } else if (typeof window !== "undefined") {
@@ -242,16 +227,14 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     }
   }, [contextAudioElement]);
 
-  // Sync visualizer state with database preferences
   useEffect(() => {
     if (preferences) {
       setVisualizerEnabled(preferences.visualizerEnabled ?? true);
     }
   }, [preferences]);
 
-  // Load visualizer preference from localStorage when not authenticated
   useEffect(() => {
-    if (isAuthenticated) return; // Skip if authenticated (preferences come from DB)
+    if (isAuthenticated) return;
     if (typeof window === "undefined") return;
 
     const stored = window.localStorage.getItem(STORAGE_KEYS.VISUALIZER_ENABLED);
@@ -260,13 +243,12 @@ export default function MobilePlayer(props: MobilePlayerProps) {
         const parsed: unknown = JSON.parse(stored);
         setVisualizerEnabled(parsed === true);
       } catch {
-        // Fallback for old format
+
         setVisualizerEnabled(stored === "true");
       }
     }
   }, [isAuthenticated]);
 
-  // Audio-reactive background effects (respects visualizer preference)
   useAudioReactiveBackground(audioElement, isPlaying, visualizerEnabled);
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -300,12 +282,11 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     }
   };
 
-  // Gesture seeking on artwork
   const handleArtworkDrag = useCallback(
     (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       const offset = info.offset.x;
       if (Math.abs(offset) > 30) {
-        const seekAmount = (offset / artworkRef.current!.offsetWidth) * 30; // Max 30 seconds
+        const seekAmount = (offset / artworkRef.current!.offsetWidth) * 30;
         const newTime = Math.max(
           0,
           Math.min(duration, currentTime + seekAmount),
@@ -353,7 +334,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
   const handleMiniTap = (event: PointerEvent | MouseEvent | TouchEvent) => {
     const target = event.target as HTMLElement;
     if (shouldIgnoreTouch(target)) return;
-    // Prevent accidental opening when tapping controls
+
     event.preventDefault();
     hapticLight();
     if (forceExpanded) return;
@@ -368,14 +349,13 @@ export default function MobilePlayer(props: MobilePlayerProps) {
     currentTrack.album.cover_medium ??
     currentTrack.album.cover;
 
-  // Dynamic gradient based on album colors
   const dynamicGradient = albumColorPalette
     ? `linear-gradient(165deg, ${albumColorPalette.primary.replace("0.8)", "0.22)")}, rgba(8,13,20,0.95) 50%)`
     : "linear-gradient(165deg, rgba(13,20,29,0.98), rgba(8,13,20,0.92))";
 
   return (
     <>
-      {/* Mini Player */}
+      {}
       <AnimatePresence>
         {!isExpanded && (
           <motion.div
@@ -385,7 +365,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
             transition={springPresets.gentle}
             className="safe-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-[rgba(244,178,102,0.14)] bg-[rgba(10,16,24,0.98)] shadow-[0_-12px_32px_rgba(5,10,18,0.6)]"
           >
-            {/* Progress Bar */}
+            {}
             <div
               className="h-1 w-full cursor-pointer bg-[rgba(255,255,255,0.12)]"
               data-drag-exempt="true"
@@ -400,14 +380,14 @@ export default function MobilePlayer(props: MobilePlayerProps) {
               />
             </div>
 
-            {/* Mini Player Content */}
+            {}
             <motion.div
               className="flex cursor-pointer items-center gap-3 px-4 py-3"
               onTap={handleMiniTap}
               whileTap={{ scale: 0.99 }}
               transition={springPresets.snappy}
             >
-              {/* Album Art with Playing Animation */}
+              {}
               <div className="relative flex-shrink-0">
                 {currentTrack.album.cover_small ? (
                   <Image
@@ -424,7 +404,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     🎵
                   </div>
                 )}
-                {/* Playing indicator */}
+                {}
                 {isPlaying && (
                   <motion.div
                     className="absolute -bottom-0.5 left-1/2 -translate-x-1/2"
@@ -451,7 +431,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                 )}
               </div>
 
-              {/* Track Info */}
+              {}
               <div className="min-w-0 flex-1">
                 <h4 className="truncate font-semibold text-[var(--color-text)]">
                   {currentTrack.title}
@@ -461,7 +441,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                 </p>
               </div>
 
-              {/* Controls */}
+              {}
               <div className="flex items-center gap-1">
                 <motion.button
                   onClick={(e) => {
@@ -498,11 +478,11 @@ export default function MobilePlayer(props: MobilePlayerProps) {
         )}
       </AnimatePresence>
 
-      {/* Expanded Player */}
+      {}
       <AnimatePresence>
         {isExpanded && (
           <>
-            {/* Backdrop */}
+            {}
             {!forceExpanded && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -521,7 +501,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
               />
             )}
 
-            {/* Full Player */}
+            {}
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -534,16 +514,16 @@ export default function MobilePlayer(props: MobilePlayerProps) {
               transition={springPresets.gentle}
               className="safe-bottom fixed inset-0 z-[99] flex flex-col overflow-hidden"
             >
-              {/* Dynamic Background */}
+              {}
               <div
                 className="absolute inset-0 transition-all duration-1000"
                 style={{ background: dynamicGradient }}
               />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgba(8,13,20,0.8)_70%)]" />
 
-              {/* Content */}
+              {}
               <div className="relative z-10 flex flex-1 flex-col">
-                {/* Header */}
+                {}
                 {!forceExpanded && (
                   <div className="flex items-center justify-between px-6 pt-4">
                     <motion.button
@@ -574,7 +554,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                   </div>
                 )}
 
-                {/* Album Art with Gesture Seeking */}
+                {}
                 <div className="flex flex-1 items-center justify-center px-8 py-6">
                   <motion.div
                     ref={artworkRef}
@@ -589,7 +569,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     transition={springPresets.smooth}
                     className="relative w-full max-w-[360px] cursor-grab active:cursor-grabbing"
                   >
-                    {/* Album Art */}
+                    {}
                     {!hideAlbumCover && coverArt ? (
                       <div className="relative">
                         <Image
@@ -601,7 +581,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                           priority
                           quality={90}
                         />
-                        {/* Subtle glow effect */}
+                        {}
                         <div
                           className="absolute inset-0 -z-10 blur-3xl opacity-30 rounded-3xl"
                           style={{
@@ -615,23 +595,12 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                       </div>
                     ) : null}
 
-                    {/* Visualizer - DISABLED */}
-                    {/* {showVisualizer && audioElement && (
-                      <div className="aspect-square w-full overflow-hidden rounded-3xl bg-[rgba(0,0,0,0.3)]">
-                        <AudioVisualizer
-                          audioElement={audioElement}
-                          isPlaying={isPlaying}
-                          width={400}
-                          height={400}
-                          barCount={64}
-                          type="spectrum"
-                          colorPalette={albumColorPalette}
-                          blendWithBackground={true}
-                        />
-                      </div>
-                    )} */}
+                    {}
+                    {
 
-                    {/* Seek Indicator Overlay */}
+}
+
+                    {}
                     <AnimatePresence>
                       {isSeeking && seekDirection && (
                         <motion.div
@@ -655,7 +624,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                       )}
                     </AnimatePresence>
 
-                    {/* Corner Buttons */}
+                    {}
                     <motion.button
                       onClick={() => {
                         hapticLight();
@@ -672,7 +641,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                       <Activity className="h-5 w-5" />
                     </motion.button>
 
-                    {/* Loading Indicator */}
+                    {}
                     {isLoading && (
                       <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-black/60">
                         <motion.div
@@ -689,7 +658,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                   </motion.div>
                 </div>
 
-                {/* Track Info */}
+                {}
                 <div className="px-8 pb-4 text-center">
                   <motion.h2
                     key={currentTrack.id}
@@ -709,7 +678,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                   </motion.p>
                 </div>
 
-                {/* Progress Bar */}
+                {}
                 <div className="px-8 pb-4">
                   <div
                     ref={progressRef}
@@ -747,9 +716,9 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                   </div>
                 </div>
 
-                {/* Main Controls */}
+                {}
                 <div className="flex items-center justify-center gap-6 px-8 pb-6">
-                  {/* Shuffle */}
+                  {}
                   <motion.button
                     onClick={handleToggleShuffle}
                     whileTap={{ scale: 0.9 }}
@@ -762,7 +731,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     <Shuffle className="h-5 w-5" />
                   </motion.button>
 
-                  {/* Previous */}
+                  {}
                   <motion.button
                     onClick={handlePrevious}
                     whileTap={{ scale: 0.9 }}
@@ -771,7 +740,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     <SkipBack className="h-8 w-8 fill-current" />
                   </motion.button>
 
-                  {/* Skip Backward 10s */}
+                  {}
                   <motion.button
                     onClick={() => {
                       hapticLight();
@@ -796,7 +765,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     </svg>
                   </motion.button>
 
-                  {/* Play/Pause */}
+                  {}
                   <motion.button
                     onClick={handlePlayPause}
                     whileTap={{ scale: 0.9 }}
@@ -810,7 +779,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     )}
                   </motion.button>
 
-                  {/* Skip Forward 10s */}
+                  {}
                   <motion.button
                     onClick={() => {
                       hapticLight();
@@ -835,7 +804,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     </svg>
                   </motion.button>
 
-                  {/* Next */}
+                  {}
                   <motion.button
                     onClick={handleNext}
                     disabled={queue.length === 0}
@@ -845,7 +814,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     <SkipForward className="h-8 w-8 fill-current" />
                   </motion.button>
 
-                  {/* Repeat */}
+                  {}
                   <motion.button
                     onClick={handleCycleRepeat}
                     whileTap={{ scale: 0.9 }}
@@ -863,9 +832,9 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                   </motion.button>
                 </div>
 
-                {/* Secondary Controls */}
+                {}
                 <div className="flex items-center justify-around border-t border-[rgba(255,255,255,0.08)] px-8 py-4">
-                  {/* Volume */}
+                  {}
                   <motion.button
                     onClick={onToggleMute}
                     whileTap={{ scale: 0.9 }}
@@ -878,7 +847,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     )}
                   </motion.button>
 
-                  {/* Playback Speed */}
+                  {}
                   <div className="relative">
                     <motion.button
                       onClick={() => setShowSpeedMenu(!showSpeedMenu)}
@@ -924,7 +893,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     </AnimatePresence>
                   </div>
 
-                  {/* Queue */}
+                  {}
                   {onToggleQueue && (
                     <motion.button
                       onClick={onToggleQueue}
@@ -940,7 +909,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     </motion.button>
                   )}
 
-                  {/* Equalizer */}
+                  {}
                   {onToggleEqualizer && (
                     <motion.button
                       onClick={onToggleEqualizer}
@@ -951,7 +920,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     </motion.button>
                   )}
 
-                  {/* Add to Playlist */}
+                  {}
                   <div className="relative">
                     <motion.button
                       onClick={() => {
@@ -973,7 +942,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                       <ListPlus className="h-5 w-5" />
                     </motion.button>
 
-                    {/* Playlist Selector Dropdown */}
+                    {}
                     <AnimatePresence>
                       {showPlaylistSelector && isAuthenticated && (
                         <>
@@ -1041,7 +1010,7 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                     </AnimatePresence>
                   </div>
 
-                  {/* Favorite */}
+                  {}
                   <motion.button
                     onClick={() => hapticMedium()}
                     whileTap={{ scale: 0.9 }}
@@ -1051,20 +1020,11 @@ export default function MobilePlayer(props: MobilePlayerProps) {
                   </motion.button>
                 </div>
 
-                {/* Future Sub-Menu Section Placeholder */}
-                {/* Uncomment and implement when adding Lyrics, Artist Info, Credits tabs */}
-                {/*
-                <div className="border-t border-[rgba(255,255,255,0.08)]">
-                  <div className="flex items-center justify-around px-8 py-2">
-                    <button className="tab-button px-4 py-2 text-sm text-[var(--color-accent)]">Lyrics</button>
-                    <button className="tab-button px-4 py-2 text-sm text-[var(--color-subtext)]">Artist</button>
-                    <button className="tab-button px-4 py-2 text-sm text-[var(--color-subtext)]">Credits</button>
-                  </div>
-                  <div className="px-8 py-4 max-h-64 overflow-y-auto">
-                    Tab content goes here
-                  </div>
-                </div>
-                */}
+                {}
+                {}
+                {
+
+}
               </div>
             </motion.div>
           </>
