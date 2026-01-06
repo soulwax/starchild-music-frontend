@@ -1,8 +1,6 @@
 // File: drizzle.config.ts
 
 import { config as dotenvConfig } from "dotenv";
-import { existsSync, readFileSync } from "fs";
-import path from "path";
 
 // IMPORTANT: Load .env.local FIRST with override: true to ensure it takes precedence
 // Then load .env as fallback. This ensures .env.local has priority.
@@ -12,59 +10,28 @@ dotenvConfig(); // Load .env as fallback
 // Now import drizzle.env.ts after .env.local is loaded
 import drizzleEnv from "./drizzle.env";
 
-// Determine SSL configuration based on database type and certificate availability
+// Determine SSL configuration based on database type
 function getSslConfig() {
   // Normalize DATABASE_URL to handle empty strings (empty strings should trigger fallback)
   const rawUrl = process.env.DATABASE_URL?.trim();
   const databaseUrl = rawUrl && rawUrl.length > 0 ? rawUrl : undefined;
-  
+
   // For SSL detection, use DATABASE_URL if available, otherwise use host from legacy variables
-  // We only need the host for detection (checking if it's localhost, neon, cloud, etc.)
   const connectionString = databaseUrl ?? (drizzleEnv.DB_HOST ?? "");
 
-  // Neon handles SSL automatically via connection string
-  if (connectionString.includes("neon.tech")) {
-    return undefined;
-  }
+  // Check if it's a local database
+  const isLocalDb = connectionString.includes("localhost") ||
+                     connectionString.includes("127.0.0.1");
 
-  // Check if it's a cloud database that requires SSL
-  const isCloudDb = 
-    connectionString.includes("aivencloud.com") || 
-    connectionString.includes("rds.amazonaws.com") ||
-    connectionString.includes("sslmode=");
-
-  if (!isCloudDb && connectionString.includes("localhost")) {
-    // Local database - SSL not needed
+  if (isLocalDb) {
     console.log("[Drizzle] Local database detected. SSL disabled.");
     return undefined;
   }
 
-  // Cloud database - try to find CA certificate
-  const certPath = path.join(process.cwd(), "certs/ca.pem");
-  
-  if (existsSync(certPath)) {
-    console.log(`[Drizzle] Using SSL certificate: ${certPath}`);
-    return {
-      rejectUnauthorized: process.env.NODE_ENV === "production",
-      ca: readFileSync(certPath).toString(),
-    };
-  }
-
-  // Fallback: Use DB_SSL_CA environment variable if set
-  if (process.env.DB_SSL_CA) {
-    console.log("[Drizzle] Using SSL certificate from DB_SSL_CA environment variable");
-    return {
-      rejectUnauthorized: process.env.NODE_ENV === "production",
-      ca: process.env.DB_SSL_CA,
-    };
-  }
-
-  // Certificate not found - use lenient SSL with warning
-  console.warn("[Drizzle] ⚠️  WARNING: Cloud database detected but no CA certificate found!");
-  console.warn("[Drizzle] ⚠️  Using rejectUnauthorized: false - vulnerable to MITM attacks");
-  console.warn("[Drizzle] ⚠️  Set DB_SSL_CA environment variable or place your CA certificate at: certs/ca.pem");
+  // Cloud database - use standard SSL with Node.js built-in CAs
+  console.log("[Drizzle] Cloud database detected. Using standard SSL.");
   return {
-    rejectUnauthorized: false,
+    rejectUnauthorized: true,
   };
 }
 
