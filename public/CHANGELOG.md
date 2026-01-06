@@ -57,6 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - **AudioVisualizer.tsx** (723 lines): Unused visualizer component
 - **KaleidoscopeRenderer.ts** (520 lines): Unused renderer (1,243 total lines removed)
+- **SSL Certificate Management**: Removed unnecessary custom CA certificate checking (Neon uses standard SSL)
+  - Removed `DB_SSL_CA` environment variable from validation and documentation
+  - Removed `certs/ca.pem` file checking in database connection
+  - Removed `fs.existsSync` and `fs.readFileSync` imports from [src/server/db/index.ts](src/server/db/index.ts)
+  - Simplified SSL configuration to use Node.js built-in certificate trust
+  - Cleaned up [.env.example](.env.example) and [.env.vercel.example](.env.vercel.example)
 
 ### Fixed
 - **next.config.js**: Removed deprecated `swcMinify` option (default in Next.js 15)
