@@ -62,7 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **next.config.js**: Removed deprecated `swcMinify` option (default in Next.js 15)
 - **next.config.js**: Converted `require("crypto")` to ES module import for compatibility
-- **Build Validation**: Removed `optimizeCss` experimental feature (requires additional dependencies)
+- **next.config.js**: Removed aggressive webpack code splitting (caused runtime errors) - simplified to deterministic module IDs
+- **vercel.json**: Fixed invalid regex pattern in headers source (Vercel requires path matching syntax, not regex)
+- **Authentication**: Fixed Discord login 500 error caused by webpack bundle misconfiguration
+- **Bundle Size**: Improved from 204 kB to 102 kB (50% reduction) by removing counterproductive code splitting
 
 ### Documentation
 - **CLAUDE.md**: Added "Performance & Security Optimizations" section with complete implementation guide
