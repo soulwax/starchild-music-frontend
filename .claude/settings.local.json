@@ -53,7 +53,8 @@
       "Bash(chmod:*)",
       "Bash(node:*)",
       "Bash(npm run pm2:reload:*)",
-      "Bash(timeout 30 pm2 logs:*)"
+      "Bash(timeout 30 pm2 logs:*)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_dPNHy5tI2fJa@ep-steep-base-agcv5fyt-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require\" npx drizzle-kit push)"
     ],
     "deny": [],
     "ask": []
