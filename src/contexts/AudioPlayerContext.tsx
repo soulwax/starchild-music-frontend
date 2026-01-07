@@ -108,58 +108,15 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const hasCompleteTrackData = (track: Track | null | undefined): boolean => {
     if (!track) return false;
 
-    const {
-      id,
-      readable,
-      title,
-      title_short,
-      title_version,
-      duration,
-      rank,
-      explicit_lyrics,
-      explicit_content_lyrics,
-      explicit_content_cover,
-      preview,
-      md5_image,
-      artist,
-      album,
-    } = track as Partial<Track>;
+    const { id, title, artist } = track as Partial<Track>;
 
     return (
       typeof id === "number" &&
-      typeof readable === "boolean" &&
       typeof title === "string" &&
-      typeof title_short === "string" &&
-      typeof title_version === "string" &&
-      typeof duration === "number" &&
-      typeof rank === "number" &&
-      typeof explicit_lyrics === "boolean" &&
-      typeof explicit_content_lyrics === "number" &&
-      typeof explicit_content_cover === "number" &&
-      typeof preview === "string" &&
-      typeof md5_image === "string" &&
+      title.length > 0 &&
       artist !== undefined &&
-      album !== undefined &&
-      typeof artist?.id === "number" &&
       typeof artist?.name === "string" &&
-      typeof artist?.link === "string" &&
-      typeof artist?.picture === "string" &&
-      typeof artist?.picture_small === "string" &&
-      typeof artist?.picture_medium === "string" &&
-      typeof artist?.picture_big === "string" &&
-      typeof artist?.picture_xl === "string" &&
-      typeof artist?.tracklist === "string" &&
-      typeof artist?.type === "string" &&
-      typeof album?.id === "number" &&
-      typeof album?.title === "string" &&
-      typeof album?.cover === "string" &&
-      typeof album?.cover_small === "string" &&
-      typeof album?.cover_medium === "string" &&
-      typeof album?.cover_big === "string" &&
-      typeof album?.cover_xl === "string" &&
-      typeof album?.md5_image === "string" &&
-      typeof album?.tracklist === "string" &&
-      typeof album?.type === "string"
+      artist.name.length > 0
     );
   };
 

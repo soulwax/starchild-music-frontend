@@ -54,7 +54,8 @@
       "Bash(node:*)",
       "Bash(npm run pm2:reload:*)",
       "Bash(timeout 30 pm2 logs:*)",
-      "Bash(PGPASSWORD=npg_wGoei3E1pZdX psql:*)"
+      "Bash(PGPASSWORD=npg_wGoei3E1pZdX psql:*)",
+      "Bash(timeout 5 pm2 logs:*)"
     ],
     "deny": [],
     "ask": []

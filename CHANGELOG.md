@@ -175,6 +175,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatically detects Neon databases and skips certificate generation
   - Location: `scripts/generate-ssl-cert.js`
 
+#### Critical Production Fixes (2026-01-07)
+
+- **SSL Certificate Removal**: Removed unnecessary custom CA certificate checking after Neon migration
+  - Deleted `certs/` directory and all certificate file references
+  - Removed `DB_SSL_CA` environment variable from validation
+  - Simplified SSL configuration to use Node.js built-in certificate trust
+  - Fixed local server crashes due to missing certificate files
+  - Location: `src/server/db/index.ts`, `drizzle.config.ts`, `src/env.js`, `.env.example`, `.env.vercel.example`
+
+- **Database Sequence Synchronization**: Fixed PostgreSQL identity sequences out of sync with data
+  - `playlist_track`: sequence=8, max_id=125 (off by 117)
+  - `search_history`: sequence=8, max_id=560 (off by 552)
+  - `listening_history`: sequence=5, max_id=939 (off by 934)
+  - `favorite`: sequence=2, max_id=58 (off by 56)
+  - Fixed duplicate key violations preventing new database writes
+  - All sequences now synchronized using `setval()` to match max IDs
+
+- **Listening History Validation**: Simplified track data validation for history recording
+  - Reduced required fields from 30+ to just 3 essential fields
+  - Required: `id` (number), `title` (string), `artist.name` (string)
+  - Removed strict requirements for: images, preview URLs, MD5 hashes, explicit content flags, album data
+  - Fixed issue where tracks with incomplete metadata were not being added to listening history
+  - Location: `src/contexts/AudioPlayerContext.tsx:108-121`
+
+- **Webpack Module Resolution**: Fixed authentication 500 error due to aggressive code splitting
+  - Removed complex webpack `splitChunks` configuration with dynamic naming
+  - Simplified to deterministic module IDs only
+  - Fixed runtime error: `TypeError: a[d] is not a function`
+  - Bundle size reduced from 204 kB to 102 kB (50% improvement)
+  - Location: `next.config.js`
+
+- **Vercel Build Configuration**: Fixed CHANGELOG.md exclusion in Vercel builds
+  - Added `!CHANGELOG.md` to `.vercelignore` to allow file in builds
+  - Fixed build error: `cp: cannot stat 'CHANGELOG.md': No such file or directory`
+  - Location: `.vercelignore`
+
 ## [0.8.2] - 2025-12-31
 
 ### Added
