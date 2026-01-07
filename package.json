@@ -198,7 +198,7 @@
       ],
       "executableName": "Starchild",
       "icon": "public/icon.ico",
-      "signToolOptions": {
+      "signtoolOptions": {
         "certificateSubjectName": "Starchild",
         "signingHashAlgorithms": [
           "sha256"
