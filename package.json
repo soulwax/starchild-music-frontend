@@ -81,7 +81,7 @@
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3222 && electron .\"",
     "electron:dev:win": "concurrently \"npm run dev:win\" \"wait-on http://localhost:3222 && electron .\"",
     "electron:prod": "node scripts/load-env-build.js \"cross-env ELECTRON_BUILD=true ELECTRON_PROD=true next build && npm run electron:prepare && electron .\"",
-    "electron:prod:win": "npm run electron:build:win && \".\\dist\\Starchild Setup.exe\"",
+    "electron:prod:win": "npm run electron:build:win && \".\\dist\\Starchild_setup.exe\"",
     "electron:build:dev:win": "npm run electron:clean:win && node scripts/load-env-build.js \"cross-env ELECTRON_BUILD=true ELECTRON_DEV_TOOLS=true next build\" && npm run electron:prepare && electron-builder --win --dir",
     "electron:prepare": "node scripts/load-env-build.js \"node electron/prepare-package.js\"",
     "electron:clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
