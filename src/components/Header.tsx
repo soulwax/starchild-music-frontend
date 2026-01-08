@@ -170,16 +170,17 @@ export default function Header() {
                 href={env.NEXT_PUBLIC_NEXTAUTH_VERCEL_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:flex items-center transition-opacity hover:opacity-80"
+                className="hidden md:flex items-center gap-1.5 transition-colors text-[var(--color-subtext)] hover:text-[var(--color-text)]"
                 aria-label="View on Vercel"
               >
+                <span className="text-xs font-medium">&gt;Vercel</span>
                 <svg
-                  width="20"
-                  height="20"
+                  width="14"
+                  height="14"
                   viewBox="0 0 76 65"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="text-[var(--color-text)]"
+                  className="opacity-60"
                 >
                   <path
                     d="M37.5274 0L75.0548 65H0L37.5274 0Z"
