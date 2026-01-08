@@ -218,6 +218,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wrapped MobileHeader in Suspense boundary for proper Next.js compatibility
   - Location: `src/components/MobileHeader.tsx`, `src/app/HomePageClient.tsx`, `src/app/layout.tsx`
 
+- **Modern Phone Screen Optimizations**: Tailored layouts for 2024-2026 flagship devices
+  - **iPhone Support**:
+    - iPhone 16/15/14 Pro Max (430×932): Optimized for extra-tall screens, 380px artwork
+    - iPhone 16/15 Pro (393×852): Dynamic Island aware spacing, 350px artwork
+    - Standard iPhones (390×844): Notch-optimized spacing, 340px artwork
+    - iPhone SE / Compact (< 375px): Reduced text sizes and compact padding, 280px artwork
+  - **Samsung Galaxy Support**:
+    - Galaxy S24/S23 Ultra (412×915): One UI gesture navigation spacing, 370px artwork
+    - Galaxy S24/S23 (360-384×854): Compact spacing optimizations, 320px artwork
+  - **Other Android**:
+    - Pixel 7/8 Pro (412×915): Material You navigation spacing, 365px artwork
+    - Extra tall phones (> 950px height): Foldables and ultra-tall displays, 400px artwork
+  - **Additional Optimizations**:
+    - Landscape mode: Compact two-column layout, 200px artwork
+    - High-DPI displays (Retina/AMOLED): Enhanced backdrop blur, gradient softening
+    - Safe area inset handling for all notch/punch-hole/dynamic island designs
+    - Adaptive header and player heights based on device screen size
+  - Location: `src/styles/globals.css:1666-1884`
+
 - **Electron Discord OAuth**: Fixed black screen when logging into Discord in Electron app
   - Added proper navigation handlers for OAuth flows (`will-navigate`, `did-navigate`, `setWindowOpenHandler`)
   - Discord OAuth URLs now properly open and redirect back to the app
