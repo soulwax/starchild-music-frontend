@@ -39,6 +39,7 @@ export default function MobileHeader() {
       setSearchQuery("");
     }
     setIsSearching(false);
+    setCountdown(0);
   }, [searchParams]);
 
   // Debounced search: search every 2 seconds while typing

@@ -5,6 +5,52 @@ All notable changes to darkfloor.art will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.9] - 2026-01-09
+
+### Fixed
+
+- **Mobile Search Spinner Overlap**: Fixed loading spinner overlapping with input text in mobile search bar
+  - Added conditional left padding (`pl-8`) to input wrapper when spinner is visible
+  - Spinner positioned absolutely at `left-4`, input text now has proper spacing
+  - Prevents text from being hidden behind the loading/countdown indicator
+  - Location: `src/components/MobileSearchBar.tsx:297`
+
+- **Persistent "Searching..." State**: Fixed search loading state not clearing after navigation completes
+  - Removed unreliable hardcoded `setTimeout(500ms)` that didn't account for actual API completion
+  - Now properly resets `isSearching` state when URL changes (via `searchParams` effect)
+  - Searching state clears immediately when navigation to search results page completes
+  - Prevents infinite "Searching now..." message after results are ready
+  - Location: `src/components/MobileHeader.tsx:34-42, 85-88, 115-116`
+
+- **Search Results Not Displaying on Mobile**: Fixed search results failing to appear after search execution
+  - Removed `isInitialized` flag that was blocking URL change detection after first page load
+  - Added duplicate search protection directly in `performSearch()` function
+  - Search now properly triggers on URL changes regardless of initialization state
+  - Works correctly on fresh page load, repeated searches, and navigation scenarios
+  - Location: `src/app/HomePageClient.tsx:66-100, 157-182`
+
+- **Hamburger Menu Navigation Search State**: Fixed hamburger menu navigation preserving search query in URL
+  - Menu links now use `router.push()` explicitly to ensure clean navigation without query parameters
+  - Search query clears when URL has no `q` parameter (navigation away from search)
+  - Prevents users from seeing stale search results when navigating to other pages
+  - Search input properly clears when leaving search page via hamburger menu
+  - Location: `src/components/HamburgerMenu.tsx:24, 190-193` and `src/components/MobileHeader.tsx:38-40`
+
+- **Search Results State Management**: Improved search state clearing when navigating away from results
+  - Added proper cleanup when URL has no query parameters (clears results, total, currentQuery, and query)
+  - Prevents stale results from displaying when user navigates to home page
+  - Ensures clean state transitions between search and non-search pages
+  - Location: `src/app/HomePageClient.tsx:176-181`
+
+### Improved
+
+- **Search Flow Reliability**: Enhanced mobile search user experience with proper state management
+  - Debounced search countdown now properly syncs with navigation state
+  - Loading indicators accurately reflect actual search progress
+  - Duplicate search prevention reduces unnecessary API calls
+  - Clean state transitions when navigating between pages
+  - Consistent behavior across fresh loads, repeated searches, and navigation scenarios
+
 ## [0.8.8] - 2026-01-08
 
 ### Fixed

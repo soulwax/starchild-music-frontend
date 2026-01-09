@@ -21,7 +21,6 @@ import { useMenu } from "@/contexts/MenuContext";
 import { hapticLight, hapticMedium } from "@/utils/haptics";
 import { springPresets } from "@/utils/spring-animations";
 import { api } from "@/trpc/react";
-import { useRouter } from "next/navigation";
 
 interface MenuItem {
   id: string;
@@ -36,7 +35,6 @@ interface MenuItem {
 export default function HamburgerMenu() {
   const { isMenuOpen, closeMenu } = useMenu();
   const { data: session } = useSession();
-  const router = useRouter();
   const { data: userHash } = api.music.getCurrentUserHash.useQuery(
     undefined,
     { enabled: !!session },
@@ -189,10 +187,8 @@ export default function HamburgerMenu() {
                           e.stopPropagation();
                           return;
                         }
-                        e.preventDefault();
                         hapticLight();
                         closeMenu();
-                        router.push(item.path);
                       }}
                       className={item.id === "profile" && session && !userHash ? "pointer-events-none opacity-50" : ""}
                     >
