@@ -76,9 +76,6 @@ export default function HomePageClient() {
       setIsArtistSearch(false);
       setApiOffset(0);
 
-      setResults([]);
-      setTotal(0);
-
       try {
         const response = await searchTracks(searchQuery, 0);
         setResults(response.data);
