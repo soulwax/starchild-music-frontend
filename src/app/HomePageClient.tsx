@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function HomePageClient() {
   const { data: session } = useSession();
@@ -169,7 +169,7 @@ export default function HomePageClient() {
       setQuery(urlQuery);
       setIsInitialized(true);
       void performSearch(urlQuery);
-    } else {
+    } else if (!loading) {
       if (!isInitialized) {
         setIsInitialized(true);
       }
@@ -180,7 +180,8 @@ export default function HomePageClient() {
         setQuery("");
       }
     }
-  }, [searchParams, performSearch, handleAlbumClick]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const updateURL = (searchQuery: string) => {
     const params = new URLSearchParams();
@@ -197,7 +198,6 @@ export default function HomePageClient() {
     if (!q.trim()) return;
 
     updateURL(q);
-    await performSearch(q);
   };
 
   const handleLoadMore = async () => {
